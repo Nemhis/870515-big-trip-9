@@ -1,12 +1,12 @@
-import {getMenuTemplate} from "./components/menu.js";
-import {getFilterTemplate} from "./components/filter.js";
-import {getTripInfoTemplate} from "./components/trip-info.js";
-import {getSorterTemplate} from "./components/sorter.js";
-import {getDaysListTemplate} from "./components/days-list.js";
-import {getDayTemplate} from "./components/day.js";
-import {getEventEditorTemplate} from "./components/event-editor.js";
-import {getEventsListTemplate} from "./components/events-list.js";
-import {getEventTemplate} from "./components/event.js";
+import {getMenuTemplate} from './components/menu.js';
+import {getFilterTemplate} from './components/filter.js';
+import {getTripInfoTemplate} from './components/trip-info.js';
+import {getSorterTemplate} from './components/sorter.js';
+import {getDaysListTemplate} from './components/days-list.js';
+import {getDayTemplate} from './components/day.js';
+import {getEventEditorTemplate} from './components/event-editor.js';
+import {getEventsListTemplate} from './components/events-list.js';
+import {getEventTemplate} from './components/event.js';
 
 const EVENTS_LIST_LENGTH = 3;
 
