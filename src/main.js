@@ -20,7 +20,7 @@ function render(container, template, position = `beforeend`) {
   container.insertAdjacentHTML(position, template);
 }
 
-render(document.querySelector(`.trip-info`), getTripInfoTemplate(), 'afterbegin');
+render(document.querySelector(`.trip-info`), getTripInfoTemplate(events), 'afterbegin');
 
 // controls
 render(document.querySelector(`.trip-controls h2:first-child`), getMenuTemplate(menuItems), `afterend`);
