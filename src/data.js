@@ -14,29 +14,27 @@ const descriptions = [
 
 const getRandomArrayValue = (array) => array[Math.round(Math.random() * (array.length - 1))];
 
-const getDateTimestamp = (toDate) => Date.now() + toDate * 24 * 60 * 60 * 1000;
+const getDateTimestamp = (hours) => Date.now() + hours * 60 * 60 * 1000;
 
 const getRandomMinMax = (min, max) => Math.round(Math.random() * (max - min) + min);
-
-const getRandomBoolean = () => Boolean(Math.round(Math.random()));
 
 const shuffleArray = (array) => array.sort(() => Math.random() - 0.5);
 
 
 export const eventTypes = {
   transfer: [
-    `Taxi`,
-    `Bus`,
-    `Train`,
-    `Ship`,
-    `Transport`,
-    `Drive`,
-    `Flight`,
+    `taxi`,
+    `bus`,
+    `train`,
+    `ship`,
+    `transport`,
+    `drive`,
+    `flight`,
   ],
   activity: [
-    `Check-in`,
-    `Sightseeing`,
-    `Restaurant`,
+    `check-in`,
+    `sightseeing`,
+    `restaurant`,
   ],
 };
 
@@ -50,22 +48,22 @@ export const options = [
   {
     title: `Add luggage`,
     cost: 10,
-    isActive: getRandomBoolean(),
+    isActive: true,
   },
   {
     title: `Switch to comfort class`,
     cost: 150,
-    isActive: getRandomBoolean(),
+    isActive: true,
   },
   {
     title: `Add meal`,
     cost: 2,
-    isActive: getRandomBoolean(),
+    isActive: true,
   },
   {
     title: `Choose seats`,
     cost: 9,
-    isActive: getRandomBoolean(),
+    isActive: true,
   },
 ];
 
@@ -79,9 +77,9 @@ export const createEvent = () => {
       .fill(``)
       .map(() => `http://picsum.photos/300/150?r=${Math.random()}`),
     description: shuffleArray(descriptions).slice(-1 * getRandomMinMax(1, 3)).join(` `),
-    from: getDateTimestamp(getRandomMinMax(1, 5)),
-    to: getDateTimestamp(getRandomMinMax(6, 10)),
-    price: Math.round(Math.random() * getRandomMinMax(1000, 5000)) / 100,
+    from: getDateTimestamp(getRandomMinMax(1, 4)),
+    to: getDateTimestamp(getRandomMinMax(5, 12)),
+    cost: Math.round(Math.random() * getRandomMinMax(1000, 5000)) / 100,
     options: shuffleArray(options).slice(-1 * getRandomMinMax(1, 3))
   }
 };
