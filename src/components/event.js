@@ -1,4 +1,4 @@
-export const getEventTemplate = ({type, city, photos, description, from, to, cost, options}) =>
+export const getEventTemplate = ({type, from, to, cost, options}) =>
   `<li class="trip-events__item">
                   <div class="event">
                     <div class="event__type">
