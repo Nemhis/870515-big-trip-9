@@ -1,4 +1,4 @@
-import {createEvent} from './data.js';
+import {createEvent, menuItems, filterItems} from './data.js';
 
 import {getMenuTemplate} from './components/menu.js';
 import {getFilterTemplate} from './components/filter.js';
@@ -23,8 +23,8 @@ function render(container, template, position = `beforeend`) {
 render(document.querySelector(`.trip-info`), getTripInfoTemplate(), 'afterbegin');
 
 // controls
-render(document.querySelector(`.trip-controls h2:first-child`), getMenuTemplate(), `afterend`);
-render(document.querySelector(`.trip-controls`), getFilterTemplate());
+render(document.querySelector(`.trip-controls h2:first-child`), getMenuTemplate(menuItems), `afterend`);
+render(document.querySelector(`.trip-controls`), getFilterTemplate(filterItems));
 render(document.querySelector(`.trip-events`), getSorterTemplate());
 
 render(document.querySelector(`.trip-events`), getEventEditorTemplate());

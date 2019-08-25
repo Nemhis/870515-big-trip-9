@@ -83,3 +83,7 @@ export const createEvent = () => {
     options: shuffleArray(options).slice(-1 * getRandomMinMax(1, 3))
   }
 };
+
+export const menuItems = new Set([`Table`, `Stats`]);
+
+export const filterItems = new Set([`everything`, `future`, `past`]);

@@ -1,5 +1,4 @@
-export const getMenuTemplate = () =>
+export const getMenuTemplate = (menuItems) =>
   `<nav class="trip-controls__trip-tabs  trip-tabs">
-              <a class="trip-tabs__btn" href="#">Table</a>
-              <a class="trip-tabs__btn  trip-tabs__btn--active" href="#">Stats</a>
+    ${Array.from(menuItems).map((menuItem) => `<a class="trip-tabs__btn" href="#">${menuItem}</a>`).join(``)}
             </nav>`;
