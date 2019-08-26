@@ -88,7 +88,7 @@ const getTimeDiff = (from, to) => {
   }
 
   if (minutes > MINUTE_PER_HOUR) {
-    minutes = minutes - (hours * MINUTE_PER_HOUR);
+    minutes = minutes - ((days * HOURS_PER_DAY * MINUTE_PER_HOUR) + (hours * MINUTE_PER_HOUR));
   }
 
   return [days, hours, minutes];
