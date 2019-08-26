@@ -14,7 +14,7 @@ const descriptions = [
 
 const getRandomArrayValue = (array) => array[Math.round(Math.random() * (array.length - 1))];
 
-const getDateTimestamp = (hours) => Date.now() + hours * 60 * 60 * 1000;
+const getDateTimestamp = (hours, minute) => Date.now() + (hours * 60 * 60 * 1000) + (minute * 60) * 1000;
 
 const getRandomMinMax = (min, max) => Math.round(Math.random() * (max - min) + min);
 
@@ -77,8 +77,8 @@ export const createEvent = () => {
       .fill(``)
       .map(() => `http://picsum.photos/300/150?r=${Math.random()}`),
     description: shuffleArray(descriptions).slice(-1 * getRandomMinMax(1, 3)).join(` `),
-    from: getDateTimestamp(getRandomMinMax(1, 4)),
-    to: getDateTimestamp(getRandomMinMax(5, 12)),
+    from: getDateTimestamp(getRandomMinMax(1, 4), getRandomMinMax(10, 50)),
+    to: getDateTimestamp(getRandomMinMax(6, 12), getRandomMinMax(10, 50)),
     cost: Math.round(Math.random() * getRandomMinMax(1000, 5000)) / 100,
     options: shuffleArray(options).slice(-1 * getRandomMinMax(1, 3))
   }
