@@ -80,7 +80,7 @@ export const createEvent = () => {
     from: getDateTimestamp(getRandomMinMax(1, 4), getRandomMinMax(10, 50)),
     to: getDateTimestamp(getRandomMinMax(6, 12), getRandomMinMax(10, 50)),
     cost: Math.round(Math.random() * getRandomMinMax(1000, 5000)) / 100,
-    options: shuffleArray(options).slice(-1 * getRandomMinMax(1, 3))
+    options: new Array(getRandomMinMax(0, 2)).fill(``).map(() => options[getRandomMinMax(0, (options.length - 1))]),
   }
 };
 
