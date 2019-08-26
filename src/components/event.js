@@ -1,3 +1,5 @@
+import {toShortISO, pad, HOURS_PER_DAY, MINUTE_PER_HOUR, SECONDS_PER_MINUTE} from '../date.js';
+
 export const getEventTemplate = ({type, from, to, cost, options}) =>
   `<li class="trip-events__item">
                   <div class="event">
@@ -8,11 +10,11 @@ export const getEventTemplate = ({type, from, to, cost, options}) =>
 
                     <div class="event__schedule">
                       <p class="event__time">
-                        <time class="event__start-time" datetime="${(new Date(from)).toISOString()}">
+                        <time class="event__start-time" datetime="${toShortISO(new Date(from))}">
                           ${(new Date(from)).getHours()}:${(new Date(from)).getMinutes()}
                         </time>
                         &mdash;
-                        <time class="event__end-time" datetime="${(new Date(from)).toISOString()}">
+                        <time class="event__end-time" datetime="${toShortISO(new Date(to))}">
                           ${(new Date(to)).getHours()}:${(new Date(to)).getMinutes()}
                         </time>
                       </p>
@@ -49,15 +51,15 @@ const formatDateDiff = (from, to) => {
   const times = [];
 
   if (days !== 0) {
-    times.push(setZeroBefore(days) + `D`);
+    times.push(pad(days) + `D`);
   }
 
   if (hours !== 0) {
-    times.push(setZeroBefore(hours) + `H`);
+    times.push(pad(hours) + `H`);
   }
 
   if (minutes !== 0) {
-    times.push(setZeroBefore(minutes) + `M`);
+    times.push(pad(minutes) + `M`);
   }
 
   return times.join(` `);
@@ -70,10 +72,6 @@ const formatDateDiff = (from, to) => {
  * @returns {int[]}
  */
 const getTimeDiff = (from, to) => {
-  const HOURS_PER_DAY = 24;
-  const MINUTE_PER_HOUR = 60;
-  const SECONDS_PER_MINUTE = 60;
-
   const minuteDivider = 1000 * SECONDS_PER_MINUTE;
   const hourDivider = minuteDivider * MINUTE_PER_HOUR;
   const dayDivider = hourDivider * HOURS_PER_DAY;
@@ -93,10 +91,3 @@ const getTimeDiff = (from, to) => {
 
   return [days, hours, minutes];
 };
-
-/**
- * @param {int} digit
- *
- * @returns {string|int}
- */
-const setZeroBefore = (digit) => digit < 10 ? `0` + digit : digit;
