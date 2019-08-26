@@ -1,3 +1,5 @@
+import {SHORT_MONTHS} from '../date.js';
+
 export const getTripInfoTemplate = (events) =>
   `<div class="trip-info__main">
               <h1 class="trip-info__title">${getCitiesInfo(events)}</h1>
@@ -19,7 +21,6 @@ const getCitiesInfo = (events) => {
 };
 
 const getDateInfo = (events) => {
-  const months = [`JAN`, `FEB`, `MAR`, `APR`, `MAY`, `JUN`, `JUL`, `AUG`, `SEPT`, `ACT`, `NOV`, `DEC`];
   const from = new Date(events[0].from);
   let to = new Date(events[events.length - 1].to);
 
@@ -27,10 +28,10 @@ const getDateInfo = (events) => {
     to = null;
   }
 
-  let format = `${months[from.getMonth()]} ${from.getDate()}`;
+  let format = `${SHORT_MONTHS[from.getMonth()]} ${from.getDate()}`;
 
   if (to) {
-    format += ` &mdash; ${months[to.getMonth()]} ${to.getDate()}`;
+    format += ` &mdash; ${SHORT_MONTHS[to.getMonth()]} ${to.getDate()}`;
   }
 
   return format;

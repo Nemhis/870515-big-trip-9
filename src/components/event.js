@@ -8,11 +8,11 @@ export const getEventTemplate = ({type, from, to, cost, options}) =>
 
                     <div class="event__schedule">
                       <p class="event__time">
-                        <time class="event__start-time" datetime="2019-03-18T10:30">
+                        <time class="event__start-time" datetime="${(new Date(from)).toISOString()}">
                           ${(new Date(from)).getHours()}:${(new Date(from)).getMinutes()}
                         </time>
                         &mdash;
-                        <time class="event__end-time" datetime="2019-03-18T11:00">
+                        <time class="event__end-time" datetime="${(new Date(from)).toISOString()}">
                           ${(new Date(to)).getHours()}:${(new Date(to)).getMinutes()}
                         </time>
                       </p>

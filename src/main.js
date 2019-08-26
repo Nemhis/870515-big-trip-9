@@ -31,9 +31,24 @@ render(document.querySelector(`.trip-events`), getEventEditorTemplate());
 
 // days
 render(document.querySelector(`.trip-events`), getDaysListTemplate());
-render(document.querySelector(`.trip-days`), getDayTemplate());
 
-// events
-render(document.querySelector(`.day`), getEventsListTemplate());
+const groupedEvents = {};
 
-render(document.querySelector(`.trip-events__list`), events.map(getEventTemplate).join(``));
+events.forEach((event) => {
+  const dateString = (new Date(event.from)).toDateString();
+
+  if (!Array.isArray(groupedEvents[dateString])) {
+    groupedEvents[dateString] = [];
+  }
+
+  groupedEvents[dateString].push(event);
+});
+
+const allDays = Object.keys(groupedEvents).sort((dayA, dayB) => (new Date(dayA)).getTime() - (new Date(dayB)).getTime());
+
+// TODO: пока непонятно как корректно организовать рендер вложенных компонентов
+
+allDays.forEach((day, index) => {
+  let dayEvents = groupedEvents[day].map(getEventTemplate).join(``);
+  render(document.querySelector(`.trip-days`), getDayTemplate(day, index, getEventsListTemplate(dayEvents)));
+});

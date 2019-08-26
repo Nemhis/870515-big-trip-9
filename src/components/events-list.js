@@ -1,2 +1,2 @@
-export const getEventsListTemplate = () =>
-  `<ul class="trip-events__list"></ul>`;
+export const getEventsListTemplate = (events) =>
+  `<ul class="trip-events__list">${events}</ul>`;
