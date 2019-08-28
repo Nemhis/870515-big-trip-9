@@ -52,3 +52,22 @@ allDays.forEach((day, index) => {
   let dayEvents = groupedEvents[day].map(getEventTemplate).join(``);
   render(document.querySelector(`.trip-days`), getDayTemplate(day, index, getEventsListTemplate(dayEvents)));
 });
+
+let totalCost = 0;
+
+events.forEach((event) => {
+  let eventCost = Number(event.cost);
+
+  if (Array.isArray(event.options)) {
+    event.options.forEach((option) => eventCost += Number(option.cost))
+  }
+
+  totalCost += eventCost;
+});
+
+totalCost = Math.round(totalCost);
+
+const costContainer = document.querySelector('.trip-info__cost-value');
+// TODO: я так и не понял можно ли использовать innerText, если нет, то как здесь быть
+// @see https://up.htmlacademy.ru/ecmascript/9/criteries#b37
+costContainer.innerText = totalCost;
