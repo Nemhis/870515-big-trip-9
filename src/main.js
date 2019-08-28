@@ -10,7 +10,7 @@ import {getEventEditorTemplate} from './components/event-editor.js';
 import {getEventsListTemplate} from './components/events-list.js';
 import {getEventTemplate} from './components/event.js';
 
-const EVENTS_LIST_LENGTH = 3;
+const EVENTS_LIST_LENGTH = 4;
 
 const events = new Array(EVENTS_LIST_LENGTH)
   .fill(``)
@@ -27,14 +27,14 @@ render(document.querySelector(`.trip-controls h2:first-child`), getMenuTemplate(
 render(document.querySelector(`.trip-controls`), getFilterTemplate(filterItems));
 render(document.querySelector(`.trip-events`), getSorterTemplate());
 
-render(document.querySelector(`.trip-events`), getEventEditorTemplate());
+render(document.querySelector(`.trip-events`), getEventEditorTemplate(events[0]));
 
 // days
 render(document.querySelector(`.trip-events`), getDaysListTemplate());
 
 const groupedEvents = {};
 
-events.forEach((event) => {
+events.slice(1).forEach((event) => {
   const dateString = (new Date(event.from)).toDateString();
 
   if (!Array.isArray(groupedEvents[dateString])) {

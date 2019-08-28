@@ -42,6 +42,7 @@ export const allCities = new Set([
   `Amsterdam`,
   `Geneva`,
   `Chamonix`,
+  `Saint Petersburg`,
 ]);
 
 export const options = [

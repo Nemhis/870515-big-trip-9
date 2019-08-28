@@ -11,15 +11,33 @@ export const SECONDS_PER_MINUTE = 60;
  * @param {Date} date
  */
 export const toShortISO = (date) =>
-  `${toShortDate(date)}T${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`;
+  `${toShortDate(date)}T${toShortTime(date)}`;
 
 /**
  *
- * @param date
+ * @param {Date} date
  *
  * @returns {string}
  */
-export const toShortDate = (date) => `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
+export const toShortDate = (date) =>
+  [date.getUTCFullYear(), pad(date.getUTCMonth() + 1), pad(date.getUTCDate())].join(`-`);
+
+/**
+ *
+ * @param {Date} date
+ *
+ * @returns {string}
+ */
+export const toSlashDate = (date) =>
+  [pad(date.getUTCDate()), pad(date.getUTCMonth() + 1), String(date.getUTCFullYear()).slice(2)].join(`/`);
+
+/**
+ *
+ * @param {Date} date
+ *
+ * @returns {string}
+ */
+export const toShortTime = (date) => `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`;
 
 /**
  * Setting zero before number, if number less 10
