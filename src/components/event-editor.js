@@ -12,15 +12,15 @@ export const getEventEditorTemplate = ({type, from, to, cost, city}) =>
                 <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
                 <div class="event__type-list">
-                  ${Object.keys(eventTypes).map((eventGroupName) => 
-                  `<fieldset class="event__type-group">
+                  ${Object.keys(eventTypes).map((eventGroupName) =>
+    `<fieldset class="event__type-group">
                     <legend class="visually-hidden">${eventGroupName}</legend>
-                    ${eventTypes[eventGroupName].map((eventName) => 
-                    `<div class="event__type-item">
+                    ${eventTypes[eventGroupName].map((eventName) =>
+    `<div class="event__type-item">
                       <input id="event-type-${eventName}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventName}">
                       <label class="event__type-label  event__type-label--${eventName}" for="event-type-${eventName}-1">${eventName}</label>
                     </div>`
-                    ).join(``)}
+  ).join(``)}
                   </fieldset>`).join(``)}
                 </div>
               </div>

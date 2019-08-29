@@ -44,7 +44,7 @@ export const getEventTemplate = ({type, from, to, cost, options}) =>
  * @param {int} from
  * @param {int} to
  *
- * @returns {string}
+ * @return {string}
  */
 const formatDateDiff = (from, to) => {
   const [days, hours, minutes] = getTimeDiff(from, to);
@@ -69,7 +69,7 @@ const formatDateDiff = (from, to) => {
  * @param {int} from
  * @param {int} to
  *
- * @returns {int[]}
+ * @return {int[]}
  */
 const getTimeDiff = (from, to) => {
   const minuteDivider = 1000 * SECONDS_PER_MINUTE;
