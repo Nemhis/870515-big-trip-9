@@ -5,10 +5,9 @@ import {getFilterTemplate} from './components/filter.js';
 import {getTripInfoTemplate} from './components/trip-info.js';
 import {getSorterTemplate} from './components/sorter.js';
 import {getDaysListTemplate} from './components/days-list.js';
-import {getDayTemplate} from './components/day.js';
+import Day from './components/day.js';
 import {getEventEditorTemplate} from './components/event-editor.js';
-import {getEventsListTemplate} from './components/events-list.js';
-import {getEventTemplate} from './components/event.js';
+import Event from './components/event.js';
 
 const EVENTS_LIST_LENGTH = 4;
 
@@ -34,8 +33,8 @@ render(document.querySelector(`.trip-events`), getDaysListTemplate());
 
 const groupedEvents = {};
 
-events.slice(1).forEach((event) => {
-  const dateString = (new Date(event.from)).toDateString();
+events.forEach((event) => {
+  const dateString = event.from.toDateString();
 
   if (!Array.isArray(groupedEvents[dateString])) {
     groupedEvents[dateString] = [];
@@ -44,15 +43,25 @@ events.slice(1).forEach((event) => {
   groupedEvents[dateString].push(event);
 });
 
-const allDays = Object.keys(groupedEvents).sort((dayA, dayB) => (new Date(dayA)).getTime() - (new Date(dayB)).getTime());
 
-// TODO: пока непонятно как корректно организовать рендер вложенных компонентов
+let allDays = Object.keys(groupedEvents).map((day, index) => {
+  const events = groupedEvents[day];
+  const number = index + 1;
 
-allDays.forEach((day, index) => {
-  let dayEvents = groupedEvents[day].map(getEventTemplate).join(``);
-  render(document.querySelector(`.trip-days`), getDayTemplate(day, index, getEventsListTemplate(dayEvents)));
+  return new Day({day, number, events})
 });
 
+allDays = allDays.sort((dayA, dayB) => dayA.getDate().getTime() - dayB.getDate().getTime());
+
+console.log(allDays);
+/*
+allDays.forEach((day, index) => {
+  let dayEvents = groupedEvents[day].map(getEventTemplate).join(``);
+  render(document.querySelector(`.trip-days`), getDayTemplate(day, index, (dayEvents)));
+});
+
+
+// Total cost calculating
 let totalCost = 0;
 
 events.forEach((event) => {
@@ -70,3 +79,4 @@ totalCost = Math.round(totalCost);
 const costContainer = document.querySelector('.trip-info__cost-value');
 costContainer.firstChild.remove();
 costContainer.append(totalCost);
+*/

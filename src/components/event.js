@@ -28,7 +28,7 @@ export default class Event {
    *
    * @return {string}
    */
-  _formatDateDiff = (from, to) => {
+  _formatDateDiff(from, to) {
     const [days, hours, minutes] = this._getTimeDiff(from, to);
     const times = [];
 
@@ -45,7 +45,7 @@ export default class Event {
     }
 
     return times.join(` `);
-  };
+  }
 
   /**
    * @param {int} from
@@ -53,7 +53,7 @@ export default class Event {
    *
    * @return {int[]}
    */
-  _getTimeDiff = (from, to) => {
+  _getTimeDiff(from, to) {
     const minuteDivider = 1000 * SECONDS_PER_MINUTE;
     const hourDivider = minuteDivider * MINUTE_PER_HOUR;
     const dayDivider = hourDivider * HOURS_PER_DAY;
@@ -72,7 +72,7 @@ export default class Event {
     }
 
     return [days, hours, minutes];
-  };
+  }
 
   getTemplate() {
     return `<li class="trip-events__item">
