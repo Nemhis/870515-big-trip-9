@@ -10,15 +10,15 @@ export const getEventTemplate = ({type, from, to, cost, options}) =>
 
                     <div class="event__schedule">
                       <p class="event__time">
-                        <time class="event__start-time" datetime="${toShortISO(new Date(from))}">
-                          ${(new Date(from)).getHours()}:${(new Date(from)).getMinutes()}
+                        <time class="event__start-time" datetime="${toShortISO(from)}">
+                          ${from.getHours()}:${(from).getMinutes()}
                         </time>
                         &mdash;
-                        <time class="event__end-time" datetime="${toShortISO(new Date(to))}">
-                          ${(new Date(to)).getHours()}:${(new Date(to)).getMinutes()}
+                        <time class="event__end-time" datetime="${toShortISO(to)}">
+                          ${to.getHours()}:${to.getMinutes()}
                         </time>
                       </p>
-                      <p class="event__duration">${formatDateDiff(from, to)}</p>
+                      <p class="event__duration">${formatDateDiff(from.getTime(), to.getTime())}</p>
                     </div>
 
                     <p class="event__price">

@@ -80,8 +80,8 @@ export const createEvent = () => {
       .fill(``)
       .map(() => `http://picsum.photos/300/150?r=${Math.random()}`),
     description: shuffleArray(descriptions).slice(-1 * getRandomMinMax(1, 3)).join(` `),
-    from,
-    to,
+    from: new Date(from),
+    to: new Date(to),
     cost: Math.round(Math.random() * getRandomMinMax(1000, 5000)) / 100,
     options: new Array(getRandomMinMax(0, 2)).fill(``).map(() => options[getRandomMinMax(0, (options.length - 1))]),
   }
