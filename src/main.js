@@ -68,6 +68,5 @@ events.forEach((event) => {
 totalCost = Math.round(totalCost);
 
 const costContainer = document.querySelector('.trip-info__cost-value');
-// TODO: я так и не понял можно ли использовать innerText, если нет, то как здесь быть
-// @see https://up.htmlacademy.ru/ecmascript/9/criteries#b37
-costContainer.innerText = totalCost;
+costContainer.firstChild.remove();
+costContainer.append(totalCost);
