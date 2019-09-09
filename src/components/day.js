@@ -30,9 +30,7 @@ export default class Day {
                 <span class="day__counter">${this._number}</span>
                 <time class="day__date" datetime="${toShortDate(this._date)}">${SHORT_MONTHS[this._date.getMonth() + 1]} ${this._date.getDate()}</time>
               </div>
-              ${this._events.length ? `<ul class="trip-events__list">
-  ${this._events}
-  </ul>` : ``}
+              ${this._events.length ? `<ul class="trip-events__list"></ul>` : ``}
             </li>`;
   }
 }

@@ -1,12 +1,12 @@
 import {createEvent, menuItems, filterItems} from './data.js';
 
-import {getMenuTemplate} from './components/menu.js';
-import {getFilterTemplate} from './components/filter.js';
-import {getTripInfoTemplate} from './components/trip-info.js';
-import {getSorterTemplate} from './components/sorter.js';
-import {getDaysListTemplate} from './components/days-list.js';
+import Menu from './components/menu.js';
+import Filter from './components/filter.js';
+import TripInfo from './components/trip-info.js';
+import Sorter from './components/sorter.js';
+import DaysList from './components/days-list.js';
 import Day from './components/day.js';
-import {getEventEditorTemplate} from './components/event-editor.js';
+import EventEditor from './components/event-editor.js';
 import Event from './components/event.js';
 
 const EVENTS_LIST_LENGTH = 4;
@@ -54,13 +54,13 @@ let allDays = Object.keys(groupedEvents).map((day, index) => {
 allDays = allDays.sort((dayA, dayB) => dayA.getDate().getTime() - dayB.getDate().getTime());
 
 console.log(allDays);
-/*
+
 allDays.forEach((day, index) => {
   let dayEvents = groupedEvents[day].map(getEventTemplate).join(``);
   render(document.querySelector(`.trip-days`), getDayTemplate(day, index, (dayEvents)));
 });
 
-
+/*
 // Total cost calculating
 let totalCost = 0;
 
