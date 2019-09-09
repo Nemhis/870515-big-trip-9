@@ -1,10 +1,10 @@
 import {eventTypes, allCities} from "../data.js";
 import {toSlashDate, toShortTime} from "../date.js";
 
-import {createElement, render} from '../utils.js';
+import {createElement} from '../utils.js';
 
 export default class DaysList {
-  constructor({type, from, to, cost, options, city}) {
+  constructor({type, from, to, cost, city}) {
     this._type = type;
     this._from = from;
     this._to = to;
@@ -36,14 +36,14 @@ export default class DaysList {
 
                 <div class="event__type-list">
                   ${Object.keys(eventTypes).map((eventGroupName) =>
-      `<fieldset class="event__type-group">
+    `<fieldset class="event__type-group">
                     <legend class="visually-hidden">${eventGroupName}</legend>
                     ${eventTypes[eventGroupName].map((eventName) =>
-        `<div class="event__type-item">
+    `<div class="event__type-item">
                       <input id="event-type-${eventName}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventName}">
                       <label class="event__type-label  event__type-label--${eventName}" for="event-type-${eventName}-1">${eventName}</label>
                     </div>`
-      ).join(``)}
+  ).join(``)}
                   </fieldset>`).join(``)}
                 </div>
               </div>
