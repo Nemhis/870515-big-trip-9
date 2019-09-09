@@ -1,13 +1,36 @@
 import {eventTypes, allCities} from "../data.js";
 import {toSlashDate, toShortTime} from "../date.js";
 
-export const getEventEditorTemplate = ({type, from, to, cost, city}) =>
-  `<form class="trip-events__item  event  event--edit" action="#" method="post">
+import {createElement} from '../utils.js';
+
+export default class DaysList {
+  constructor({type, from, to, cost, city}) {
+    this._type = type;
+    this._from = from;
+    this._to = to;
+    this._cost = cost;
+    this._city = city;
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+
+  getTemplate() {
+    return `<form class="trip-events__item  event  event--edit" action="#" method="post">
             <header class="event__header">
               <div class="event__type-wrapper">
                 <label class="event__type  event__type-btn" for="event-type-toggle-1">
                   <span class="visually-hidden">Choose event type</span>
-                  <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
+                  <img class="event__type-icon" width="17" height="17" src="img/icons/${this._type}.png" alt="Event type icon">
                 </label>
                 <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -29,7 +52,7 @@ export const getEventEditorTemplate = ({type, from, to, cost, city}) =>
                 <label class="event__label  event__type-output" for="event-destination-1">
                   Sightseeing at
                 </label>
-                <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${city}" list="destination-list-1">
+                <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._city}" list="destination-list-1">
                 <datalist id="destination-list-1">
                   ${Array.from(allCities).map((cityName) => `<option value="${cityName}"></option>`)}
                 </datalist>
@@ -39,12 +62,12 @@ export const getEventEditorTemplate = ({type, from, to, cost, city}) =>
                 <label class="visually-hidden" for="event-start-time-1">
                   From
                 </label>
-                <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${toSlashDate(from)} ${toShortTime(from)}">
+                <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${toSlashDate(this._from)} ${toShortTime(this._from)}">
                 &mdash;
                 <label class="visually-hidden" for="event-end-time-1">
                   To
                 </label>
-                <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${toSlashDate(to)} ${toShortTime(to)}">
+                <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${toSlashDate(this._to)} ${toShortTime(this._to)}">
               </div>
 
               <div class="event__field-group  event__field-group--price">
@@ -52,10 +75,12 @@ export const getEventEditorTemplate = ({type, from, to, cost, city}) =>
                   <span class="visually-hidden">Price</span>
                   &euro;
                 </label>
-                <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${cost}">
+                <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${this._cost}">
               </div>
 
               <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
               <button class="event__reset-btn" type="reset">Cancel</button>
             </header>
           </form>`;
+  }
+}
