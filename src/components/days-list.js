@@ -1,9 +1,7 @@
 import {createElement} from '../utils.js';
 
 export default class DaysList {
-  constructor(days) {
-    this._days = days;
-  }
+  constructor() {}
 
   getElement() {
     if (!this._element) {

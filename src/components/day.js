@@ -12,6 +12,10 @@ export default class Day {
     return this._date;
   }
 
+  getEvents() {
+    return this._events;
+  }
+
   getElement() {
     if (!this._element) {
       this._element = createElement(this.getTemplate());
@@ -28,9 +32,9 @@ export default class Day {
     return `<li class="trip-days__item  day">
               <div class="day__info">
                 <span class="day__counter">${this._number}</span>
-                <time class="day__date" datetime="${toShortDate(this._date)}">${SHORT_MONTHS[this._date.getMonth() + 1]} ${this._date.getDate()}</time>
+                <time class="day__date" datetime="${toShortDate(this._date)}">${SHORT_MONTHS[this._date.getMonth()]} ${this._date.getDate()}</time>
               </div>
-              ${this._events.length ? `<ul class="trip-events__list"></ul>` : ``}
+              <ul class="trip-events__list"></ul>
             </li>`;
   }
 }

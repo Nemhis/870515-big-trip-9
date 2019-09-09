@@ -19,7 +19,7 @@ export default class TripInfo {
   }
 
   _getCitiesInfo(events) {
-    let cities = events.map((event) => event.city);
+    let cities = events.map((event) => event.getCity());
     let format = ``;
 
     if (cities.length <= 3) {
@@ -32,8 +32,8 @@ export default class TripInfo {
   }
 
   _getDateInfo(events) {
-    const from = new Date(events[0].from);
-    let to = new Date(events[events.length - 1].to);
+    const from = new Date(events[0].getFrom());
+    let to = new Date(events[events.length - 1].getTo());
 
     if (from.getTime() === to.getTime()) {
       to = null;

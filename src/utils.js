@@ -1,4 +1,5 @@
 export const Position = {
+  AFTER: `after`,
   AFTERBEGIN: `afterbegin`,
   BEFOREEND: `beforeend`
 };
@@ -18,6 +19,9 @@ export const render = (container, element, place) => {
     case Position.BEFOREEND:
       container.append(element);
       break;
+    case Position.AFTER:
+      container.after(element);
+      break;
   }
 };
 
@@ -26,3 +30,5 @@ export const unrender = (element) => {
     element.remove();
   }
 };
+
+export const isEscBtn = (key) => key === `Escape` || key === `Esc`;

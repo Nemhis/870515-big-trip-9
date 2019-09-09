@@ -70,8 +70,8 @@ export const options = [
 
 export const createEvent = () => {
   const groupName = getRandomArrayValue(Object.keys(eventTypes));
-  const from = Date.now() + getTimestamp(getRandomMinMax(1, 48), getRandomMinMax(10, 60));
-  const to = from + getTimestamp(getRandomMinMax(1, 72), getRandomMinMax(10, 60));
+  const from = Date.now() + getTimestamp(getRandomMinMax(1, 72), getRandomMinMax(10, 60));
+  const to = from + getTimestamp(getRandomMinMax(1, 124), getRandomMinMax(10, 60));
 
   return {
     type: getRandomArrayValue(eventTypes[groupName]),
