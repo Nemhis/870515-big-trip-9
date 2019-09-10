@@ -9,7 +9,7 @@ export default class TripInfo extends AbstractComponent {
   }
 
   _getCitiesInfo(events) {
-    let cities = events.map((event) => event.getCity());
+    let cities = events.map((event) => event.city);
     let format = ``;
 
     if (cities.length <= 3) {
@@ -22,8 +22,8 @@ export default class TripInfo extends AbstractComponent {
   }
 
   _getDateInfo(events) {
-    const from = new Date(events[0].getFrom());
-    let to = new Date(events[events.length - 1].getTo());
+    const from = new Date(events[0].from);
+    let to = new Date(events[events.length - 1].to);
 
     if (from.getTime() === to.getTime()) {
       to = null;

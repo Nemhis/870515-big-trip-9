@@ -44,19 +44,14 @@ export default class TripController {
   /**
    *
    * @param container - day.querySelector('.trip-events__list');
-   * @param event
+   * @param {object} eventMock
    * @param {boolean} renderForm
    *
    * @private
    */
-  _renderEvent(container, event, renderForm = false) {
-    const eventEditor = new EventEditor({
-      type: event.getType(),
-      from: event.getFrom(),
-      to: event.getTo(),
-      cost: event.getCost(),
-      city: event.getCity(),
-    });
+  _renderEvent(container, eventMock, renderForm = false) {
+    const eventEditor = new EventEditor(eventMock);
+    const event = new Event(eventMock);
 
     const onEscKeyDown = (evt) => {
       if (isEscBtn(evt.key)) {
@@ -84,11 +79,7 @@ export default class TripController {
     eventEditor.getElement()
       .addEventListener(`submit`, saveFormHandler);
 
-    let objToRender = event;
-
-    if (renderForm) {
-      objToRender = eventEditor;
-    }
+    let objToRender = renderForm ? eventEditor : event;
 
     render(container, objToRender.getElement(), Position.BEFOREEND);
   };
@@ -102,7 +93,7 @@ export default class TripController {
     const groupedEvents = {};
 
     events.forEach((event) => {
-      const dateString = event.getFrom().toDateString();
+      const dateString = event.from.toDateString();
 
       if (!Array.isArray(groupedEvents[dateString])) {
         groupedEvents[dateString] = [];

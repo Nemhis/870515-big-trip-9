@@ -1,6 +1,5 @@
 import Menu from './components/menu.js';
 import TripInfo from './components/trip-info.js';
-import Event from './components/event.js';
 import Filter from "./components/filter";
 import TripController from './trip-controller.js';
 
@@ -11,8 +10,7 @@ const EVENTS_LIST_LENGTH = 8;
 
 const events = new Array(EVENTS_LIST_LENGTH)
   .fill(``)
-  .map(createEvent)
-  .map((event) => new Event(event));
+  .map(createEvent);
 
 // MENU
 const menu = new Menu(menuItems);
@@ -28,10 +26,10 @@ if (events.length) {
 let totalCost = 0;
 
 events.forEach((event) => {
-  let eventCost = Number(event.getCost());
+  let eventCost = Number(event.cost);
 
-  if (Array.isArray(event.getOptions())) {
-    event.getOptions().forEach((option) => eventCost += Number(option.cost))
+  if (Array.isArray(event.options)) {
+    event.options.forEach((option) => eventCost += Number(option.cost))
   }
 
   totalCost += eventCost;

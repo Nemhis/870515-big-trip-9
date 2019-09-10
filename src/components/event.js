@@ -9,31 +9,6 @@ export default class Event extends AbstractComponent {
     this._to = to;
     this._cost = cost;
     this._options = options;
-    this._city = city;
-  }
-
-  getType() {
-    return this._type;
-  }
-
-  getCity() {
-    return this._city;
-  }
-
-  getFrom() {
-    return this._from;
-  }
-
-  getTo() {
-    return this._to;
-  }
-
-  getCost() {
-    return this._cost;
-  }
-
-  getOptions() {
-    return this._options;
   }
 
   /**
