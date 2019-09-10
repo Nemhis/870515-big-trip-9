@@ -2,7 +2,7 @@ import {toShortISO, pad, HOURS_PER_DAY, MINUTE_PER_HOUR, SECONDS_PER_MINUTE} fro
 import {createElement} from '../utils.js';
 
 export default class Event {
-  constructor({type, from, to, cost, options, city}) {
+  constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, options = [], city = ``}) {
     this._type = type;
     this._from = from;
     this._to = to;
