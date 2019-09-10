@@ -3,7 +3,7 @@ import AbstractComponent from "./abstract-component";
 import {eventTypes, allCities} from "../data.js";
 import {toSlashDate, toShortTime} from "../date.js";
 
-export default class EventEditor extends AbstractComponent{
+export default class EventEditor extends AbstractComponent {
   constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, city = ``}) {
     super();
     this._type = type;

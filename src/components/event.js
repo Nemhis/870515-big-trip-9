@@ -2,7 +2,7 @@ import {toShortISO, pad, HOURS_PER_DAY, MINUTE_PER_HOUR, SECONDS_PER_MINUTE} fro
 import AbstractComponent from "./abstract-component";
 
 export default class Event extends AbstractComponent {
-  constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, options = [], city = ``}) {
+  constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, options = []}) {
     super();
     this._type = type;
     this._from = from;
