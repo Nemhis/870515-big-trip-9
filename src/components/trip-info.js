@@ -1,21 +1,11 @@
+import AbstractComponent from "./abstract-component";
+
 import {SHORT_MONTHS} from '../date.js';
-import {createElement} from '../utils.js';
 
-export default class TripInfo {
+export default class TripInfo extends AbstractComponent {
   constructor(events) {
+    super();
     this._events = events;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 
   _getCitiesInfo(events) {

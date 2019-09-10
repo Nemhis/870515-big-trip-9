@@ -1,27 +1,16 @@
+import AbstractComponent from "./abstract-component";
+
 import {eventTypes, allCities} from "../data.js";
 import {toSlashDate, toShortTime} from "../date.js";
 
-import {createElement} from '../utils.js';
-
-export default class DaysList {
+export default class EventEditor extends AbstractComponent{
   constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, city = ``}) {
+    super();
     this._type = type;
     this._from = from;
     this._to = to;
     this._cost = cost;
     this._city = city;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 
   getTemplate() {

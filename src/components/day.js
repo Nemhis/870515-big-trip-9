@@ -1,31 +1,16 @@
 import {toShortDate, SHORT_MONTHS} from '../date.js';
-import {createElement} from '../utils.js';
+import AbstractComponent from "./abstract-component";
 
-export default class Day {
+export default class Day extends AbstractComponent {
   constructor({day, number, events}) {
+    super();
     this._date = new Date(day);
     this._number = number;
     this._events = events;
   }
 
-  getDate() {
-    return this._date;
-  }
-
   getEvents() {
     return this._events;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 
   getTemplate() {
