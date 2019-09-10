@@ -17,9 +17,12 @@ const events = new Array(EVENTS_LIST_LENGTH)
   .map(createEvent)
   .map((event) => new Event(event));
 
-const tripInfo = new TripInfo(events);
 
-render(document.querySelector(`.trip-info`), tripInfo.getElement(), Position.AFTERBEGIN);
+if (events.length) {
+  const tripInfo = new TripInfo(events);
+
+  render(document.querySelector(`.trip-info`), tripInfo.getElement(), Position.AFTERBEGIN);
+}
 
 // controls
 const menu = new Menu(menuItems);
@@ -28,8 +31,10 @@ render(document.querySelector(`.trip-controls h2:first-child`), menu.getElement(
 const filter = new Filter(filterItems);
 render(document.querySelector(`.trip-controls`), filter.getElement(), Position.BEFOREEND);
 
-const sorter = new Sorter();
-render(document.querySelector(`.trip-events`), sorter.getElement(), Position.BEFOREEND);
+if (events.length) {
+  const sorter = new Sorter();
+  render(document.querySelector(`.trip-events`), sorter.getElement(), Position.BEFOREEND);
+}
 
 const groupedEvents = {};
 
@@ -50,13 +55,16 @@ let dayMocks = Object.keys(groupedEvents).map((date) => {
 });
 
 dayMocks.sort((dayA, dayB) => ((new Date(dayA.date)).getTime() - (new Date(dayB.date)).getTime()));
+let allDays = [], dayList = [];
 
 // days
-const dayList = new DaysList();
-render(document.querySelector(`.trip-events`), dayList.getElement(), Position.BEFOREEND);
-const allDays = dayMocks.map(({date, events}, index) => new Day({day: date, number: (index + 1), events}));
+if (events.length) {
+  dayList = new DaysList();
+  render(document.querySelector(`.trip-events`), dayList.getElement(), Position.BEFOREEND);
+  allDays = dayMocks.map(({date, events}, index) => new Day({day: date, number: (index + 1), events}));
+}
 
-const renderEvent = (container, event) => {
+const renderEvent = (container, event, renderForm = false) => {
   const eventEditor = new EventEditor({
     type: event.getType(),
     from: event.getFrom(),
@@ -91,17 +99,27 @@ const renderEvent = (container, event) => {
   eventEditor.getElement()
     .addEventListener(`submit`, saveFormHandler);
 
-  render(container, event.getElement(), Position.BEFOREEND);
+  let objToRender = event;
+
+  if (renderForm) {
+    objToRender = eventEditor;
+  }
+
+  render(container, objToRender.getElement(), Position.BEFOREEND);
 };
 
+if (allDays.length) {
+  allDays.forEach((day) => {
+    const dayEl = day.getElement();
+    const eventList = dayEl.querySelector('.trip-events__list');
 
-allDays.forEach((day) => {
-  const dayEl = day.getElement();
-  const eventList = dayEl.querySelector('.trip-events__list');
-
-  render(dayList.getElement(), dayEl, Position.BEFOREEND);
-  day.getEvents().forEach((event) => renderEvent(eventList, event));
-});
+    render(dayList.getElement(), dayEl, Position.BEFOREEND);
+    day.getEvents().forEach((event) => renderEvent(eventList, event));
+  });
+} else {
+  const newEvent = new Event({});
+  renderEvent(document.querySelector(`.trip-events`), newEvent, true);
+}
 
 // Total cost calculating
 let totalCost = 0;

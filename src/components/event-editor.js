@@ -4,7 +4,7 @@ import {toSlashDate, toShortTime} from "../date.js";
 import {createElement} from '../utils.js';
 
 export default class DaysList {
-  constructor({type, from, to, cost, city}) {
+  constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, city = ``}) {
     this._type = type;
     this._from = from;
     this._to = to;
@@ -75,7 +75,7 @@ export default class DaysList {
                   <span class="visually-hidden">Price</span>
                   &euro;
                 </label>
-                <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${this._cost}">
+                <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${this._cost === 0 ? `` : this._cost}">
               </div>
 
               <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
