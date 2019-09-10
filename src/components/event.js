@@ -1,50 +1,14 @@
 import {toShortISO, pad, HOURS_PER_DAY, MINUTE_PER_HOUR, SECONDS_PER_MINUTE} from '../date.js';
-import {createElement} from '../utils.js';
+import AbstractComponent from "./abstract-component";
 
-export default class Event {
-  constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, options = [], city = ``}) {
+export default class Event extends AbstractComponent {
+  constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, options = []}) {
+    super();
     this._type = type;
     this._from = from;
     this._to = to;
     this._cost = cost;
     this._options = options;
-    this._city = city;
-  }
-
-  getType() {
-    return this._type;
-  }
-
-  getCity() {
-    return this._city;
-  }
-
-  getFrom() {
-    return this._from;
-  }
-
-  getTo() {
-    return this._to;
-  }
-
-  getCost() {
-    return this._cost;
-  }
-
-  getOptions() {
-    return this._options;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 
   /**

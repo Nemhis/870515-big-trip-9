@@ -1,25 +1,15 @@
-import {SHORT_MONTHS} from '../date.js';
-import {createElement} from '../utils.js';
+import AbstractComponent from "./abstract-component";
 
-export default class TripInfo {
+import {SHORT_MONTHS} from '../date.js';
+
+export default class TripInfo extends AbstractComponent {
   constructor(events) {
+    super();
     this._events = events;
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
-  }
-
   _getCitiesInfo(events) {
-    let cities = events.map((event) => event.getCity());
+    let cities = events.map((event) => event.city);
     let format = ``;
 
     if (cities.length <= 3) {
@@ -32,8 +22,8 @@ export default class TripInfo {
   }
 
   _getDateInfo(events) {
-    const from = new Date(events[0].getFrom());
-    let to = new Date(events[events.length - 1].getTo());
+    const from = new Date(events[0].from);
+    let to = new Date(events[events.length - 1].to);
 
     if (from.getTime() === to.getTime()) {
       to = null;
