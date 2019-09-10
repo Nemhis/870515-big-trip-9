@@ -24,26 +24,14 @@ export default class TripController {
       render(this._container, this._dayList.getElement(), Position.BEFOREEND);
     }
 
-    const groupedDays = this._groupEventsByDay(this._events);
-    const allDays = groupedDays.map(({date, events}, index) => new Day({day: date, number: (index + 1), events}));
-
-    if (allDays.length) {
-      allDays.forEach((day) => {
-        const dayEl = day.getElement();
-        const eventList = dayEl.querySelector('.trip-events__list');
-
-        render(this._dayList.getElement(), dayEl, Position.BEFOREEND);
-        day.getEvents().forEach((event) => this._renderEvent(eventList, event));
-      });
-    } else {
-      const newEvent = new Event({});
-      this._renderEvent(this._container, newEvent, true);
-    }
+    this._renderEvents(this._events);
+    this._sorter.getElement()
+      .addEventListener(`click`, (evt) => this._onSortLinkClick(evt));
   }
 
   /**
    *
-   * @param container - day.querySelector('.trip-events__list');
+   * @param {HTMLElement} container
    * @param {object} eventMock
    * @param {boolean} renderForm
    *
@@ -85,7 +73,30 @@ export default class TripController {
   };
 
   /**
-   * @param events
+   *
+   * @param {array} events
+   * @private
+   */
+  _renderEvents(events) {
+    const groupedDays = this._groupEventsByDay(events);
+    const allDays = groupedDays.map(({date, events}, index) => new Day({day: date, number: (index + 1), events}));
+
+    if (allDays.length) {
+      allDays.forEach((day) => {
+        const dayEl = day.getElement();
+        const eventList = dayEl.querySelector('.trip-events__list');
+
+        render(this._dayList.getElement(), dayEl, Position.BEFOREEND);
+        day.getEvents().forEach((event) => this._renderEvent(eventList, event));
+      });
+    } else {
+      const newEvent = new Event({});
+      this._renderEvent(this._container, newEvent, true);
+    }
+  }
+
+  /**
+   * @param {array} events
    * @returns {{date: string, events:*}[]}
    * @private
    */
@@ -111,5 +122,30 @@ export default class TripController {
     groupedDays.sort((dayA, dayB) => ((new Date(dayA.date)).getTime() - (new Date(dayB.date)).getTime()));
 
     return groupedDays;
+  }
+
+  /**
+   *
+   * @param evt
+   * @private
+   */
+  _onSortLinkClick(evt) {
+    if (evt.target.tagName !== `LABEL`) {
+      return;
+    }
+
+    this._dayList.getElement().innerHTML = ``;
+
+    switch (evt.target.dataset.sort) {
+      case `sort-price`:
+        // TODO: сортировка по цене
+        break;
+      case `sort-time`:
+        // TODO: сортировка по времени
+        break;
+      case `sort-default`:
+        this._renderEvents(this._events);
+        break;
+    }
   }
 }
