@@ -1,14 +1,11 @@
-import {createEvent, menuItems, filterItems} from './data.js';
-import {render, Position, isEscBtn} from "./utils";
-
 import Menu from './components/menu.js';
-import Filter from './components/filter.js';
 import TripInfo from './components/trip-info.js';
-import Sorter from './components/sorter.js';
-import DaysList from './components/days-list.js';
-import Day from './components/day.js';
-import EventEditor from './components/event-editor.js';
 import Event from './components/event.js';
+import Filter from "./components/filter";
+import TripController from './trip-controller.js';
+
+import {createEvent, menuItems, filterItems} from './data.js';
+import {render, Position} from "./utils";
 
 const EVENTS_LIST_LENGTH = 8;
 
@@ -17,108 +14,14 @@ const events = new Array(EVENTS_LIST_LENGTH)
   .map(createEvent)
   .map((event) => new Event(event));
 
-
-if (events.length) {
-  const tripInfo = new TripInfo(events);
-
-  render(document.querySelector(`.trip-info`), tripInfo.getElement(), Position.AFTERBEGIN);
-}
-
-// controls
+// MENU
 const menu = new Menu(menuItems);
 render(document.querySelector(`.trip-controls h2:first-child`), menu.getElement(), Position.AFTER);
 
-const filter = new Filter(filterItems);
-render(document.querySelector(`.trip-controls`), filter.getElement(), Position.BEFOREEND);
-
+// TRIP INFO
 if (events.length) {
-  const sorter = new Sorter();
-  render(document.querySelector(`.trip-events`), sorter.getElement(), Position.BEFOREEND);
-}
-
-const groupedEvents = {};
-
-events.forEach((event) => {
-  const dateString = event.getFrom().toDateString();
-
-  if (!Array.isArray(groupedEvents[dateString])) {
-    groupedEvents[dateString] = [];
-  }
-
-  groupedEvents[dateString].push(event);
-});
-
-let dayMocks = Object.keys(groupedEvents).map((date) => {
-  const events = groupedEvents[date];
-
-  return {date, events};
-});
-
-dayMocks.sort((dayA, dayB) => ((new Date(dayA.date)).getTime() - (new Date(dayB.date)).getTime()));
-let allDays = [], dayList = [];
-
-// days
-if (events.length) {
-  dayList = new DaysList();
-  render(document.querySelector(`.trip-events`), dayList.getElement(), Position.BEFOREEND);
-  allDays = dayMocks.map(({date, events}, index) => new Day({day: date, number: (index + 1), events}));
-}
-
-const renderEvent = (container, event, renderForm = false) => {
-  const eventEditor = new EventEditor({
-    type: event.getType(),
-    from: event.getFrom(),
-    to: event.getTo(),
-    cost: event.getCost(),
-    city: event.getCity(),
-  });
-
-  const onEscKeyDown = (evt) => {
-    if (isEscBtn(evt.key)) {
-      container.replaceChild(event.getElement(), eventEditor.getElement());
-      document.removeEventListener(`keydown`, onEscKeyDown);
-    }
-  };
-
-  const saveFormHandler = () => {
-    container.replaceChild(event.getElement(), eventEditor.getElement());
-    document.removeEventListener(`keydown`, onEscKeyDown);
-  };
-
-  event.getElement()
-    .querySelector(`.event__rollup-btn`)
-    .addEventListener(`click`, () => {
-      container.replaceChild(eventEditor.getElement(), event.getElement());
-      document.addEventListener(`keydown`, onEscKeyDown);
-    });
-
-  eventEditor.getElement()
-    .querySelector(`.event__save-btn`)
-    .addEventListener(`submit`, saveFormHandler);
-
-  eventEditor.getElement()
-    .addEventListener(`submit`, saveFormHandler);
-
-  let objToRender = event;
-
-  if (renderForm) {
-    objToRender = eventEditor;
-  }
-
-  render(container, objToRender.getElement(), Position.BEFOREEND);
-};
-
-if (allDays.length) {
-  allDays.forEach((day) => {
-    const dayEl = day.getElement();
-    const eventList = dayEl.querySelector('.trip-events__list');
-
-    render(dayList.getElement(), dayEl, Position.BEFOREEND);
-    day.getEvents().forEach((event) => renderEvent(eventList, event));
-  });
-} else {
-  const newEvent = new Event({});
-  renderEvent(document.querySelector(`.trip-events`), newEvent, true);
+  const tripInfo = new TripInfo(events);
+  render(document.querySelector(`.trip-info`), tripInfo.getElement(), Position.AFTERBEGIN);
 }
 
 // Total cost calculating
@@ -139,3 +42,9 @@ totalCost = Math.round(totalCost);
 const costContainer = document.querySelector('.trip-info__cost-value');
 costContainer.firstChild.remove();
 costContainer.append(totalCost);
+
+// Filter
+render(document.querySelector(`.trip-controls`), (new Filter(filterItems)).getElement(), Position.BEFOREEND);
+
+const tripController = new TripController(document.querySelector(`.trip-events`), events);
+tripController.init();
