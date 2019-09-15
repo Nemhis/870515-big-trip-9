@@ -1,3 +1,14 @@
+/**
+ * Подсчёт полной стоимости события
+ * TODO: этой функции тут не место, но куда её деть пока не знаю
+ *
+ * @param event
+ * @returns {*}
+ */
+export function calculateEventCost(event) {
+  return event.options.reduce((accumulator, option) => accumulator + Number(option.cost), Number(event.cost));
+}
+
 const descriptions = [
   `Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
   `Cras aliquet varius magna, non porta ligula feugiat eget.`,

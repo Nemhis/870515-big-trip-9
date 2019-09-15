@@ -3,7 +3,7 @@ import TripInfo from './components/trip-info.js';
 import Filter from "./components/filter";
 import TripController from './trip-controller.js';
 
-import {createEvent, menuItems, filterItems} from './data.js';
+import {createEvent, menuItems, filterItems, calculateEventCost} from './data.js';
 import {render, Position} from "./utils";
 
 const EVENTS_LIST_LENGTH = 8;
@@ -23,23 +23,11 @@ if (events.length) {
 }
 
 // Total cost calculating
-let totalCost = 0;
-
-events.forEach((event) => {
-  let eventCost = Number(event.cost);
-
-  if (Array.isArray(event.options)) {
-    event.options.forEach((option) => eventCost += Number(option.cost))
-  }
-
-  totalCost += eventCost;
-});
-
-totalCost = Math.round(totalCost);
+const totalCost = events.reduce((acc, event) => acc + calculateEventCost(event), 0);
 
 const costContainer = document.querySelector('.trip-info__cost-value');
 costContainer.firstChild.remove();
-costContainer.append(totalCost);
+costContainer.append(Math.round(totalCost));
 
 // Filter
 render(document.querySelector(`.trip-controls`), (new Filter(filterItems)).getElement(), Position.BEFOREEND);

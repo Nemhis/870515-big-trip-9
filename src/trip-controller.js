@@ -5,6 +5,7 @@ import Day from './components/day';
 import Event from './components/event.js';
 
 import {isEscBtn, Position, render} from './utils';
+import {calculateEventCost} from "./data";
 
 export default class TripController {
   constructor(container, events) {
@@ -24,7 +25,8 @@ export default class TripController {
       render(this._container, this._dayList.getElement(), Position.BEFOREEND);
     }
 
-    this._renderEvents(this._events);
+    const groupedDays = this._groupEventsByDay(this._events);
+    this._renderEvents(groupedDays);
     this._sorter.getElement()
       .addEventListener(`click`, (evt) => this._onSortLinkClick(evt));
   }
@@ -74,12 +76,11 @@ export default class TripController {
 
   /**
    *
-   * @param {array} events
+   * @param {array} daysRaw
    * @private
    */
-  _renderEvents(events) {
-    const groupedDays = this._groupEventsByDay(events);
-    const allDays = groupedDays.map(({date, events}, index) => new Day({day: date, number: (index + 1), events}));
+  _renderEvents(daysRaw) {
+    const allDays = daysRaw.map(({date, events}, index) => new Day({day: date, number: (index + 1), events}));
 
     if (allDays.length) {
       allDays.forEach((day) => {
@@ -124,6 +125,24 @@ export default class TripController {
     return groupedDays;
   }
 
+  _sortByPrice(events) {
+    events.sort((eventA, eventB) => calculateEventCost(eventB) - calculateEventCost(eventA));
+
+    return [{
+      date: null,
+      events
+    }];
+  }
+
+  _sortByTime(events) {
+    events.sort((eventA, eventB) => (eventB.to - eventB.from) - (eventA.to - eventA.from));
+
+    return [{
+      date: null,
+      events
+    }];
+  }
+
   /**
    *
    * @param evt
@@ -135,17 +154,20 @@ export default class TripController {
     }
 
     this._dayList.getElement().innerHTML = ``;
+    let days = [];
 
     switch (evt.target.dataset.sort) {
       case `sort-price`:
-        // TODO: сортировка по цене
+        days = this._sortByPrice(this._events);
         break;
       case `sort-time`:
-        // TODO: сортировка по времени
+        days = this._sortByTime(this._events);
         break;
       case `sort-default`:
-        this._renderEvents(this._events);
+        days = this._groupEventsByDay(this._events);
         break;
     }
+
+    this._renderEvents(days);
   }
 }
