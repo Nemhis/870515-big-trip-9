@@ -5,6 +5,7 @@ import Day from './components/day';
 import Event from './components/event.js';
 
 import {isEscBtn, Position, render} from './utils';
+import {calculateEventCost} from "./data";
 
 export default class TripController {
   constructor(container, events) {
@@ -25,25 +26,14 @@ export default class TripController {
     }
 
     const groupedDays = this._groupEventsByDay(this._events);
-    const allDays = groupedDays.map(({date, events}, index) => new Day({day: date, number: (index + 1), events}));
-
-    if (allDays.length) {
-      allDays.forEach((day) => {
-        const dayEl = day.getElement();
-        const eventList = dayEl.querySelector('.trip-events__list');
-
-        render(this._dayList.getElement(), dayEl, Position.BEFOREEND);
-        day.getEvents().forEach((event) => this._renderEvent(eventList, event));
-      });
-    } else {
-      const newEvent = new Event({});
-      this._renderEvent(this._container, newEvent, true);
-    }
+    this._renderEvents(groupedDays);
+    this._sorter.getElement()
+      .addEventListener(`click`, (evt) => this._onSortLinkClick(evt));
   }
 
   /**
    *
-   * @param container - day.querySelector('.trip-events__list');
+   * @param {HTMLElement} container
    * @param {object} eventMock
    * @param {boolean} renderForm
    *
@@ -85,7 +75,29 @@ export default class TripController {
   };
 
   /**
-   * @param events
+   *
+   * @param {array} daysRaw
+   * @private
+   */
+  _renderEvents(daysRaw) {
+    const allDays = daysRaw.map(({date, events}, index) => new Day({day: date, number: (index + 1), events}));
+
+    if (allDays.length) {
+      allDays.forEach((day) => {
+        const dayEl = day.getElement();
+        const eventList = dayEl.querySelector('.trip-events__list');
+
+        render(this._dayList.getElement(), dayEl, Position.BEFOREEND);
+        day.getEvents().forEach((event) => this._renderEvent(eventList, event));
+      });
+    } else {
+      const newEvent = new Event({});
+      this._renderEvent(this._container, newEvent, true);
+    }
+  }
+
+  /**
+   * @param {array} events
    * @returns {{date: string, events:*}[]}
    * @private
    */
@@ -111,5 +123,51 @@ export default class TripController {
     groupedDays.sort((dayA, dayB) => ((new Date(dayA.date)).getTime() - (new Date(dayB.date)).getTime()));
 
     return groupedDays;
+  }
+
+  _sortByPrice(events) {
+    events.sort((eventA, eventB) => calculateEventCost(eventB) - calculateEventCost(eventA));
+
+    return [{
+      date: null,
+      events
+    }];
+  }
+
+  _sortByTime(events) {
+    events.sort((eventA, eventB) => (eventB.to - eventB.from) - (eventA.to - eventA.from));
+
+    return [{
+      date: null,
+      events
+    }];
+  }
+
+  /**
+   *
+   * @param evt
+   * @private
+   */
+  _onSortLinkClick(evt) {
+    if (evt.target.tagName !== `LABEL`) {
+      return;
+    }
+
+    this._dayList.getElement().innerHTML = ``;
+    let days = [];
+
+    switch (evt.target.dataset.sort) {
+      case `sort-price`:
+        days = this._sortByPrice(this._events);
+        break;
+      case `sort-time`:
+        days = this._sortByTime(this._events);
+        break;
+      case `sort-default`:
+        days = this._groupEventsByDay(this._events);
+        break;
+    }
+
+    this._renderEvents(days);
   }
 }
