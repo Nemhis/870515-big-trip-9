@@ -1,16 +1,28 @@
 import AbstractComponent from "./abstract-component";
 
-import {eventTypes, allCities} from "../data.js";
+import {eventTypes, allCities, getEventPreposition} from "../data.js";
 import {toSlashDate, toShortTime} from "../date.js";
 
 export default class EventEditor extends AbstractComponent {
-  constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, city = ``}) {
+  constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, destination = ``}) {
     super();
     this._type = type;
     this._from = from;
     this._to = to;
     this._cost = cost;
-    this._city = city;
+    this._destination = destination;
+
+    this._addEventListeners();
+  }
+
+  _getDestinationPrefix() {
+    return `${this._type} ${getEventPreposition(this._type)}`;
+  }
+
+  _addEventListeners() {
+    const el = this.getElement();
+
+    //el.querySelector();
   }
 
   getTemplate() {
@@ -25,23 +37,23 @@ export default class EventEditor extends AbstractComponent {
 
                 <div class="event__type-list">
                   ${Object.keys(eventTypes).map((eventGroupName) =>
-    `<fieldset class="event__type-group">
+      `<fieldset class="event__type-group">
                     <legend class="visually-hidden">${eventGroupName}</legend>
                     ${eventTypes[eventGroupName].map((eventName) =>
-    `<div class="event__type-item">
-                      <input id="event-type-${eventName}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventName}">
+        `<div class="event__type-item">
+                      <input id="event-type-${eventName}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventName}" ${this._type === eventName ? `checked` : ``}>
                       <label class="event__type-label  event__type-label--${eventName}" for="event-type-${eventName}-1">${eventName}</label>
                     </div>`
-  ).join(``)}
+      ).join(``)}
                   </fieldset>`).join(``)}
                 </div>
               </div>
 
               <div class="event__field-group  event__field-group--destination">
                 <label class="event__label  event__type-output" for="event-destination-1">
-                  Sightseeing at
+                  ${this._getDestinationPrefix()}
                 </label>
-                <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._city}" list="destination-list-1">
+                <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._destination}" list="destination-list-1">
                 <datalist id="destination-list-1">
                   ${Array.from(allCities).map((cityName) => `<option value="${cityName}"></option>`)}
                 </datalist>
@@ -72,4 +84,6 @@ export default class EventEditor extends AbstractComponent {
             </header>
           </form>`;
   }
+
+
 }

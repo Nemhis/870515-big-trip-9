@@ -20,7 +20,7 @@ export const toShortISO = (date) =>
  * @returns {string}
  */
 export const toShortDate = (date) =>
-  [date.getUTCFullYear(), pad(date.getUTCMonth() + 1), pad(date.getUTCDate())].join(`-`);
+  [date.getFullYear(), pad(date.getMonth() + 1), pad(date.getDate())].join(`-`);
 
 /**
  *
@@ -29,7 +29,25 @@ export const toShortDate = (date) =>
  * @returns {string}
  */
 export const toSlashDate = (date) =>
-  [pad(date.getUTCDate()), pad(date.getUTCMonth() + 1), String(date.getUTCFullYear()).slice(2)].join(`/`);
+  [pad(date.getDate()), pad(date.getMonth() + 1), String(date.getFullYear()).slice(2)].join(`/`);
+
+/**
+ * @param string
+ *
+ * @returns {Date}
+ */
+export const parseSlashDate = (string) => {
+  const [date, time] = string.split(` `);
+  let [day, month, year] = date.split(`/`);
+  let [hours, minute] = time.split(`:`);
+  year = Number(year);
+
+  if (year < 1900) {
+    year += 2000;
+  }
+
+  return new Date(year, (Number(month) - 1), day, hours, minute);
+};
 
 /**
  *
@@ -37,7 +55,9 @@ export const toSlashDate = (date) =>
  *
  * @returns {string}
  */
-export const toShortTime = (date) => `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`;
+export const toShortTime = (date) => {
+  return `${pad(date.getHours())}:${pad(date.getMinutes())}`
+};
 
 /**
  * Setting zero before number, if number less 10
