@@ -11,16 +11,7 @@ import {
 } from "../data";
 
 export default class EventEditor extends AbstractComponent {
-  constructor({
-                type = `sightseeing`,
-                from = new Date(),
-                to = new Date(),
-                cost = 0,
-                destination = ``,
-                options = [],
-                photos = [],
-                description = ``
-              }) {
+  constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, destination = ``, options = [], photos = [], description = ``}) {
     super();
     this._type = type;
     this._from = from;
@@ -43,14 +34,14 @@ export default class EventEditor extends AbstractComponent {
 
     // Options
     Array.from(el.querySelectorAll(`.event__type-input`)).forEach((typeInput) => {
-      typeInput.addEventListener('change', (event) => {
+      typeInput.addEventListener(`change`, (event) => {
         const input = event.target;
 
         if (input.checked) {
           const label = document.querySelector(`.event__type-output`);
 
           if (label.firstChild) {
-            label.firstChild.remove()
+            label.firstChild.remove();
           }
 
           this._type = input.value;
@@ -64,7 +55,7 @@ export default class EventEditor extends AbstractComponent {
     });
 
     // Description
-    el.querySelector(`.event__input--destination`).addEventListener('change', (event) => {
+    el.querySelector(`.event__input--destination`).addEventListener(`change`, (event) => {
       const input = event.target;
       this._description = getDestinationDescription(input.value);
       this._photos = getDestionationPhotos(input.value);
@@ -83,8 +74,8 @@ export default class EventEditor extends AbstractComponent {
 
   _getOptionsListTemplate() {
     return `<div class="event__available-offers">
-              ${this._options.map((option) => 
-                `<div class="event__offer-selector">
+              ${this._options.map((option) =>
+    `<div class="event__offer-selector">
                   <input class="event__offer-checkbox  visually-hidden" id="event-offer-${option.type}-1" type="checkbox" name="event-offer-${option.type}" ${option.isActive ? `checked` : ``}>
                   <label class="event__offer-label" for="event-offer-${option.type}-1">
                     <span class="event__offer-title">${option.title}</span>
@@ -113,14 +104,14 @@ export default class EventEditor extends AbstractComponent {
 
                 <div class="event__type-list">
                   ${Object.keys(eventTypes).map((eventGroupName) =>
-      `<fieldset class="event__type-group">
+    `<fieldset class="event__type-group">
                     <legend class="visually-hidden">${eventGroupName}</legend>
                     ${eventTypes[eventGroupName].map((eventName) =>
-        `<div class="event__type-item">
+    `<div class="event__type-item">
                       <input id="event-type-${eventName}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventName}" ${this._type === eventName ? `checked` : ``}>
                       <label class="event__type-label  event__type-label--${eventName}" for="event-type-${eventName}-1">${eventName}</label>
                     </div>`
-      ).join(``)}
+  ).join(``)}
                   </fieldset>`).join(``)}
                 </div>
               </div>

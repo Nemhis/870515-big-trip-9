@@ -66,11 +66,10 @@ export default class Event extends AbstractComponent {
   }
 
   /**
-   * @returns {string}
    * @private
+   * @return {string}
    */
-  _getEventTitle()
-  {
+  _getEventTitle() {
     return `${this._type} ${getEventPreposition(this._type)} ${this._destination}`;
   }
 
@@ -102,9 +101,8 @@ export default class Event extends AbstractComponent {
                     <h4 class="visually-hidden">Offers:</h4>
                     
                     ${this._options.length ? `<ul class="event__selected-offers">
-                      ${this._options.map((option) => 
-                        `${option.isActive ? 
-                          `<li class="event__offer">
+                      ${this._options.map((option) => `${option.isActive ?
+    `<li class="event__offer">
                             <span class="event__offer-title">${option.title}</span>
                             &plus;
                             &euro;&nbsp;<span class="event__offer-price">${option.cost}</span>
