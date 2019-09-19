@@ -2,6 +2,7 @@ import EventEditor from "./components/event-editor";
 import Event from "./components/event";
 import {isEscBtn, Position, render} from "./utils";
 import {parseSlashDate} from "./date";
+import {getDestinationDescription, getDestionationPhotos, getOptionsByEventType} from "./data";
 
 export default class PointController {
   /**
@@ -30,19 +31,21 @@ export default class PointController {
     const eventEditEl = this._eventEditor.getElement();
     const eventViewEl = this._eventView.getElement();
 
+    const cancel = () => {
+      this._container.replaceChild(eventViewEl, eventEditEl);
+      document.removeEventListener(`keydown`, onEscKeyDown);
+    };
+
     const onEscKeyDown = (evt) => {
       if (isEscBtn(evt.key)) {
-        this._onViewChange();
-        this._container.replaceChild(eventViewEl, eventEditEl);
-        document.removeEventListener(`keydown`, onEscKeyDown);
+        cancel()
       }
     };
 
     const saveFormHandler = (event) => {
       event.preventDefault();
       this._onDataChange(this._collectFormData(), this._event.id);
-      this._container.replaceChild(eventViewEl, eventEditEl);
-      document.removeEventListener(`keydown`, onEscKeyDown);
+      cancel();
     };
 
     eventViewEl
@@ -56,6 +59,13 @@ export default class PointController {
     eventEditEl
       .addEventListener(`submit`, saveFormHandler);
 
+    eventEditEl
+      .querySelector(`.event__reset-btn`)
+      .addEventListener(`click`, () => {
+        cancel();
+      });
+
+
     let objToRender = this._event ? eventViewEl : eventEditEl;
 
     render(this._container, objToRender, Position.BEFOREEND);
@@ -65,13 +75,23 @@ export default class PointController {
     const formData = new FormData(this._eventEditor.getElement());
     const from = parseSlashDate(formData.get(`event-start-time`));
     const to = parseSlashDate(formData.get(`event-end-time`));
+    const eventType = formData.get(`event-type`);
+    const allOptions = getOptionsByEventType(eventType);
+    const destination = formData.get(`event-destination`);
 
     const newData = {
       type: formData.get(`event-type`),
-      destination: formData.get(`event-destination`),
+      destination: destination,
       from: from,
       to: to,
       cost: Number(formData.get(`event-price`)),
+      options: allOptions.map((option) => {
+        option.isActive = !!formData.get(`event-offer-${option.type}`);
+
+        return Object.assign({}, option)
+      }),
+      description: getDestinationDescription(destination),
+      photos: getDestionationPhotos(destination),
     };
 
     return Object.assign(this._event, newData);

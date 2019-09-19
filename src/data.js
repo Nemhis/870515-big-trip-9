@@ -78,11 +78,23 @@ export function getEventCategory(eventType) {
  *
  * @param {string} destination
  */
-export function getDestinationDescription(destination) {
+export const getDestinationDescription = (destination) => {
   console.log(`try get description for ${destination}`);
 
   return getRandomDescription()
-}
+};
+
+export const getDestionationPhotos = (destination) => {
+  console.log(`try get description for ${destination}`);
+
+  return getRandomPhotos()
+};
+
+const getRandomPhotos = () => {
+  return new Array(getRandomMinMax(5, 10))
+    .fill(``)
+    .map(() => `http://picsum.photos/300/150?r=${Math.random()}`)
+};
 
 const descriptions = [
   `Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
@@ -169,9 +181,7 @@ export const createEvent = (value, index) => {
     id: (index + 1),
     type: getRandomArrayValue(eventTypes[groupName]),
     destination: getRandomArrayValue(Array.from(allCities)),
-    photos: new Array(getRandomMinMax(5, 10))
-      .fill(``)
-      .map(() => `http://picsum.photos/300/150?r=${Math.random()}`),
+    photos: getRandomPhotos(),
     description: getRandomDescription(),
     from: new Date(from),
     to: new Date(to),
