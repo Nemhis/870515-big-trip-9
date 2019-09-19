@@ -8,14 +8,14 @@ export default class TripInfo extends AbstractComponent {
     this._events = events;
   }
 
-  _getCitiesInfo(events) {
-    let cities = events.map((event) => event.city);
+  _getDestinationsInfo(events) {
+    let destinations = events.map((event) => event.destination);
     let format = ``;
 
-    if (cities.length <= 3) {
-      format = cities.join(` &mdash; `);
+    if (destinations.length <= 3) {
+      format = destinations.join(` &mdash; `);
     } else {
-      format = `${cities[0]} &mdash; ... &mdash; ${cities[cities.length - 1]}`;
+      format = `${destinations[0]} &mdash; ... &mdash; ${destinations[destinations.length - 1]}`;
     }
 
     return format;
@@ -40,7 +40,7 @@ export default class TripInfo extends AbstractComponent {
 
   getTemplate() {
     return `<div class="trip-info__main">
-              <h1 class="trip-info__title">${this._getCitiesInfo(this._events)}</h1>
+              <h1 class="trip-info__title">${this._getDestinationsInfo(this._events)}</h1>
 
               <p class="trip-info__dates">${this._getDateInfo(this._events)}</p>
             </div>`;

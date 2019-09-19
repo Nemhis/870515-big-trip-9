@@ -1,16 +1,95 @@
 import AbstractComponent from "./abstract-component";
 
-import {eventTypes, allCities} from "../data.js";
 import {toSlashDate, toShortTime} from "../date.js";
+import {
+  eventTypes,
+  allCities,
+  getEventPreposition,
+  getDestinationDescription,
+  getOptionsByEventType,
+  getDestionationPhotos
+} from "../data";
 
 export default class EventEditor extends AbstractComponent {
-  constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, city = ``}) {
+  constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, destination = ``, options = [], photos = [], description = ``}) {
     super();
     this._type = type;
     this._from = from;
     this._to = to;
     this._cost = cost;
-    this._city = city;
+    this._destination = destination;
+    this._options = options;
+    this._photos = photos;
+    this._description = description;
+
+    this._addEventListeners();
+  }
+
+  _getDestinationPrefix() {
+    return `${this._type} ${getEventPreposition(this._type)}`;
+  }
+
+  _addEventListeners() {
+    const el = this.getElement();
+
+    // Options
+    Array.from(el.querySelectorAll(`.event__type-input`)).forEach((typeInput) => {
+      typeInput.addEventListener(`change`, (event) => {
+        const input = event.target;
+
+        if (input.checked) {
+          const label = document.querySelector(`.event__type-output`);
+
+          if (label.firstChild) {
+            label.firstChild.remove();
+          }
+
+          this._type = input.value;
+          this._options = getOptionsByEventType(this._type);
+          label.append(this._getDestinationPrefix());
+
+          el.querySelector(`.event__available-offers`).remove();
+          el.querySelector(`.event__section--offers`).insertAdjacentHTML(`beforeend`, this._getOptionsListTemplate());
+        }
+      });
+    });
+
+    // Description
+    el.querySelector(`.event__input--destination`).addEventListener(`change`, (event) => {
+      const input = event.target;
+      this._description = getDestinationDescription(input.value);
+      this._photos = getDestionationPhotos(input.value);
+      const descriptionEl = el.querySelector(`.event__destination-description`);
+
+      if (descriptionEl.firstChild) {
+        descriptionEl.firstChild.remove();
+      }
+
+      descriptionEl.append(this._description);
+
+      el.querySelector(`.event__photos-tape`).remove();
+      el.querySelector(`.event__photos-container`).insertAdjacentHTML(`beforeend`, this._getPhotosListTemplate());
+    });
+  }
+
+  _getOptionsListTemplate() {
+    return `<div class="event__available-offers">
+              ${this._options.map((option) =>
+    `<div class="event__offer-selector">
+                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${option.type}-1" type="checkbox" name="event-offer-${option.type}" ${option.isActive ? `checked` : ``}>
+                  <label class="event__offer-label" for="event-offer-${option.type}-1">
+                    <span class="event__offer-title">${option.title}</span>
+                      &plus;
+                      &euro;&nbsp;<span class="event__offer-price">${option.cost}</span>
+                  </label>
+                </div>`).join(``)}
+              </div>`;
+  }
+
+  _getPhotosListTemplate() {
+    return `<div class="event__photos-tape">
+              ${this._photos.map((photo) => `<img class="event__photo" src="${photo}" alt="Event photo">`).join(``)}
+            </div>`;
   }
 
   getTemplate() {
@@ -29,7 +108,7 @@ export default class EventEditor extends AbstractComponent {
                     <legend class="visually-hidden">${eventGroupName}</legend>
                     ${eventTypes[eventGroupName].map((eventName) =>
     `<div class="event__type-item">
-                      <input id="event-type-${eventName}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventName}">
+                      <input id="event-type-${eventName}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventName}" ${this._type === eventName ? `checked` : ``}>
                       <label class="event__type-label  event__type-label--${eventName}" for="event-type-${eventName}-1">${eventName}</label>
                     </div>`
   ).join(``)}
@@ -39,11 +118,11 @@ export default class EventEditor extends AbstractComponent {
 
               <div class="event__field-group  event__field-group--destination">
                 <label class="event__label  event__type-output" for="event-destination-1">
-                  Sightseeing at
+                  ${this._getDestinationPrefix()}
                 </label>
-                <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._city}" list="destination-list-1">
+                <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._destination}" list="destination-list-1">
                 <datalist id="destination-list-1">
-                  ${Array.from(allCities).map((cityName) => `<option value="${cityName}"></option>`)}
+                  ${Array.from(allCities).map((cityName) => `<option value="${cityName}"></option>`).join(``)}
                 </datalist>
               </div>
 
@@ -70,6 +149,31 @@ export default class EventEditor extends AbstractComponent {
               <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
               <button class="event__reset-btn" type="reset">Cancel</button>
             </header>
+            
+            ${(this._options.length || this._description) ? `
+              <section class="event__details">
+                ${this._options.length ? `
+                  <section class="event__section  event__section--offers">
+                    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+                      ${this._getOptionsListTemplate()}
+                  </section>
+                ` : ``}
+                
+                ${this._description ? `
+                  <section class="event__section  event__section--destination">
+                          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+                          <p class="event__destination-description">${this._description}</p>
+                    ${this._photos.length ? `
+                      <div class="event__photos-container">
+                        ${this._getPhotosListTemplate()}
+                      </div>
+                    ` : ``}
+                  </section>
+                ` : ``}
+              </section>
+            ` : ``}
           </form>`;
   }
+
+
 }

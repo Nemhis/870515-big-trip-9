@@ -1,10 +1,12 @@
 import {toShortISO, pad, HOURS_PER_DAY, MINUTE_PER_HOUR, SECONDS_PER_MINUTE} from '../date.js';
 import AbstractComponent from "./abstract-component";
+import {getEventPreposition} from "../data";
 
 export default class Event extends AbstractComponent {
-  constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, options = []}) {
+  constructor({type = `sightseeing`, destination = ``, from = new Date(), to = new Date(), cost = 0, options = []}) {
     super();
     this._type = type;
+    this._destination = destination;
     this._from = from;
     this._to = to;
     this._cost = cost;
@@ -63,13 +65,21 @@ export default class Event extends AbstractComponent {
     return [days, hours, minutes];
   }
 
+  /**
+   * @private
+   * @return {string}
+   */
+  _getEventTitle() {
+    return `${this._type} ${getEventPreposition(this._type)} ${this._destination}`;
+  }
+
   getTemplate() {
     return `<li class="trip-events__item">
                   <div class="event">
                     <div class="event__type">
                       <img class="event__type-icon" width="42" height="42" src="img/icons/${this._type}.png" alt="Event type icon">
                     </div>
-                    <h3 class="event__title">Taxi to airport</h3>
+                    <h3 class="event__title">${this._getEventTitle()}</h3>
 
                     <div class="event__schedule">
                       <p class="event__time">
@@ -91,11 +101,12 @@ export default class Event extends AbstractComponent {
                     <h4 class="visually-hidden">Offers:</h4>
                     
                     ${this._options.length ? `<ul class="event__selected-offers">
-                      ${this._options.map((option) => `<li class="event__offer">
-                          <span class="event__offer-title">${option.title}</span>
-                          &plus;
-                          &euro;&nbsp;<span class="event__offer-price">${option.cost}</span>
-                         </li>`).join(``)}
+                      ${this._options.map((option) => `${option.isActive ?
+    `<li class="event__offer">
+                            <span class="event__offer-title">${option.title}</span>
+                            &plus;
+                            &euro;&nbsp;<span class="event__offer-price">${option.cost}</span>
+                          </li>` : ``}`).join(``)}
                       </ul>` : ``}
                     <button class="event__rollup-btn" type="button">
                       <span class="visually-hidden">Open event</span>

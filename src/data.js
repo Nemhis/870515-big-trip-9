@@ -9,6 +9,93 @@ export function calculateEventCost(event) {
   return event.options.reduce((accumulator, option) => accumulator + Number(option.cost), Number(event.cost));
 }
 
+const EventCategories = {
+  TRANSFER: `transfer`,
+  ACTIVITY: `activity`,
+};
+
+
+export const eventTypes = {
+  [EventCategories.TRANSFER]: [
+    `taxi`,
+    `bus`,
+    `train`,
+    `ship`,
+    `transport`,
+    `drive`,
+    `flight`,
+  ],
+  [EventCategories.ACTIVITY]: [
+    `check-in`,
+    `sightseeing`,
+    `restaurant`,
+  ],
+};
+
+/**
+ * Получение предлого подходящего под действие
+ *
+ * @param eventType
+ * @returns {string}
+ */
+export function getEventPreposition(eventType) {
+  let preposition = ``;
+
+  switch (getEventCategory(eventType)) {
+    case EventCategories.TRANSFER:
+      preposition = `to`;
+      break;
+    case EventCategories.ACTIVITY:
+      preposition = `in`;
+      break;
+  }
+
+  return preposition;
+}
+
+/**
+ * Получение типа события
+ *
+ * @param eventType
+ *
+ * @returns {string}
+ */
+export function getEventCategory(eventType) {
+  const categories = Object.keys(eventTypes);
+
+  for (let i = 0; i < categories.length; i++) {
+    const category = categories[i];
+    const typesByCategory = Array.isArray(eventTypes[category]) ? eventTypes[category] : [];
+
+    if (typesByCategory.indexOf(eventType) !== -1) {
+      return category;
+    }
+  }
+}
+
+/**
+ * Пока заглушка, получаем описание для типа события
+ *
+ * @param {string} destination
+ */
+export const getDestinationDescription = (destination) => {
+  console.log(`try get description for ${destination}`);
+
+  return getRandomDescription()
+};
+
+export const getDestionationPhotos = (destination) => {
+  console.log(`try get description for ${destination}`);
+
+  return getRandomPhotos()
+};
+
+const getRandomPhotos = () => {
+  return new Array(getRandomMinMax(5, 10))
+    .fill(``)
+    .map(() => `http://picsum.photos/300/150?r=${Math.random()}`)
+};
+
 const descriptions = [
   `Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
   `Cras aliquet varius magna, non porta ligula feugiat eget.`,
@@ -32,23 +119,6 @@ const getRandomMinMax = (min, max) => Math.round(Math.random() * (max - min) + m
 const shuffleArray = (array) => array.sort(() => Math.random() - 0.5);
 
 
-export const eventTypes = {
-  transfer: [
-    `taxi`,
-    `bus`,
-    `train`,
-    `ship`,
-    `transport`,
-    `drive`,
-    `flight`,
-  ],
-  activity: [
-    `check-in`,
-    `sightseeing`,
-    `restaurant`,
-  ],
-};
-
 export const allCities = new Set([
   `Amsterdam`,
   `Geneva`,
@@ -56,45 +126,67 @@ export const allCities = new Set([
   `Saint Petersburg`,
 ]);
 
+export const getOptionsByEventType = (eventType) => {
+  console.log(`try get options for ${eventType}`);
+
+  return options;
+};
+
+const getRandomOptions = () => {
+  const activeOptions = new Array(getRandomMinMax(0, 2)).fill(``).map(() => options[getRandomMinMax(0, (options.length - 1))]);
+
+  return options.map((option) => {
+    const clone = Object.assign({}, option);
+    clone.isActive = !!activeOptions.find((activeOption) => activeOption.type === option.type);
+
+    return clone;
+  });
+};
+
 export const options = [
   {
     title: `Add luggage`,
     cost: 10,
-    isActive: true,
+    type: `luggage`,
+    isActive: false,
   },
   {
     title: `Switch to comfort class`,
     cost: 150,
-    isActive: true,
+    type: `comfort`,
+    isActive: false,
   },
   {
     title: `Add meal`,
     cost: 2,
-    isActive: true,
+    type: `meal`,
+    isActive: false,
   },
   {
     title: `Choose seats`,
     cost: 9,
-    isActive: true,
+    type: `seats`,
+    isActive: false,
   },
 ];
 
-export const createEvent = () => {
+const getRandomDescription = () => shuffleArray(descriptions).slice(-1 * getRandomMinMax(1, 3)).join(` `);
+
+export const createEvent = (value, index) => {
   const groupName = getRandomArrayValue(Object.keys(eventTypes));
   const from = Date.now() + getTimestamp(getRandomMinMax(1, 72), getRandomMinMax(10, 60));
   const to = from + getTimestamp(getRandomMinMax(1, 124), getRandomMinMax(10, 60));
 
   return {
+    id: (index + 1),
     type: getRandomArrayValue(eventTypes[groupName]),
-    city: getRandomArrayValue(Array.from(allCities)),
-    photos: new Array(getRandomMinMax(5, 10))
-      .fill(``)
-      .map(() => `http://picsum.photos/300/150?r=${Math.random()}`),
-    description: shuffleArray(descriptions).slice(-1 * getRandomMinMax(1, 3)).join(` `),
+    destination: getRandomArrayValue(Array.from(allCities)),
+    photos: getRandomPhotos(),
+    description: getRandomDescription(),
     from: new Date(from),
     to: new Date(to),
     cost: Math.round(Math.random() * getRandomMinMax(1000, 5000)) / 100,
-    options: new Array(getRandomMinMax(0, 2)).fill(``).map(() => options[getRandomMinMax(0, (options.length - 1))]),
+    options: getRandomOptions(),
   }
 };
 
