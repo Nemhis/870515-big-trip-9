@@ -46,7 +46,7 @@ export function getEventPreposition(eventType) {
       preposition = `to`;
       break;
     case EventCategories.ACTIVITY:
-      preposition = `at`;
+      preposition = `in`;
       break;
   }
 
@@ -80,7 +80,8 @@ export function getEventCategory(eventType) {
  */
 export function getDestinationDescription(destination) {
   console.log(`try get description for ${destination}`);
-  getRandomDescription()
+
+  return getRandomDescription()
 }
 
 const descriptions = [
@@ -113,26 +114,47 @@ export const allCities = new Set([
   `Saint Petersburg`,
 ]);
 
+export const getOptionsByEventType = (eventType) => {
+  console.log(`try get options for ${eventType}`);
+
+  return options;
+};
+
+const getRandomOptions = () => {
+  const activeOptions = new Array(getRandomMinMax(0, 2)).fill(``).map(() => options[getRandomMinMax(0, (options.length - 1))]);
+
+  return options.map((option) => {
+    const clone = Object.assign({}, option);
+    clone.isActive = !!activeOptions.find((activeOption) => activeOption.type === option.type);
+
+    return clone;
+  });
+};
+
 export const options = [
   {
     title: `Add luggage`,
     cost: 10,
-    isActive: true,
+    type: `luggage`,
+    isActive: false,
   },
   {
     title: `Switch to comfort class`,
     cost: 150,
-    isActive: true,
+    type: `comfort`,
+    isActive: false,
   },
   {
     title: `Add meal`,
     cost: 2,
-    isActive: true,
+    type: `meal`,
+    isActive: false,
   },
   {
     title: `Choose seats`,
     cost: 9,
-    isActive: true,
+    type: `seats`,
+    isActive: false,
   },
 ];
 
@@ -154,7 +176,7 @@ export const createEvent = (value, index) => {
     from: new Date(from),
     to: new Date(to),
     cost: Math.round(Math.random() * getRandomMinMax(1000, 5000)) / 100,
-    options: new Array(getRandomMinMax(0, 2)).fill(``).map(() => options[getRandomMinMax(0, (options.length - 1))]),
+    options: getRandomOptions(),
   }
 };
 

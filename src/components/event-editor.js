@@ -4,13 +4,25 @@ import {eventTypes, allCities, getEventPreposition} from "../data.js";
 import {toSlashDate, toShortTime} from "../date.js";
 
 export default class EventEditor extends AbstractComponent {
-  constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, destination = ``}) {
+  constructor({
+                type = `sightseeing`,
+                from = new Date(),
+                to = new Date(),
+                cost = 0,
+                destination = ``,
+                options = [],
+                photos = [],
+                description = ``
+              }) {
     super();
     this._type = type;
     this._from = from;
     this._to = to;
     this._cost = cost;
     this._destination = destination;
+    this._options = options;
+    this._photos = photos;
+    this._description = description;
 
     this._addEventListeners();
   }
@@ -82,6 +94,42 @@ export default class EventEditor extends AbstractComponent {
               <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
               <button class="event__reset-btn" type="reset">Cancel</button>
             </header>
+            
+            ${(this._options.length || this._destination) ? `
+              <section class="event__details">
+                ${this._options.length ? `
+                  <section class="event__section  event__section--offers">
+                    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+                      <div class="event__available-offers">
+                        ${this._options.map((option) => `
+                          <div class="event__offer-selector">
+                            <input class="event__offer-checkbox  visually-hidden" id="event-offer-${option.type}-1" type="checkbox" name="event-offer-${option.type}" ${option.isActive ? `checked` : ``}>
+                            <label class="event__offer-label" for="event-offer-${option.type}-1">
+                              <span class="event__offer-title">${option.title}</span>
+                                &plus;
+                                &euro;&nbsp;<span class="event__offer-price">${option.cost}</span>
+                            </label>
+                          </div>
+                        `).join(``)}  
+                      </div>
+                  </section>
+                ` : ``}
+                
+                ${this._description ? `
+                  <section class="event__section  event__section--destination">
+                          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+                          <p class="event__destination-description">${this._description}</p>
+                    ${this._photos.length ? `
+                      <div class="event__photos-container">
+                        <div class="event__photos-tape">
+                          ${this._photos.map((photo) => `<img class="event__photo" src="${photo}" alt="Event photo">`).join(``)}
+                        </div>
+                      </div>
+                    ` : ``}
+                  </section>
+                ` : ``}
+              </section>
+            ` : ``}
           </form>`;
   }
 
