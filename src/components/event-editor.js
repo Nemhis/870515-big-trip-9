@@ -1,6 +1,9 @@
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/themes/material_blue.css';
+
 import AbstractComponent from "./abstract-component";
 
-import {toSlashDate, toShortTime} from "../date.js";
+import {toShortISO} from "../date";
 import {
   eventTypes,
   allCities,
@@ -23,6 +26,39 @@ export default class EventEditor extends AbstractComponent {
     this._description = description;
 
     this._addEventListeners();
+    this._initDatePicker();
+  }
+
+  _initDatePicker() {
+    const defaultOptions = {
+      altInput: true,
+      enableTime: true,
+      altFormat: `d.m.Y H:i`,
+      dateFormat: `Y-m-dTH:i`,
+    };
+
+    const fromFlatpickr = flatpickr(
+      this.getElement().querySelector(`#event-start-time-1`),
+      Object.assign({}, defaultOptions, {
+        minDate: new Date(),
+        maxDate: this._to
+      }));
+
+    const toFlatpickr = flatpickr(
+      this.getElement().querySelector(`#event-end-time-1`),
+      Object.assign({}, defaultOptions, {
+        minDate: this._from
+      }));
+
+    fromFlatpickr.set(`onChange`, (selectedDates) => {
+      [this._from] = selectedDates;
+      toFlatpickr.set(`minDate`, this._from);
+    });
+
+    toFlatpickr.set(`onChange`, (selectedDates) => {
+      [this._to] = selectedDates;
+      fromFlatpickr.set(`maxDate`, this._to);
+    });
   }
 
   _getDestinationPrefix() {
@@ -75,7 +111,7 @@ export default class EventEditor extends AbstractComponent {
   _getOptionsListTemplate() {
     return `<div class="event__available-offers">
               ${this._options.map((option) =>
-    `<div class="event__offer-selector">
+      `<div class="event__offer-selector">
                   <input class="event__offer-checkbox  visually-hidden" id="event-offer-${option.type}-1" type="checkbox" name="event-offer-${option.type}" ${option.isActive ? `checked` : ``}>
                   <label class="event__offer-label" for="event-offer-${option.type}-1">
                     <span class="event__offer-title">${option.title}</span>
@@ -104,14 +140,14 @@ export default class EventEditor extends AbstractComponent {
 
                 <div class="event__type-list">
                   ${Object.keys(eventTypes).map((eventGroupName) =>
-    `<fieldset class="event__type-group">
+      `<fieldset class="event__type-group">
                     <legend class="visually-hidden">${eventGroupName}</legend>
                     ${eventTypes[eventGroupName].map((eventName) =>
-    `<div class="event__type-item">
+        `<div class="event__type-item">
                       <input id="event-type-${eventName}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventName}" ${this._type === eventName ? `checked` : ``}>
                       <label class="event__type-label  event__type-label--${eventName}" for="event-type-${eventName}-1">${eventName}</label>
                     </div>`
-  ).join(``)}
+      ).join(``)}
                   </fieldset>`).join(``)}
                 </div>
               </div>
@@ -130,12 +166,12 @@ export default class EventEditor extends AbstractComponent {
                 <label class="visually-hidden" for="event-start-time-1">
                   From
                 </label>
-                <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${toSlashDate(this._from)} ${toShortTime(this._from)}">
+                <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${toShortISO(this._from)}">
                 &mdash;
                 <label class="visually-hidden" for="event-end-time-1">
                   To
                 </label>
-                <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${toSlashDate(this._to)} ${toShortTime(this._to)}">
+                <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${toShortISO(this._to)}">
               </div>
 
               <div class="event__field-group  event__field-group--price">

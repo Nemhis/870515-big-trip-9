@@ -28,33 +28,6 @@ export const toShortDate = (date) =>
  *
  * @returns {string}
  */
-export const toSlashDate = (date) =>
-  [pad(date.getDate()), pad(date.getMonth() + 1), String(date.getFullYear()).slice(2)].join(`/`);
-
-/**
- * @param string
- *
- * @returns {Date}
- */
-export const parseSlashDate = (string) => {
-  const [date, time] = string.split(` `);
-  let [day, month, year] = date.split(`/`);
-  let [hours, minute] = time.split(`:`);
-  year = Number(year);
-
-  if (year < 1900) {
-    year += 2000;
-  }
-
-  return new Date(year, (Number(month) - 1), day, hours, minute);
-};
-
-/**
- *
- * @param {Date} date
- *
- * @returns {string}
- */
 export const toShortTime = (date) => {
   return `${pad(date.getHours())}:${pad(date.getMinutes())}`
 };

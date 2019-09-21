@@ -1,7 +1,6 @@
 import EventEditor from "./components/event-editor";
 import Event from "./components/event";
 import {isEscBtn, Position, render} from "./utils";
-import {parseSlashDate} from "./date";
 import {getDestinationDescription, getDestionationPhotos, getOptionsByEventType} from "./data";
 
 export default class PointController {
@@ -73,8 +72,8 @@ export default class PointController {
 
   _collectFormData() {
     const formData = new FormData(this._eventEditor.getElement());
-    const from = parseSlashDate(formData.get(`event-start-time`));
-    const to = parseSlashDate(formData.get(`event-end-time`));
+    const from = new Date(formData.get(`event-start-time`));
+    const to = new Date(formData.get(`event-end-time`));
     const eventType = formData.get(`event-type`);
     const allOptions = getOptionsByEventType(eventType);
     const destination = formData.get(`event-destination`);
