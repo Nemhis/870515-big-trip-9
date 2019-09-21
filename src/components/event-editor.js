@@ -25,11 +25,26 @@ export default class EventEditor extends AbstractComponent {
     this._photos = photos;
     this._description = description;
 
+    this._fromFlatpickr = null;
+    this._toFlatpickr = null;
+
     this._addEventListeners();
-    this._initDatePicker();
   }
 
-  _initDatePicker() {
+  destroyDatePicker() {
+    this._fromFlatpickr.destroy();
+    this._toFlatpickr.destroy();
+
+    // Flatpickr затирает value, поэтому обновляем его в ручную
+    // @see https://github.com/flatpickr/flatpickr/issues/1641
+    const fromEl = this.getElement().querySelector(`#event-start-time-1`);
+    const toEl = this.getElement().querySelector(`#event-end-time-1`);
+
+    fromEl.value = toShortISO(this._from);
+    toEl.value = toShortISO(this._to);
+  }
+
+  initDatePicker() {
     const defaultOptions = {
       altInput: true,
       enableTime: true,
@@ -37,27 +52,29 @@ export default class EventEditor extends AbstractComponent {
       dateFormat: `Y-m-dTH:i`,
     };
 
-    const fromFlatpickr = flatpickr(
+    this._fromFlatpickr = flatpickr(
       this.getElement().querySelector(`#event-start-time-1`),
       Object.assign({}, defaultOptions, {
+        defaultDate: this._from,
         minDate: new Date(),
         maxDate: this._to
       }));
 
-    const toFlatpickr = flatpickr(
+    this._toFlatpickr = flatpickr(
       this.getElement().querySelector(`#event-end-time-1`),
       Object.assign({}, defaultOptions, {
+        defaultDate: this._to,
         minDate: this._from
       }));
 
-    fromFlatpickr.set(`onChange`, (selectedDates) => {
+    this._fromFlatpickr.set(`onChange`, (selectedDates) => {
       [this._from] = selectedDates;
-      toFlatpickr.set(`minDate`, this._from);
+      this._toFlatpickr.set(`minDate`, this._from);
     });
 
-    toFlatpickr.set(`onChange`, (selectedDates) => {
+    this._toFlatpickr.set(`onChange`, (selectedDates) => {
       [this._to] = selectedDates;
-      fromFlatpickr.set(`maxDate`, this._to);
+      this._fromFlatpickr.set(`maxDate`, this._to);
     });
   }
 

@@ -31,6 +31,7 @@ export default class PointController {
     const eventViewEl = this._eventView.getElement();
 
     const cancel = () => {
+      this._eventEditor.destroyDatePicker();
       this._container.replaceChild(eventViewEl, eventEditEl);
       document.removeEventListener(`keydown`, onEscKeyDown);
     };
@@ -52,6 +53,7 @@ export default class PointController {
       .addEventListener(`click`, () => {
         this._onViewChange();
         this._container.replaceChild(eventEditEl, eventViewEl);
+        this._eventEditor.initDatePicker();
         document.addEventListener(`keydown`, onEscKeyDown);
       });
 
