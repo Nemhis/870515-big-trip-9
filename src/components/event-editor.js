@@ -1,9 +1,11 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/themes/material_blue.css';
+import moment from "moment";
 
 import AbstractComponent from "./abstract-component";
 
-import {toShortISO} from "../date";
+import {SHORT_ISO_FORMAT} from '../utils';
+
 import {
   eventTypes,
   allCities,
@@ -40,8 +42,8 @@ export default class EventEditor extends AbstractComponent {
     const fromEl = this.getElement().querySelector(`#event-start-time-1`);
     const toEl = this.getElement().querySelector(`#event-end-time-1`);
 
-    fromEl.value = toShortISO(this._from);
-    toEl.value = toShortISO(this._to);
+    fromEl.value = moment(this._from).format(SHORT_ISO_FORMAT);
+    toEl.value = moment(this._to).format(SHORT_ISO_FORMAT);
   }
 
   initDatePicker() {
@@ -50,6 +52,7 @@ export default class EventEditor extends AbstractComponent {
       enableTime: true,
       altFormat: `d.m.Y H:i`,
       dateFormat: `Y-m-dTH:i`,
+      time_24hr: true,
     };
 
     this._fromFlatpickr = flatpickr(
@@ -183,12 +186,12 @@ export default class EventEditor extends AbstractComponent {
                 <label class="visually-hidden" for="event-start-time-1">
                   From
                 </label>
-                <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${toShortISO(this._from)}">
+                <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${moment(this._from).format(SHORT_ISO_FORMAT)}">
                 &mdash;
                 <label class="visually-hidden" for="event-end-time-1">
                   To
                 </label>
-                <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${toShortISO(this._to)}">
+                <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${moment(this._to).format(SHORT_ISO_FORMAT)}">
               </div>
 
               <div class="event__field-group  event__field-group--price">

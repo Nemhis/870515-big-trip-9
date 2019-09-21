@@ -1,5 +1,8 @@
-import {toShortISO, pad, HOURS_PER_DAY, MINUTE_PER_HOUR, SECONDS_PER_MINUTE} from '../date.js';
+import moment from 'moment';
+
 import AbstractComponent from "./abstract-component";
+
+import {SHORT_ISO_FORMAT, pad} from '../utils';
 import {getEventPreposition} from "../data";
 
 export default class Event extends AbstractComponent {
@@ -45,22 +48,14 @@ export default class Event extends AbstractComponent {
    * @return {int[]}
    */
   _getTimeDiff(from, to) {
-    const minuteDivider = 1000 * SECONDS_PER_MINUTE;
-    const hourDivider = minuteDivider * MINUTE_PER_HOUR;
-    const dayDivider = hourDivider * HOURS_PER_DAY;
+    const fromMoment = moment(from);
+    const toMoment = moment(to);
 
-    const diff = to - from;
-    const days = Math.floor(diff / dayDivider);
-    let hours = Math.floor(diff / hourDivider);
-    let minutes = Math.floor(diff / minuteDivider);
-
-    if (hours > HOURS_PER_DAY) {
-      hours = hours - (days * HOURS_PER_DAY);
-    }
-
-    if (minutes > MINUTE_PER_HOUR) {
-      minutes = minutes - ((days * HOURS_PER_DAY * MINUTE_PER_HOUR) + (hours * MINUTE_PER_HOUR));
-    }
+    const days = toMoment.diff(fromMoment, `days`);
+    toMoment.subtract(days, `days`);
+    let hours = toMoment.diff(fromMoment, `hours`);
+    toMoment.subtract(hours, `hours`);
+    let minutes = toMoment.diff(fromMoment, `minutes`);
 
     return [days, hours, minutes];
   }
@@ -83,11 +78,11 @@ export default class Event extends AbstractComponent {
 
                     <div class="event__schedule">
                       <p class="event__time">
-                        <time class="event__start-time" datetime="${toShortISO(this._from)}">
+                        <time class="event__start-time" datetime="${moment(this._from).format(SHORT_ISO_FORMAT)}">
                           ${this._from.getHours()}:${this._from.getMinutes()}
                         </time>
                         &mdash;
-                        <time class="event__end-time" datetime="${toShortISO(this._to)}">
+                        <time class="event__end-time" datetime="${moment(this._to).format(SHORT_ISO_FORMAT)}">
                           ${this._to.getHours()}:${this._to.getMinutes()}
                         </time>
                       </p>

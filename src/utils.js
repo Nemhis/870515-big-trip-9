@@ -4,6 +4,12 @@ export const Position = {
   BEFOREEND: `beforeend`
 };
 
+export const SHORT_ISO_FORMAT = `YYYY-MM-DDTHH:mm`;
+
+export const SHORT_DATE_FORMAT = `YYYY-MM-DD`;
+
+export const SHORT_MONTHS = [`JAN`, `FEB`, `MAR`, `APR`, `MAY`, `JUN`, `JUL`, `AUG`, `SEPT`, `ACT`, `NOV`, `DEC`];
+
 export const createElement = (template) => {
   const newElement = document.createElement(`div`);
   newElement.insertAdjacentHTML(`afterbegin`, template);
@@ -32,3 +38,12 @@ export const unrender = (element) => {
 };
 
 export const isEscBtn = (key) => key === `Escape` || key === `Esc`;
+
+/**
+ * Setting zero before number, if number less 10
+ *
+ * @param {number} number
+ *
+ * @returns {string}
+ */
+export const pad = (number) => (number < 10) ? '0' + number : number;
