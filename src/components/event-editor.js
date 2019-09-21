@@ -1,6 +1,11 @@
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/themes/material_blue.css';
+import moment from "moment";
+
 import AbstractComponent from "./abstract-component";
 
-import {toSlashDate, toShortTime} from "../date.js";
+import {SHORT_ISO_FORMAT} from '../utils';
+
 import {
   eventTypes,
   allCities,
@@ -22,7 +27,58 @@ export default class EventEditor extends AbstractComponent {
     this._photos = photos;
     this._description = description;
 
+    this._fromFlatpickr = null;
+    this._toFlatpickr = null;
+
     this._addEventListeners();
+  }
+
+  destroyDatePicker() {
+    this._fromFlatpickr.destroy();
+    this._toFlatpickr.destroy();
+
+    // Flatpickr затирает value, поэтому обновляем его в ручную
+    // @see https://github.com/flatpickr/flatpickr/issues/1641
+    const fromEl = this.getElement().querySelector(`#event-start-time-1`);
+    const toEl = this.getElement().querySelector(`#event-end-time-1`);
+
+    fromEl.value = moment(this._from).format(SHORT_ISO_FORMAT);
+    toEl.value = moment(this._to).format(SHORT_ISO_FORMAT);
+  }
+
+  initDatePicker() {
+    const defaultOptions = {
+      altInput: true,
+      enableTime: true,
+      altFormat: `d.m.Y H:i`,
+      dateFormat: `Y-m-dTH:i`,
+      time_24hr: true, // eslint ругается - is not in camel case =)
+    };
+
+    this._fromFlatpickr = flatpickr(
+        this.getElement().querySelector(`#event-start-time-1`),
+        Object.assign({}, defaultOptions, {
+          defaultDate: this._from,
+          minDate: new Date(),
+          maxDate: this._to
+        }));
+
+    this._toFlatpickr = flatpickr(
+        this.getElement().querySelector(`#event-end-time-1`),
+        Object.assign({}, defaultOptions, {
+          defaultDate: this._to,
+          minDate: this._from
+        }));
+
+    this._fromFlatpickr.set(`onChange`, (selectedDates) => {
+      [this._from] = selectedDates;
+      this._toFlatpickr.set(`minDate`, this._from);
+    });
+
+    this._toFlatpickr.set(`onChange`, (selectedDates) => {
+      [this._to] = selectedDates;
+      this._fromFlatpickr.set(`maxDate`, this._to);
+    });
   }
 
   _getDestinationPrefix() {
@@ -130,12 +186,12 @@ export default class EventEditor extends AbstractComponent {
                 <label class="visually-hidden" for="event-start-time-1">
                   From
                 </label>
-                <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${toSlashDate(this._from)} ${toShortTime(this._from)}">
+                <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${moment(this._from).format(SHORT_ISO_FORMAT)}">
                 &mdash;
                 <label class="visually-hidden" for="event-end-time-1">
                   To
                 </label>
-                <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${toSlashDate(this._to)} ${toShortTime(this._to)}">
+                <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${moment(this._to).format(SHORT_ISO_FORMAT)}">
               </div>
 
               <div class="event__field-group  event__field-group--price">

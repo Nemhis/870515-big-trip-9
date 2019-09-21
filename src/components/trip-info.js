@@ -1,6 +1,6 @@
 import AbstractComponent from "./abstract-component";
 
-import {SHORT_MONTHS} from '../date.js';
+import {SHORT_MONTHS} from '../utils';
 
 export default class TripInfo extends AbstractComponent {
   constructor(events) {
