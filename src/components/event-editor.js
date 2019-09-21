@@ -52,23 +52,23 @@ export default class EventEditor extends AbstractComponent {
       enableTime: true,
       altFormat: `d.m.Y H:i`,
       dateFormat: `Y-m-dTH:i`,
-      time_24hr: true,
+      time_24hr: true, // eslint ругается - is not in camel case =)
     };
 
     this._fromFlatpickr = flatpickr(
-      this.getElement().querySelector(`#event-start-time-1`),
-      Object.assign({}, defaultOptions, {
-        defaultDate: this._from,
-        minDate: new Date(),
-        maxDate: this._to
-      }));
+        this.getElement().querySelector(`#event-start-time-1`),
+        Object.assign({}, defaultOptions, {
+          defaultDate: this._from,
+          minDate: new Date(),
+          maxDate: this._to
+        }));
 
     this._toFlatpickr = flatpickr(
-      this.getElement().querySelector(`#event-end-time-1`),
-      Object.assign({}, defaultOptions, {
-        defaultDate: this._to,
-        minDate: this._from
-      }));
+        this.getElement().querySelector(`#event-end-time-1`),
+        Object.assign({}, defaultOptions, {
+          defaultDate: this._to,
+          minDate: this._from
+        }));
 
     this._fromFlatpickr.set(`onChange`, (selectedDates) => {
       [this._from] = selectedDates;
@@ -131,7 +131,7 @@ export default class EventEditor extends AbstractComponent {
   _getOptionsListTemplate() {
     return `<div class="event__available-offers">
               ${this._options.map((option) =>
-      `<div class="event__offer-selector">
+    `<div class="event__offer-selector">
                   <input class="event__offer-checkbox  visually-hidden" id="event-offer-${option.type}-1" type="checkbox" name="event-offer-${option.type}" ${option.isActive ? `checked` : ``}>
                   <label class="event__offer-label" for="event-offer-${option.type}-1">
                     <span class="event__offer-title">${option.title}</span>
@@ -160,14 +160,14 @@ export default class EventEditor extends AbstractComponent {
 
                 <div class="event__type-list">
                   ${Object.keys(eventTypes).map((eventGroupName) =>
-      `<fieldset class="event__type-group">
+    `<fieldset class="event__type-group">
                     <legend class="visually-hidden">${eventGroupName}</legend>
                     ${eventTypes[eventGroupName].map((eventName) =>
-        `<div class="event__type-item">
+    `<div class="event__type-item">
                       <input id="event-type-${eventName}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventName}" ${this._type === eventName ? `checked` : ``}>
                       <label class="event__type-label  event__type-label--${eventName}" for="event-type-${eventName}-1">${eventName}</label>
                     </div>`
-      ).join(``)}
+  ).join(``)}
                   </fieldset>`).join(``)}
                 </div>
               </div>
