@@ -63,7 +63,7 @@ export default class PointController {
     eventEditEl
       .querySelector(`.event__reset-btn`)
       .addEventListener(`click`, () => {
-        cancel();
+        this._onDataChange(null, this._event.id);
       });
 
 

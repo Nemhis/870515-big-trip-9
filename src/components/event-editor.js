@@ -12,11 +12,16 @@ import {
   getEventPreposition,
   getDestinationDescription,
   getOptionsByEventType,
-  getDestionationPhotos
+  getDestionationPhotos,
 } from "../data";
 
+export const Mode = {
+  EDIT: 1,
+  CREATING: 2,
+};
+
 export default class EventEditor extends AbstractComponent {
-  constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, destination = ``, options = [], photos = [], description = ``}) {
+  constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, destination = ``, options = [], photos = [], description = ``, isFavorite = false}, mode) {
     super();
     this._type = type;
     this._from = from;
@@ -26,6 +31,9 @@ export default class EventEditor extends AbstractComponent {
     this._options = options;
     this._photos = photos;
     this._description = description;
+    this._isFavorite = isFavorite;
+
+    this._mode = mode;
 
     this._fromFlatpickr = null;
     this._toFlatpickr = null;
@@ -60,14 +68,14 @@ export default class EventEditor extends AbstractComponent {
         Object.assign({}, defaultOptions, {
           defaultDate: this._from,
           minDate: new Date(),
-          maxDate: this._to
+          maxDate: this._to,
         }));
 
     this._toFlatpickr = flatpickr(
         this.getElement().querySelector(`#event-end-time-1`),
         Object.assign({}, defaultOptions, {
           defaultDate: this._to,
-          minDate: this._from
+          minDate: this._from,
         }));
 
     this._fromFlatpickr.set(`onChange`, (selectedDates) => {
@@ -166,8 +174,7 @@ export default class EventEditor extends AbstractComponent {
     `<div class="event__type-item">
                       <input id="event-type-${eventName}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventName}" ${this._type === eventName ? `checked` : ``}>
                       <label class="event__type-label  event__type-label--${eventName}" for="event-type-${eventName}-1">${eventName}</label>
-                    </div>`
-  ).join(``)}
+                    </div>`).join(``)}
                   </fieldset>`).join(``)}
                 </div>
               </div>
@@ -203,7 +210,18 @@ export default class EventEditor extends AbstractComponent {
               </div>
 
               <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-              <button class="event__reset-btn" type="reset">Cancel</button>
+              <button class="event__reset-btn" type="reset">${this._mode === Mode.CREATING ? `Cancel` : `Delete`}</button>
+              
+              <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${this._isFavorite ? `checked` : ``}>
+              <label class="event__favorite-btn" for="event-favorite-1">
+                <span class="visually-hidden">Add to favorite</span>
+                <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
+                  <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/> </svg>
+              </label>
+              
+              <button class="event__rollup-btn" type="button">
+                <span class="visually-hidden">Open event</span>
+              </button>
             </header>
             
             ${(this._options.length || this._description) ? `

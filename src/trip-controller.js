@@ -171,11 +171,34 @@ export default class TripController {
 
   _onDataChange(newData, id) {
     const index = this._events.findIndex((it) => it.id === id);
-    this._events[index] = newData;
+
+    if (newData === null && id === null) { // выход из режима создания
+      this._creatingEvent = null;
+    } else if (newData !== null && id === null) { // создание
+      this._events = [newData, ...this._events];
+      this._creatingEvent = null;
+    } else if (newData === null) { // удаление
+      this._events = [...this._events.slice(0, index), ...this._events.slice(index + 1)];
+    } else { // обновление
+      this._events[index] = newData;
+    }
+
     this._renderEvents();
   }
 
   _onViewChange() {
     this._subscriptions.forEach((subscription) => subscription());
+  }
+
+  createEvent() {
+    if (this._creatingEvent !== null) {
+      return;
+    }
+
+    const defailtEvent = {
+
+    };
+
+    this._creatingEvent = new PointController();
   }
 }
