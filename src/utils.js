@@ -47,3 +47,7 @@ export const isEscBtn = (key) => key === `Escape` || key === `Esc`;
  * @returns {string}
  */
 export const pad = (number) => (number < 10) ? '0' + number : number;
+
+export const hideVisually = (HTMLElement) => HTMLElement.classList.add(`visually-hidden`);
+
+export const showVisually = (HTMLElement) => HTMLElement.classList.remove(`visually-hidden`);

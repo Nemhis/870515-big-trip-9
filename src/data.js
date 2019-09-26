@@ -190,6 +190,9 @@ export const createEvent = (value, index) => {
   }
 };
 
-export const menuItems = new Set([`Table`, `Stats`]);
+export const MENU_ITEMS = {
+  TABLE: `Table`,
+  STATS: `Stats`,
+};
 
 export const filterItems = new Set([`everything`, `future`, `past`]);

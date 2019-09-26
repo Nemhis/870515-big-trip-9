@@ -4,7 +4,7 @@ import DaysList from './components/days-list';
 import Day from './components/day';
 import Event from './components/event.js';
 
-import {Position, render} from './utils';
+import {hideVisually, Position, render, showVisually} from './utils';
 import {calculateEventCost} from "./data";
 
 export default class TripController {
@@ -16,6 +16,14 @@ export default class TripController {
     this._dayList = new DaysList();
 
     this._subscriptions = [];
+  }
+
+  show() {
+    showVisually(this._container);
+  }
+
+  hide() {
+    hideVisually(this._container);
   }
 
   init() {
