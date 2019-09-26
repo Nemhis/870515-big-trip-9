@@ -2,10 +2,9 @@ import PointController from "./point-controller";
 import Sorter from './components/sorter';
 import DaysList from './components/days-list';
 import Day from './components/day';
-import Event from './components/event.js';
 
 import {hideVisually, Position, render, showVisually} from './utils';
-import {calculateEventCost} from "./data";
+import {calculateEventCost, eventTypes, EventCategories} from "./data";
 
 export default class TripController {
   constructor(container, events) {
@@ -195,10 +194,25 @@ export default class TripController {
       return;
     }
 
-    const defailtEvent = {
+    const [firstType] = eventTypes[EventCategories.TRANSFER];
 
+    const defaultEvent = {
+      id: null,
+      type: firstType,
+      destination: ``,
+      photos: [],
+      description: ``,
+      from: new Date(),
+      to: new Date(),
+      cost: 0,
+      options: [],
     };
 
-    this._creatingEvent = new PointController();
+    this._creatingEvent = new PointController(
+        this._dayList.getElement(),
+        defaultEvent,
+        this._onDataChange.bind(this),
+        this._onViewChange.bind(this)
+      );
   }
 }

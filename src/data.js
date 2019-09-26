@@ -9,7 +9,7 @@ export function calculateEventCost(event) {
   return event.options.reduce((accumulator, option) => accumulator + Number(option.cost), Number(event.cost));
 }
 
-const EventCategories = {
+export const EventCategories = {
   TRANSFER: `transfer`,
   ACTIVITY: `activity`,
 };
