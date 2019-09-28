@@ -6,7 +6,11 @@
  * @returns {*}
  */
 export function calculateEventCost(event) {
-  return event.options.reduce((accumulator, option) => accumulator + Number(option.cost), Number(event.cost));
+  return event.options.reduce((accumulator, option) => {
+    const optionCost = option.isActive ? Number(option.cost) : 0;
+
+    return accumulator + optionCost;
+  }, Number(event.cost));
 }
 
 export const EventCategories = {
