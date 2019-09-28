@@ -1,15 +1,15 @@
-import moment from "moment";
+import moment from "moment/moment";
 
-import PointController from "./point-controller";
-import Sorter from './components/sorter';
-import DaysList from './components/days-list';
+import Point from "./point";
+import Sorter from '../components/sorter';
+import DaysList from '../components/days-list';
 
-import Day from './components/day';
-import {hideVisually, Position, render, showVisually} from './utils';
-import {calculateEventCost, eventTypes, EventCategories} from "./data";
-import {Mode} from "./components/event-editor";
+import Day from '../components/day';
+import {hideVisually, Position, render, showVisually} from '../utils';
+import {calculateEventCost, eventTypes, EventCategories} from "../data";
+import {Mode} from "../components/event-editor";
 
-export default class TripController {
+export default class Trip {
   constructor(container, events) {
     this._container = container;
     this._events = events;
@@ -58,12 +58,12 @@ export default class TripController {
 
         render(this._dayList.getElement(), dayEl, Position.BEFOREEND);
         day.getEvents().forEach((event) => {
-          const pointController = new PointController(eventList, event, Mode.EDIT, this._onDataChange.bind(this), this._onViewChange.bind(this));
+          const pointController = new Point(eventList, event, Mode.EDIT, this._onDataChange.bind(this), this._onViewChange.bind(this));
           this._subscriptions.push(pointController.setDefaultView.bind(pointController));
         });
       });
     } else {
-      const pointController = new PointController(this._container, null, Mode.CREATING, this._onDataChange.bind(this), this._onViewChange.bind(this));
+      const pointController = new Point(this._container, null, Mode.CREATING, this._onDataChange.bind(this), this._onViewChange.bind(this));
       this._subscriptions.push(pointController.setDefaultView.bind(pointController));
     }
   }
@@ -216,7 +216,7 @@ export default class TripController {
       options: [],
     };
 
-    this._creatingEvent = new PointController(
+    this._creatingEvent = new Point(
         this._dayList.getElement(),
         defaultEvent,
         Mode.CREATING,

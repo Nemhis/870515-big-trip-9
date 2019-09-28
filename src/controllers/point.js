@@ -1,9 +1,9 @@
-import EventEditor, {Mode} from "./components/event-editor";
-import Event from "./components/event";
-import {isEscBtn, Position, render, unrender} from "./utils";
-import {getDestinationDescription, getDestionationPhotos, getOptionsByEventType} from "./data";
+import EventEditor, {Mode} from "../components/event-editor";
+import Event from "../components/event";
+import {isEscBtn, Position, render, unrender} from "../utils";
+import {getDestinationDescription, getDestionationPhotos, getOptionsByEventType} from "../data";
 
-export default class PointController {
+export default class Point {
   /**
    * @param {HTMLElement} container
    * @param {object} event

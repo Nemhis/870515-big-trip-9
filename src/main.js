@@ -2,7 +2,7 @@ import Menu from './components/menu.js';
 import TripInfo from './components/trip-info.js';
 import Filter from "./components/filter";
 import Statistic from "./components/statistic";
-import TripController from './trip-controller.js';
+import Trip from './controllers/trip.js';
 
 import {createEvent, MENU_ITEMS, filterItems, calculateEventCost} from './data.js';
 import {render, Position, hideVisually, showVisually} from "./utils";
@@ -38,7 +38,7 @@ costContainer.append(Math.round(totalCost));
 render(document.querySelector(`.trip-controls`), (new Filter(filterItems)).getElement(), Position.BEFOREEND);
 
 const tripEventsEl = document.querySelector(`.trip-events`);
-const tripController = new TripController(tripEventsEl, events);
+const tripController = new Trip(tripEventsEl, events);
 tripController.init();
 
 const statistic = new Statistic();
