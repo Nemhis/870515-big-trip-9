@@ -7,7 +7,7 @@ import Day from '../components/day';
 
 import {Mode} from "../components/event-editor";
 import {hideVisually, showVisually, Position, render} from '../utils';
-import {eventTypes, EventCategories} from "../data";
+import {eventTypes, EventCategories, getOptionsByEventType} from "../data";
 
 
 export default class Trip {
@@ -104,7 +104,7 @@ export default class Trip {
       from: moment().add(1, `days`).toDate(),
       to: moment().add(2, `days`).toDate(),
       cost: 0,
-      options: [],
+      options: getOptionsByEventType(firstType),
     };
 
     this._creatingEvent = new Point(

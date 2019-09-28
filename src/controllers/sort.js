@@ -51,19 +51,32 @@ export default class Sort {
     }
 
     this._events = events;
+    const dayColumns = this._sorter.getElement().querySelector(`.trip-sort__item--day`);
 
+    let showDaysColumn;
     let days = [];
 
     switch (this._currentSort) {
       case `sort-price`:
         days = this._sortByPrice(events);
+        showDaysColumn = false;
         break;
       case `sort-time`:
         days = this._sortByTime(events);
+        showDaysColumn = false;
         break;
       case `sort-default`:
         days = this._defaultSort(events);
+        showDaysColumn = true;
         break;
+    }
+
+    if (dayColumns.firstChild) {
+      dayColumns.firstChild.remove();
+    }
+
+    if (showDaysColumn) {
+      dayColumns.append(`DAY`);
     }
 
     return days;
