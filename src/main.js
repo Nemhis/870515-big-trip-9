@@ -56,3 +56,9 @@ menuChangeSubscribers.push((menuItem) => {
       break;
   }
 });
+
+document
+  .querySelector(`.trip-main__event-add-btn`)
+  .addEventListener(`click`, () => {
+    tripController.createEvent();
+});

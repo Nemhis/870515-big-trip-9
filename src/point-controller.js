@@ -1,32 +1,34 @@
-import EventEditor from "./components/event-editor";
+import EventEditor, {Mode} from "./components/event-editor";
 import Event from "./components/event";
-import {isEscBtn, Position, render} from "./utils";
+import {isEscBtn, Position, render, unrender} from "./utils";
 import {getDestinationDescription, getDestionationPhotos, getOptionsByEventType} from "./data";
 
 export default class PointController {
   /**
    * @param {HTMLElement} container
    * @param {object} event
+   * @param {int} mode
    * @param {function} onDataChange
    * @param {function} onViewChange
    */
-  constructor(container, event, onDataChange, onViewChange) {
+  constructor(container, event, mode, onDataChange, onViewChange) {
     this._container = container;
     this._event = event;
 
-    this._eventEditor = new EventEditor(this._event || {});
+    this._mode = mode;
+    this._eventEditor = new EventEditor(this._event || {}, this._mode);
     this._eventView = new Event(this._event || {});
 
     this._onDataChange = onDataChange;
     this._onViewChange = onViewChange;
 
-    this.init();
+    this._init();
   }
 
   /**
    * @private
    */
-  init() {
+  _init() {
     const eventEditEl = this._eventEditor.getElement();
     const eventViewEl = this._eventView.getElement();
 
@@ -45,7 +47,10 @@ export default class PointController {
     const saveFormHandler = (event) => {
       event.preventDefault();
       this._onDataChange(this._collectFormData(), this._event.id);
-      cancel();
+
+      if (this._mode === Mode.EDIT) {
+        cancel();
+      }
     };
 
     eventViewEl
@@ -66,10 +71,25 @@ export default class PointController {
         this._onDataChange(null, this._event.id);
       });
 
+    let objToRender;
+    let position;
 
-    let objToRender = this._event ? eventViewEl : eventEditEl;
+    if (this._mode === Mode.EDIT) {
+      eventEditEl
+        .querySelector(`.event__rollup-btn`)
+        .addEventListener(`click`, () => {
+          cancel();
+        });
 
-    render(this._container, objToRender, Position.BEFOREEND);
+      objToRender = eventViewEl;
+      position = Position.BEFOREEND;
+    } else if (this._mode === Mode.CREATING) {
+      this._eventEditor.initDatePicker();
+      objToRender = eventEditEl;
+      position = Position.BEFORE;
+    }
+
+    render(this._container, objToRender, position);
   }
 
   _collectFormData() {
@@ -102,5 +122,13 @@ export default class PointController {
     if (this._container.contains(this._eventEditor.getElement())) {
       this._container.replaceChild(this._eventView.getElement(), this._eventEditor.getElement());
     }
+  }
+
+  unrender() {
+    unrender(this._eventEditor.getElement());
+    unrender(this._eventView.getElement());
+
+    this._eventEditor.removeElement();
+    this._eventView.removeElement();
   }
 }

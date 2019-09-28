@@ -1,10 +1,13 @@
+import moment from "moment";
+
 import PointController from "./point-controller";
 import Sorter from './components/sorter';
 import DaysList from './components/days-list';
-import Day from './components/day';
 
+import Day from './components/day';
 import {hideVisually, Position, render, showVisually} from './utils';
 import {calculateEventCost, eventTypes, EventCategories} from "./data";
+import {Mode} from "./components/event-editor";
 
 export default class TripController {
   constructor(container, events) {
@@ -15,6 +18,7 @@ export default class TripController {
     this._dayList = new DaysList();
 
     this._subscriptions = [];
+    this._creatingEvent = null;
   }
 
   show() {
@@ -54,12 +58,12 @@ export default class TripController {
 
         render(this._dayList.getElement(), dayEl, Position.BEFOREEND);
         day.getEvents().forEach((event) => {
-          const pointController = new PointController(eventList, event, this._onDataChange.bind(this), this._onViewChange.bind(this));
+          const pointController = new PointController(eventList, event, Mode.EDIT, this._onDataChange.bind(this), this._onViewChange.bind(this));
           this._subscriptions.push(pointController.setDefaultView.bind(pointController));
         });
       });
     } else {
-      const pointController = new PointController(this._container, null, this._onDataChange.bind(this), this._onViewChange.bind(this));
+      const pointController = new PointController(this._container, null, Mode.CREATING, this._onDataChange.bind(this), this._onViewChange.bind(this));
       this._subscriptions.push(pointController.setDefaultView.bind(pointController));
     }
   }
@@ -174,7 +178,11 @@ export default class TripController {
     if (newData === null && id === null) { // выход из режима создания
       this._creatingEvent = null;
     } else if (newData !== null && id === null) { // создание
+      // TODO: пока нет сохранения на сервер, надо сделать фейковый id
+      newData.id = this._events[this._events.length - 1].id + 1;
+
       this._events = [newData, ...this._events];
+      this._creatingEvent.unrender();
       this._creatingEvent = null;
     } else if (newData === null) { // удаление
       this._events = [...this._events.slice(0, index), ...this._events.slice(index + 1)];
@@ -202,8 +210,8 @@ export default class TripController {
       destination: ``,
       photos: [],
       description: ``,
-      from: new Date(),
-      to: new Date(),
+      from: moment().add(1, `days`).toDate(),
+      to: moment().add(2, `days`).toDate(),
       cost: 0,
       options: [],
     };
@@ -211,6 +219,7 @@ export default class TripController {
     this._creatingEvent = new PointController(
         this._dayList.getElement(),
         defaultEvent,
+        Mode.CREATING,
         this._onDataChange.bind(this),
         this._onViewChange.bind(this)
       );

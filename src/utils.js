@@ -1,7 +1,8 @@
 export const Position = {
   AFTER: `after`,
+  BEFORE: `before`,
   AFTERBEGIN: `afterbegin`,
-  BEFOREEND: `beforeend`
+  BEFOREEND: `beforeend`,
 };
 
 export const SHORT_ISO_FORMAT = `YYYY-MM-DDTHH:mm`;
@@ -27,6 +28,9 @@ export const render = (container, element, place) => {
       break;
     case Position.AFTER:
       container.after(element);
+      break;
+    case Position.BEFORE:
+      container.before(element);
       break;
   }
 };
