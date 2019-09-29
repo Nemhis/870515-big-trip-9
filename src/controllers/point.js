@@ -40,7 +40,7 @@ export default class Point {
 
     const onEscKeyDown = (evt) => {
       if (isEscBtn(evt.key)) {
-        cancel()
+        cancel();
       }
     };
 
@@ -102,14 +102,14 @@ export default class Point {
 
     const newData = {
       type: formData.get(`event-type`),
-      destination: destination,
-      from: from,
-      to: to,
+      destination,
+      from,
+      to,
       cost: Number(formData.get(`event-price`)),
       options: allOptions.map((option) => {
         option.isActive = !!formData.get(`event-offer-${option.type}`);
 
-        return Object.assign({}, option)
+        return Object.assign({}, option);
       }),
       description: getDestinationDescription(destination),
       photos: getDestionationPhotos(destination),

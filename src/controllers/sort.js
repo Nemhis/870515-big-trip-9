@@ -25,7 +25,7 @@ export default class Sort {
   }
 
   /**
-   * @param evt
+   * @param {Event} evt
    *
    * @private
    */
@@ -42,6 +42,8 @@ export default class Sort {
    *
    * @param {array} events
    * @param {string} sortType
+   *
+   * @return {array}
    *
    * @private
    */
@@ -90,7 +92,7 @@ export default class Sort {
    *
    * @param {array} events
    *
-   * @returns {{date: string, events:*}[]}
+   * @return {{date: string, events:*}[]}
    *
    * @private
    */
@@ -108,9 +110,9 @@ export default class Sort {
     });
 
     let groupedDays = Object.keys(groupedEvents).map((date) => {
-      const events = groupedEvents[date];
+      const dayEvents = groupedEvents[date];
 
-      return {date, events};
+      return {date, dayEvents};
     });
 
     groupedDays.sort((dayA, dayB) => ((new Date(dayA.date)).getTime() - (new Date(dayB.date)).getTime()));
@@ -123,7 +125,7 @@ export default class Sort {
    *
    * @param {array} events
    *
-   * @returns {{date: null, events: *}[]}
+   * @return {{date: null, events: *}[]}
    *
    * @private
    */
@@ -141,7 +143,7 @@ export default class Sort {
    *
    * @param {array} events
    *
-   * @returns {{date: null, events: *}[]}
+   * @return {{date: null, events: *}[]}
    *
    * @private
    */

@@ -35,6 +35,8 @@ export default class Trip {
   }
 
   /**
+   * @param {object} groupedDays
+   *
    * @private
    */
   _renderEvents(groupedDays) {
@@ -44,7 +46,7 @@ export default class Trip {
     if (allDays.length) {
       allDays.forEach((day) => {
         const dayEl = day.getElement();
-        const eventList = dayEl.querySelector('.trip-events__list');
+        const eventList = dayEl.querySelector(`.trip-events__list`);
 
         render(this._dayList.getElement(), dayEl, Position.BEFOREEND);
         day.getEvents().forEach((event) => {
@@ -113,7 +115,7 @@ export default class Trip {
         Mode.CREATING,
         this._onDataChange.bind(this),
         this._onViewChange.bind(this)
-      );
+    );
   }
 
   show() {
