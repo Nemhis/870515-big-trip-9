@@ -12,9 +12,10 @@ import {eventTypes, EventCategories, getOptionsByEventType} from "../data";
 
 
 export default class TripController {
-  constructor(container, events) {
+  constructor(container, events, _onMainDataChange) {
     this._container = container;
     this._events = events;
+    this._onMainDataChange = _onMainDataChange;
     this._sorter = new SortController(this._container, this._events, this._onSortChanged.bind(this));
     this._dayList = new DaysList();
 
@@ -79,6 +80,7 @@ export default class TripController {
       this._events[index] = newData;
     }
 
+    this._onMainDataChange(this._events);
     const sortedEvents = this._sorter.sort(this._events);
     this._renderEvents(sortedEvents);
   }

@@ -10,7 +10,7 @@ import {render, Position} from "./utils";
 
 const EVENTS_LIST_LENGTH = 28;
 
-const events = new Array(EVENTS_LIST_LENGTH)
+let events = new Array(EVENTS_LIST_LENGTH)
   .fill(``)
   .map(createEvent);
 
@@ -38,8 +38,12 @@ costContainer.append(Math.round(totalCost));
 // Filter
 render(document.querySelector(`.trip-controls`), (new Filter(filterItems)).getElement(), Position.BEFOREEND);
 
+const onDataChange = (changedEvents) => {
+  events = changedEvents;
+};
+
 const tripEventsEl = document.querySelector(`.trip-events`);
-const tripController = new TripController(tripEventsEl, events);
+const tripController = new TripController(tripEventsEl, events, onDataChange);
 tripController.init();
 
 const statisticController = new StatisticController(tripEventsEl);
