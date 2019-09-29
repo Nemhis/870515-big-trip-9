@@ -3,7 +3,7 @@ import Event from "../components/event";
 import {isEscBtn, Position, render, unrender} from "../utils";
 import {getDestinationDescription, getDestionationPhotos, getOptionsByEventType} from "../data";
 
-export default class Point {
+export default class PointController {
   /**
    * @param {HTMLElement} container
    * @param {object} event

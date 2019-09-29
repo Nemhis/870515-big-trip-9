@@ -1,15 +1,16 @@
-import Menu from './components/menu.js';
-import TripInfo from './components/trip-info.js';
-import Filter from "./components/filter";
-import Statistic from "./components/statistic";
-import Trip from './controllers/trip.js';
+import TripController from "./controllers/trip";
+import StatisticController from "./controllers/statistic";
 
-import {createEvent, MENU_ITEMS, filterItems, calculateEventCost} from './data.js';
-import {render, Position, hideVisually, showVisually} from "./utils";
+import Menu from './components/menu';
+import TripInfo from './components/trip-info';
 
-const EVENTS_LIST_LENGTH = 8;
+import {createEvent, MENU_ITEMS, calculateEventCost} from './data';
+import {render, Position} from "./utils";
+import FilterController from "./controllers/filter";
 
-const events = new Array(EVENTS_LIST_LENGTH)
+const EVENTS_LIST_LENGTH = 28;
+
+let eventsData = new Array(EVENTS_LIST_LENGTH)
   .fill(``)
   .map(createEvent);
 
@@ -22,43 +23,65 @@ const menu = new Menu(new Set(Object.values(MENU_ITEMS)), MENU_ITEMS.TABLE, (men
 render(document.querySelector(`.trip-controls h2:first-child`), menu.getElement(), Position.AFTER);
 
 // TRIP INFO
-if (events.length) {
-  const tripInfo = new TripInfo(events);
+if (eventsData.length) {
+  const tripInfo = new TripInfo(eventsData);
   render(document.querySelector(`.trip-info`), tripInfo.getElement(), Position.AFTERBEGIN);
 }
 
-// Total cost calculating
-const totalCost = events.reduce((acc, event) => acc + calculateEventCost(event), 0);
-
 const costContainer = document.querySelector('.trip-info__cost-value');
-costContainer.firstChild.remove();
-costContainer.append(Math.round(totalCost));
 
-// Filter
-render(document.querySelector(`.trip-controls`), (new Filter(filterItems)).getElement(), Position.BEFOREEND);
+const updateTotalCost = (events) => {
+  const totalCost = Math.round(events.reduce((acc, event) => acc + calculateEventCost(event), 0));
+
+  costContainer.firstChild.remove();
+  costContainer.append(String(totalCost));
+};
+
+updateTotalCost(eventsData);
+
+const filterChangeSubscribers = [];
+const filterController = new FilterController(document.querySelector(`.trip-controls`), eventsData, (events) => {
+  filterChangeSubscribers.forEach((subscriber) => subscriber(events));
+});
 
 const tripEventsEl = document.querySelector(`.trip-events`);
-const tripController = new Trip(tripEventsEl, events);
-tripController.init();
+const dataChangeSubscribers = [];
+const tripController = new TripController(tripEventsEl, eventsData, (events) => {
+  dataChangeSubscribers.forEach((subscriber) => subscriber(events));
+});
 
-const statistic = new Statistic();
-render(tripEventsEl, statistic.getElement(), Position.AFTER);
+const statisticController = new StatisticController(tripEventsEl, eventsData);
 
 menuChangeSubscribers.push((menuItem) => {
   switch (menuItem) {
     case MENU_ITEMS.TABLE:
-      hideVisually(statistic.getElement());
+      statisticController.hide();
       tripController.show();
       break;
     case MENU_ITEMS.STATS:
-      showVisually(statistic.getElement());
+      statisticController.show();
       tripController.hide();
       break;
   }
 });
 
+filterChangeSubscribers.push((events) => {
+  tripController.setEvents(events);
+  statisticController.hide();
+  tripController.show();
+});
+
+dataChangeSubscribers.push((events) => {
+  eventsData = events;
+  statisticController.setEvents(eventsData);
+  filterController.setEvents(eventsData);
+  updateTotalCost(eventsData);
+});
+
 document
   .querySelector(`.trip-main__event-add-btn`)
   .addEventListener(`click`, () => {
+    statisticController.hide();
+    tripController.show();
     tripController.createEvent();
 });

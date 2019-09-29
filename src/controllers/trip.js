@@ -1,8 +1,9 @@
 import moment from "moment/moment";
 
-import Point from "./point";
+import PointController from "./point";
+import SortController from "./sort";
+
 import DaysList from '../components/days-list';
-import Sort from "./sort";
 import Day from '../components/day';
 
 import {Mode} from "../components/event-editor";
@@ -10,18 +11,21 @@ import {hideVisually, showVisually, Position, render} from '../utils';
 import {eventTypes, EventCategories, getOptionsByEventType} from "../data";
 
 
-export default class Trip {
-  constructor(container, events) {
+export default class TripController {
+  constructor(container, events, _onMainDataChange) {
     this._container = container;
     this._events = events;
-    this._sorter = new Sort(this._container, this._events, this._onSortChanged.bind(this));
+    this._onMainDataChange = _onMainDataChange;
+    this._sorter = new SortController(this._container, this._events, this._onSortChanged.bind(this));
     this._dayList = new DaysList();
 
     this._subscriptions = [];
     this._creatingEvent = null;
+
+    this._init();
   }
 
-  init() {
+  _init() {
     if (this._events.length) {
       // Sorter
       this._sorter.renderSort();
@@ -32,6 +36,10 @@ export default class Trip {
 
     const sortedEvents = this._sorter.sort(this._events);
     this._renderEvents(sortedEvents);
+  }
+
+  setEvents(events) {
+    this._events = events;
   }
 
   /**
@@ -50,12 +58,12 @@ export default class Trip {
 
         render(this._dayList.getElement(), dayEl, Position.BEFOREEND);
         day.getEvents().forEach((event) => {
-          const pointController = new Point(eventList, event, Mode.EDIT, this._onDataChange.bind(this), this._onViewChange.bind(this));
+          const pointController = new PointController(eventList, event, Mode.EDIT, this._onDataChange.bind(this), this._onViewChange.bind(this));
           this._subscriptions.push(pointController.setDefaultView.bind(pointController));
         });
       });
     } else {
-      const pointController = new Point(this._container, null, Mode.CREATING, this._onDataChange.bind(this), this._onViewChange.bind(this));
+      const pointController = new PointController(this._container, null, Mode.CREATING, this._onDataChange.bind(this), this._onViewChange.bind(this));
       this._subscriptions.push(pointController.setDefaultView.bind(pointController));
     }
   }
@@ -67,7 +75,7 @@ export default class Trip {
       this._creatingEvent = null;
     } else if (newData !== null && id === null) { // создание
       // TODO: пока нет сохранения на сервер, надо сделать фейковый id
-      newData.id = this._events[this._events.length - 1].id + 1;
+      newData.id = Date.now();
 
       this._events = [newData, ...this._events];
       this._creatingEvent.unrender();
@@ -78,6 +86,7 @@ export default class Trip {
       this._events[index] = newData;
     }
 
+    this._onMainDataChange(this._events);
     const sortedEvents = this._sorter.sort(this._events);
     this._renderEvents(sortedEvents);
   }
@@ -109,7 +118,7 @@ export default class Trip {
       options: getOptionsByEventType(firstType),
     };
 
-    this._creatingEvent = new Point(
+    this._creatingEvent = new PointController(
         this._dayList.getElement(),
         defaultEvent,
         Mode.CREATING,
@@ -120,6 +129,9 @@ export default class Trip {
 
   show() {
     showVisually(this._container);
+
+    const sortedEvents = this._sorter.sort(this._events);
+    this._renderEvents(sortedEvents);
   }
 
   hide() {

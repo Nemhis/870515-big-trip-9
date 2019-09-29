@@ -3,7 +3,7 @@ import Sorter from "../components/sorter";
 import {Position, render} from "../utils";
 import {calculateEventCost} from "../data";
 
-export default class Sort {
+export default class SortController {
   constructor(container, events, onSortChanged) {
     this._container = container;
     this._events = events;
@@ -112,7 +112,7 @@ export default class Sort {
     let groupedDays = Object.keys(groupedEvents).map((date) => {
       const dayEvents = groupedEvents[date];
 
-      return {date, dayEvents};
+      return {date, events: dayEvents};
     });
 
     groupedDays.sort((dayA, dayB) => ((new Date(dayA.date)).getTime() - (new Date(dayB.date)).getTime()));
