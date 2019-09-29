@@ -68,7 +68,6 @@ export default class EventEditor extends AbstractComponent {
         this.getElement().querySelector(`#event-start-time-1`),
         Object.assign({}, defaultOptions, {
           defaultDate: this._from,
-          minDate: new Date(),
           maxDate: this._to,
         }));
 

@@ -184,13 +184,13 @@ export const createEvent = (value, index) => {
   return {
     id: (index + 1),
     type: getRandomArrayValue(eventTypes[groupName]),
-    destination: getRandomArrayValue(Array.from(allCities)),
-    photos: getRandomPhotos(),
-    description: getRandomDescription(),
     from: new Date(from),
     to: new Date(to),
     cost: Math.round(Math.random() * getRandomMinMax(1000, 5000)) / 100,
     options: getRandomOptions(),
+    photos: getRandomPhotos(),
+    description: getRandomDescription(),
+    destination: getRandomArrayValue(Array.from(allCities)),
   }
 };
 
