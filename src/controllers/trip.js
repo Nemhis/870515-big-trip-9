@@ -38,6 +38,10 @@ export default class TripController {
     this._renderEvents(sortedEvents);
   }
 
+  setEvents(events) {
+    this._events = events;
+  }
+
   /**
    * @param {object} groupedDays
    *
@@ -71,7 +75,7 @@ export default class TripController {
       this._creatingEvent = null;
     } else if (newData !== null && id === null) { // создание
       // TODO: пока нет сохранения на сервер, надо сделать фейковый id
-      newData.id = this._events[this._events.length - 1].id + 1;
+      newData.id = Date.now();
 
       this._events = [newData, ...this._events];
       this._creatingEvent.unrender();
@@ -125,6 +129,9 @@ export default class TripController {
 
   show() {
     showVisually(this._container);
+
+    const sortedEvents = this._sorter.sort(this._events);
+    this._renderEvents(sortedEvents);
   }
 
   hide() {
