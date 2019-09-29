@@ -8,7 +8,7 @@ import Filter from "./components/filter";
 import {createEvent, MENU_ITEMS, filterItems, calculateEventCost} from './data';
 import {render, Position} from "./utils";
 
-const EVENTS_LIST_LENGTH = 8;
+const EVENTS_LIST_LENGTH = 28;
 
 const events = new Array(EVENTS_LIST_LENGTH)
   .fill(``)
