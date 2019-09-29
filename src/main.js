@@ -1,11 +1,12 @@
-import Menu from './components/menu.js';
-import TripInfo from './components/trip-info.js';
-import Filter from "./components/filter";
-import Statistic from "./components/statistic";
-import Trip from './controllers/trip.js';
+import TripController from "./controllers/trip";
+import StatisticController from "./controllers/statistic";
 
-import {createEvent, MENU_ITEMS, filterItems, calculateEventCost} from './data.js';
-import {render, Position, hideVisually, showVisually} from "./utils";
+import Menu from './components/menu';
+import TripInfo from './components/trip-info';
+import Filter from "./components/filter";
+
+import {createEvent, MENU_ITEMS, filterItems, calculateEventCost} from './data';
+import {render, Position} from "./utils";
 
 const EVENTS_LIST_LENGTH = 8;
 
@@ -38,20 +39,19 @@ costContainer.append(Math.round(totalCost));
 render(document.querySelector(`.trip-controls`), (new Filter(filterItems)).getElement(), Position.BEFOREEND);
 
 const tripEventsEl = document.querySelector(`.trip-events`);
-const tripController = new Trip(tripEventsEl, events);
+const tripController = new TripController(tripEventsEl, events);
 tripController.init();
 
-const statistic = new Statistic();
-render(tripEventsEl, statistic.getElement(), Position.AFTER);
+const statisticController = new StatisticController(tripEventsEl);
 
 menuChangeSubscribers.push((menuItem) => {
   switch (menuItem) {
     case MENU_ITEMS.TABLE:
-      hideVisually(statistic.getElement());
+      statisticController.hide();
       tripController.show();
       break;
     case MENU_ITEMS.STATS:
-      showVisually(statistic.getElement());
+      statisticController.show(events);
       tripController.hide();
       break;
   }
