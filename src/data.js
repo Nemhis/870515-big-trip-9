@@ -6,10 +6,14 @@
  * @returns {*}
  */
 export function calculateEventCost(event) {
-  return event.options.reduce((accumulator, option) => accumulator + Number(option.cost), Number(event.cost));
+  return event.options.reduce((accumulator, option) => {
+    const optionCost = option.isActive ? Number(option.cost) : 0;
+
+    return accumulator + optionCost;
+  }, Number(event.cost));
 }
 
-const EventCategories = {
+export const EventCategories = {
   TRANSFER: `transfer`,
   ACTIVITY: `activity`,
 };
@@ -190,6 +194,9 @@ export const createEvent = (value, index) => {
   }
 };
 
-export const menuItems = new Set([`Table`, `Stats`]);
+export const MENU_ITEMS = {
+  TABLE: `Table`,
+  STATS: `Stats`,
+};
 
 export const filterItems = new Set([`everything`, `future`, `past`]);

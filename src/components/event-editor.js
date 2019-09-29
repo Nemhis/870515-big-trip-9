@@ -4,7 +4,7 @@ import moment from "moment";
 
 import AbstractComponent from "./abstract-component";
 
-import {SHORT_ISO_FORMAT} from '../utils';
+import {SHORT_ISO_FORMAT, unrender} from '../utils';
 
 import {
   eventTypes,
@@ -12,11 +12,16 @@ import {
   getEventPreposition,
   getDestinationDescription,
   getOptionsByEventType,
-  getDestionationPhotos
+  getDestionationPhotos,
 } from "../data";
 
+export const Mode = {
+  EDIT: 1,
+  CREATING: 2,
+};
+
 export default class EventEditor extends AbstractComponent {
-  constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, destination = ``, options = [], photos = [], description = ``}) {
+  constructor({type = `sightseeing`, from = new Date(), to = new Date(), cost = 0, destination = ``, options = [], photos = [], description = ``, isFavorite = false}, mode) {
     super();
     this._type = type;
     this._from = from;
@@ -26,6 +31,9 @@ export default class EventEditor extends AbstractComponent {
     this._options = options;
     this._photos = photos;
     this._description = description;
+    this._isFavorite = isFavorite;
+
+    this._mode = mode;
 
     this._fromFlatpickr = null;
     this._toFlatpickr = null;
@@ -52,7 +60,8 @@ export default class EventEditor extends AbstractComponent {
       enableTime: true,
       altFormat: `d.m.Y H:i`,
       dateFormat: `Y-m-dTH:i`,
-      time_24hr: true, // eslint ругается - is not in camel case =)
+      // eslint ругается - is not in camel case =)
+      time_24hr: true, // eslint-disable-line camelcase
     };
 
     this._fromFlatpickr = flatpickr(
@@ -60,14 +69,14 @@ export default class EventEditor extends AbstractComponent {
         Object.assign({}, defaultOptions, {
           defaultDate: this._from,
           minDate: new Date(),
-          maxDate: this._to
+          maxDate: this._to,
         }));
 
     this._toFlatpickr = flatpickr(
         this.getElement().querySelector(`#event-end-time-1`),
         Object.assign({}, defaultOptions, {
           defaultDate: this._to,
-          minDate: this._from
+          minDate: this._from,
         }));
 
     this._fromFlatpickr.set(`onChange`, (selectedDates) => {
@@ -103,9 +112,7 @@ export default class EventEditor extends AbstractComponent {
           this._type = input.value;
           this._options = getOptionsByEventType(this._type);
           label.append(this._getDestinationPrefix());
-
-          el.querySelector(`.event__available-offers`).remove();
-          el.querySelector(`.event__section--offers`).insertAdjacentHTML(`beforeend`, this._getOptionsListTemplate());
+          this._reRenderDetails();
         }
       });
     });
@@ -115,37 +122,15 @@ export default class EventEditor extends AbstractComponent {
       const input = event.target;
       this._description = getDestinationDescription(input.value);
       this._photos = getDestionationPhotos(input.value);
-      const descriptionEl = el.querySelector(`.event__destination-description`);
-
-      if (descriptionEl.firstChild) {
-        descriptionEl.firstChild.remove();
-      }
-
-      descriptionEl.append(this._description);
-
-      el.querySelector(`.event__photos-tape`).remove();
-      el.querySelector(`.event__photos-container`).insertAdjacentHTML(`beforeend`, this._getPhotosListTemplate());
+      this._reRenderDetails();
     });
   }
 
-  _getOptionsListTemplate() {
-    return `<div class="event__available-offers">
-              ${this._options.map((option) =>
-    `<div class="event__offer-selector">
-                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${option.type}-1" type="checkbox" name="event-offer-${option.type}" ${option.isActive ? `checked` : ``}>
-                  <label class="event__offer-label" for="event-offer-${option.type}-1">
-                    <span class="event__offer-title">${option.title}</span>
-                      &plus;
-                      &euro;&nbsp;<span class="event__offer-price">${option.cost}</span>
-                  </label>
-                </div>`).join(``)}
-              </div>`;
-  }
+  _reRenderDetails() {
+    const detailsEl = this.getElement().querySelector(`.event__details`);
+    unrender(detailsEl);
 
-  _getPhotosListTemplate() {
-    return `<div class="event__photos-tape">
-              ${this._photos.map((photo) => `<img class="event__photo" src="${photo}" alt="Event photo">`).join(``)}
-            </div>`;
+    this.getElement().insertAdjacentHTML(`beforeend`, this._getDetailsTemplate());
   }
 
   getTemplate() {
@@ -166,8 +151,7 @@ export default class EventEditor extends AbstractComponent {
     `<div class="event__type-item">
                       <input id="event-type-${eventName}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventName}" ${this._type === eventName ? `checked` : ``}>
                       <label class="event__type-label  event__type-label--${eventName}" for="event-type-${eventName}-1">${eventName}</label>
-                    </div>`
-  ).join(``)}
+                    </div>`).join(``)}
                   </fieldset>`).join(``)}
                 </div>
               </div>
@@ -203,33 +187,53 @@ export default class EventEditor extends AbstractComponent {
               </div>
 
               <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-              <button class="event__reset-btn" type="reset">Cancel</button>
+              <button class="event__reset-btn" type="reset">${this._mode === Mode.CREATING ? `Cancel` : `Delete`}</button>
+              
+              ${this._mode === Mode.EDIT ? `<input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${this._isFavorite ? `checked` : ``}>
+                <label class="event__favorite-btn" for="event-favorite-1">
+                  <span class="visually-hidden">Add to favorite</span>
+                  <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
+                    <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/> </svg>
+                </label>` : ``}
+              
+              ${this._mode === Mode.EDIT ? `<button class="event__rollup-btn" type="button">
+                  <span class="visually-hidden">Close event</span>
+                </button>` : ``}
             </header>
             
-            ${(this._options.length || this._description) ? `
-              <section class="event__details">
-                ${this._options.length ? `
-                  <section class="event__section  event__section--offers">
-                    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-                      ${this._getOptionsListTemplate()}
-                  </section>
-                ` : ``}
-                
-                ${this._description ? `
-                  <section class="event__section  event__section--destination">
-                          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-                          <p class="event__destination-description">${this._description}</p>
-                    ${this._photos.length ? `
-                      <div class="event__photos-container">
-                        ${this._getPhotosListTemplate()}
-                      </div>
-                    ` : ``}
-                  </section>
-                ` : ``}
-              </section>
-            ` : ``}
+            ${(this._options.length || this._description) ? this._getDetailsTemplate() : ``}
           </form>`;
   }
 
-
+  _getDetailsTemplate() {
+    return `<section class="event__details">
+      ${this._options.length ? `<section class="event__section  event__section--offers">
+          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+            <div class="event__available-offers">
+              ${this._options.map((option) => `<div class="event__offer-selector">
+                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${option.type}-1" type="checkbox" 
+                    name="event-offer-${option.type}" ${option.isActive ? `checked` : ``}>
+                    <label class="event__offer-label" for="event-offer-${option.type}-1">
+                      <span class="event__offer-title">${option.title}</span>
+                        &plus;
+                        &euro;&nbsp;<span class="event__offer-price">${option.cost}
+                      </span>
+                    </label>
+                  </div>`).join(``)}
+                </div>
+          </section>` : ``}
+                
+      ${this._description ? `<section class="event__section  event__section--destination">
+          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+          <p class="event__destination-description">${this._description}</p>
+              
+          ${this._photos.length ? `
+            <div class="event__photos-container">
+              <div class="event__photos-tape">
+                ${this._photos.map((photo) => `<img class="event__photo" src="${photo}" alt="Event photo">`).join(``)}
+              </div>
+            </div>` : ``}
+        </section>` : ``}
+      </section>`;
+  }
 }
