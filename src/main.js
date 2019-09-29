@@ -3,10 +3,10 @@ import StatisticController from "./controllers/statistic";
 
 import Menu from './components/menu';
 import TripInfo from './components/trip-info';
-import Filter from "./components/filter";
 
-import {createEvent, MENU_ITEMS, filterItems, calculateEventCost} from './data';
+import {createEvent, MENU_ITEMS, calculateEventCost} from './data';
 import {render, Position} from "./utils";
+import FilterController from "./controllers/filter";
 
 const EVENTS_LIST_LENGTH = 28;
 
@@ -28,26 +28,29 @@ if (eventsData.length) {
   render(document.querySelector(`.trip-info`), tripInfo.getElement(), Position.AFTERBEGIN);
 }
 
-const calculateTotalCost = (eventsS) => Math.round(eventsS.reduce((acc, event) => acc + calculateEventCost(event), 0));
-
 const costContainer = document.querySelector('.trip-info__cost-value');
-costContainer.firstChild.remove();
-costContainer.append(calculateTotalCost(eventsData));
 
-// Filter
-render(document.querySelector(`.trip-controls`), (new Filter(filterItems)).getElement(), Position.BEFOREEND);
+const updateTotalCost = (events) => {
+  const totalCost = Math.round(events.reduce((acc, event) => acc + calculateEventCost(event), 0));
 
-const onDataChange = (changedEvents) => {
-  eventsData = changedEvents;
   costContainer.firstChild.remove();
-  costContainer.append(calculateTotalCost(eventsData));
+  costContainer.append(String(totalCost));
 };
 
-const tripEventsEl = document.querySelector(`.trip-events`);
-const tripController = new TripController(tripEventsEl, eventsData, onDataChange);
-tripController.init();
+updateTotalCost(eventsData);
 
-const statisticController = new StatisticController(tripEventsEl);
+const filterChangeSubscribers = [];
+const filterController = new FilterController(document.querySelector(`.trip-controls`), eventsData, (events) => {
+  filterChangeSubscribers.forEach((subscriber) => subscriber(events));
+});
+
+const tripEventsEl = document.querySelector(`.trip-events`);
+const dataChangeSubscribers = [];
+const tripController = new TripController(tripEventsEl, eventsData, (events) => {
+  dataChangeSubscribers.forEach((subscriber) => subscriber(events));
+});
+
+const statisticController = new StatisticController(tripEventsEl, eventsData);
 
 menuChangeSubscribers.push((menuItem) => {
   switch (menuItem) {
@@ -56,14 +59,29 @@ menuChangeSubscribers.push((menuItem) => {
       tripController.show();
       break;
     case MENU_ITEMS.STATS:
-      statisticController.show(eventsData);
+      statisticController.show();
       tripController.hide();
       break;
   }
 });
 
+filterChangeSubscribers.push((events) => {
+  tripController.setEvents(events);
+  statisticController.hide();
+  tripController.show();
+});
+
+dataChangeSubscribers.push((events) => {
+  eventsData = events;
+  statisticController.setEvents(eventsData);
+  filterController.setEvents(eventsData);
+  updateTotalCost(eventsData);
+});
+
 document
   .querySelector(`.trip-main__event-add-btn`)
   .addEventListener(`click`, () => {
+    statisticController.hide();
+    tripController.show();
     tripController.createEvent();
 });

@@ -9,9 +9,9 @@ import {EventCategories, eventTypes, getEventCategory, getEventPreposition} from
 
 
 export default class StatisticController {
-  constructor(container) {
+  constructor(container, events) {
     this._container = container;
-    this._events = [];
+    this._events = events;
     this._statistic = new Statistic();
 
     this._moneyDiagram = null;
@@ -25,8 +25,11 @@ export default class StatisticController {
     render(this._container, this._statistic.getElement(), Position.AFTER);
   }
 
-  show(events) {
+  setEvents(events) {
     this._events = events;
+  }
+
+  show() {
     showVisually(this._statistic.getElement());
     this._initDiagrams();
   }
@@ -43,9 +46,20 @@ export default class StatisticController {
   }
 
   _destroyDiagrams() {
-    this._moneyDiagram.destroy();
-    this._transportDiagram.destroy();
-    this._timeSpentDiagram.destroy();
+    if (this._moneyDiagram !== null) {
+      this._moneyDiagram.destroy();
+      this._moneyDiagram = null;
+    }
+
+    if (this._transportDiagram !== null) {
+      this._transportDiagram.destroy();
+      this._transportDiagram = null;
+    }
+
+    if (this._timeSpentDiagram !== null) {
+      this._timeSpentDiagram.destroy();
+      this._timeSpentDiagram = null;
+    }
   }
 
   _initMoneyDiagram() {

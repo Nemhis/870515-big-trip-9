@@ -21,9 +21,11 @@ export default class TripController {
 
     this._subscriptions = [];
     this._creatingEvent = null;
+
+    this._init();
   }
 
-  init() {
+  _init() {
     if (this._events.length) {
       // Sorter
       this._sorter.renderSort();
