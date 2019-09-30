@@ -1,7 +1,7 @@
 import EventEditor, {Mode} from "../components/event-editor";
 import Event from "../components/event";
 import {isEscBtn, Position, render, unrender} from "../utils";
-import {getDestinationDescription, getDestionationPhotos, getOptionsByEventType} from "../data";
+import {getDestinationDescription} from "../data";
 
 export default class PointController {
   /**
