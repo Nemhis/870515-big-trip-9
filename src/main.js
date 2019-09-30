@@ -69,6 +69,11 @@ const onDataChange = (actionType, id, update) => {
         .then(() => api.getEvents())
         .then(eventsLoaded);
       break;
+    case EventAction.CREATE:
+      api.createEvent({data: EventModel.toRaw(update)})
+        .then(() => api.getEvents())
+        .then(eventsLoaded);
+      break;
   }
 };
 

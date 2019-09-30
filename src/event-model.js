@@ -42,7 +42,7 @@ export default class EventModel {
       };
     });
 
-    return {
+    const eventToSave = {
       'id': String(event.id),
       'base_price': event.cost,
       'date_from': event.from.getTime(),
@@ -52,6 +52,12 @@ export default class EventModel {
       'destination': destination,
       'offers': offers,
     };
+
+    if (String(event.id)) {
+      eventToSave['id'] = String(event.id);
+    }
+
+    return eventToSave;
   }
 
   _parseTime(date) {

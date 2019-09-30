@@ -31,11 +31,11 @@ export default class API {
       .then(EventModel.parseEvents);
   }
 
-  createEvent({event}) {
+  createEvent({data}) {
     return this._load({
       url: `points`,
       method: Method.POST,
-      body: JSON.stringify(event),
+      body: JSON.stringify(data),
       headers: new Headers({'Content-Type': `application/json`})
     })
       .then(parseJSON)

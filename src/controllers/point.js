@@ -110,7 +110,7 @@ export default class PointController {
 
         return Object.assign({}, option);
       }),
-      description: this._event.description,
+      description: getDestinationDescription(destination),
       photos: this._event.photos,
       isFavorite: formData.get(`event-favorite`) === `on`,
     };
