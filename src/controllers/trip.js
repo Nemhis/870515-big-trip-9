@@ -26,20 +26,20 @@ export default class TripController {
   }
 
   _init() {
-    if (this._events.length) {
-      // Sorter
-      this._sorter.renderSort();
+    // Sorter
+    this._sorter.renderSort();
 
-      // Day list
-      render(this._container, this._dayList.getElement(), Position.BEFOREEND);
-    }
-
-    const sortedEvents = this._sorter.sort(this._events);
-    this._renderEvents(sortedEvents);
+    // Day list
+    render(this._container, this._dayList.getElement(), Position.BEFOREEND);
   }
 
   setEvents(events) {
     this._events = events;
+  }
+
+  render() {
+    const sortedEvents = this._sorter.sort(this._events);
+    this._renderEvents(sortedEvents);
   }
 
   /**
@@ -87,8 +87,7 @@ export default class TripController {
     }
 
     this._onMainDataChange(this._events);
-    const sortedEvents = this._sorter.sort(this._events);
-    this._renderEvents(sortedEvents);
+    this.render();
   }
 
   _onViewChange() {
@@ -129,9 +128,7 @@ export default class TripController {
 
   show() {
     showVisually(this._container);
-
-    const sortedEvents = this._sorter.sort(this._events);
-    this._renderEvents(sortedEvents);
+    this.render();
   }
 
   hide() {
