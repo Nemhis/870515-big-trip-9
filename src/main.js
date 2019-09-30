@@ -1,4 +1,4 @@
-import TripController from "./controllers/trip";
+import TripController, {EventAction} from "./controllers/trip";
 import StatisticController from "./controllers/statistic";
 
 import Menu from './components/menu';
@@ -53,11 +53,26 @@ const filterController = new FilterController(document.querySelector(`.trip-cont
   filterChangeSubscribers.forEach((subscriber) => subscriber(events));
 });
 
+const onDataChange = (actionType, id, update) => {
+  switch(actionType) {
+    case EventAction.DELETE:
+      api.deleteEvent({id})
+        .then(() => api.getEvents())
+        .then(eventsLoaded);
+      break;
+    case EventAction.UPDATE:
+      api.updateEvent({
+        id,
+        data: update.toRaw()
+      })
+        .then(() => api.getEvents())
+        .then(eventsLoaded);
+      break;
+  }
+};
+
 const tripEventsEl = document.querySelector(`.trip-events`);
-const dataChangeSubscribers = [];
-const tripController = new TripController(tripEventsEl, eventsData, (events) => {
-  dataChangeSubscribers.forEach((subscriber) => subscriber(events));
-});
+const tripController = new TripController(tripEventsEl, eventsData, onDataChange);
 
 const statisticController = new StatisticController(tripEventsEl, eventsData);
 
@@ -80,13 +95,6 @@ filterChangeSubscribers.push((events) => {
   tripController.show();
 });
 
-dataChangeSubscribers.push((events) => {
-  eventsData = events;
-  statisticController.setEvents(eventsData);
-  filterController.setEvents(eventsData);
-  updateTotalCost(eventsData);
-});
-
 document
   .querySelector(`.trip-main__event-add-btn`)
   .addEventListener(`click`, () => {
@@ -99,10 +107,11 @@ const eventsLoaded = (events) => {
   tripController.setEvents(events);
   statisticController.setEvents(events);
   filterController.setEvents(events);
+
   updateTripInfo(events);
   updateTotalCost(events);
 
-  tripController.render();
+  tripController.show();
 };
 
 api

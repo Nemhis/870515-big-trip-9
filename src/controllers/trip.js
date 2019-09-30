@@ -10,6 +10,11 @@ import {Mode} from "../components/event-editor";
 import {hideVisually, showVisually, Position, render} from '../utils';
 import {eventTypes, EventCategories, getOptionsByEventType} from "../data";
 
+export const EventAction = {
+  DELETE: `delete`,
+  CREATE: `create`,
+  UPDATE: `update`,
+};
 
 export default class TripController {
   constructor(container, events, _onMainDataChange) {
@@ -70,24 +75,26 @@ export default class TripController {
 
   _onDataChange(newData, id) {
     const index = this._events.findIndex((it) => it.id === id);
+    let actionType = ``;
 
     if (newData === null && id === null) { // выход из режима создания
       this._creatingEvent = null;
     } else if (newData !== null && id === null) { // создание
-      // TODO: пока нет сохранения на сервер, надо сделать фейковый id
-      newData.id = Date.now();
-
       this._events = [newData, ...this._events];
       this._creatingEvent.unrender();
       this._creatingEvent = null;
+      actionType = EventAction.CREATE;
     } else if (newData === null) { // удаление
       this._events = [...this._events.slice(0, index), ...this._events.slice(index + 1)];
+      actionType = EventAction.DELETE;
     } else { // обновление
       this._events[index] = newData;
+      actionType = EventAction.UPDATE;
     }
 
-    this._onMainDataChange(this._events);
-    this.render();
+    if (actionType) {
+      this._onMainDataChange(actionType, id, newData);
+    }
   }
 
   _onViewChange() {

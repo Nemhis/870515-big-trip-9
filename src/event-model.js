@@ -61,4 +61,9 @@ export default class EventModel {
 
     return destination;
   }
+
+  toRaw() {
+    // TODO: описать конвертацию в формат сервера
+    return {};
+  }
 }
