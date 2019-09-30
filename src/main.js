@@ -8,6 +8,7 @@ import API from "./api";
 import {MENU_ITEMS, calculateEventCost} from './data';
 import {render, Position, unrender} from "./utils";
 import FilterController from "./controllers/filter";
+import EventModel from "./event-model";
 
 const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
 const END_POINT = `https://htmlacademy-es-9.appspot.com/big-trip/`;
@@ -63,7 +64,7 @@ const onDataChange = (actionType, id, update) => {
     case EventAction.UPDATE:
       api.updateEvent({
         id,
-        data: update.toRaw()
+        data: EventModel.toRaw(update)
       })
         .then(() => api.getEvents())
         .then(eventsLoaded);

@@ -10,6 +10,7 @@ export default class EventModel {
     this.to = this._parseTime(data[`date_to`]);
     this.cost = parseInt(data[`base_price`], 10) || 0;
     this.options = this._parseOptions(this.type, data[`offers`] || []);
+    this.isFavorite = !!data[`is_favorite`];
 
     const destination = this._parseDestination(data[`destination`] || {});
 
@@ -24,6 +25,33 @@ export default class EventModel {
 
   static parseEvents(data) {
     return data.map(EventModel.parseEvent);
+  }
+
+  static toRaw(event) {
+    const destination = {
+      'name': event.destination,
+      'description': event.description,
+      'pictures': event.photos.map((photoSrc) => ({src: photoSrc, description: ``})),
+    };
+
+    const offers = event.options.map((option) => {
+      return {
+        'title': option.title,
+        'price': option.cost,
+        'accepted': option.isActive,
+      };
+    });
+
+    return {
+      'id': String(event.id),
+      'base_price': event.cost,
+      'date_from': event.from.getTime(),
+      'date_to': event.to.getTime(),
+      'is_favorite': event.isFavorite,
+      'type': event.type,
+      'destination': destination,
+      'offers': offers,
+    };
   }
 
   _parseTime(date) {
@@ -60,10 +88,5 @@ export default class EventModel {
     }
 
     return destination;
-  }
-
-  toRaw() {
-    // TODO: описать конвертацию в формат сервера
-    return {};
   }
 }
