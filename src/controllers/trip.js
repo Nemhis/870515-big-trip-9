@@ -23,7 +23,9 @@ export default class TripController {
     this._onMainDataChange = _onMainDataChange;
     this._sorter = new SortController(this._container, this._events, this._onSortChanged.bind(this));
     this._dayList = new DaysList();
+
     this._destinations = null;
+    this._options = null;
 
     this._changeViewSubscriptions = [];
     this._destinationLoadedSubscripions = [];
@@ -46,7 +48,8 @@ export default class TripController {
   }
 
   setOptions(options) {
-
+    this._options = options;
+    this._optionsLoadedSubscripions.forEach((subscriber) => subscriber(options));
   }
 
   setDestinations(destinations) {
@@ -90,6 +93,12 @@ export default class TripController {
       pointController.setDestinations(this._destinations);
     } else {
       this._destinationLoadedSubscripions.push(pointController.setDestinations.bind(pointController));
+    }
+
+    if (this._options !== null) {
+      pointController.setOptions(this._options);
+    } else {
+      this._optionsLoadedSubscripions.push(pointController.setOptions.bind(pointController));
     }
 
     this._changeViewSubscriptions.push(pointController.setDefaultView.bind(pointController));

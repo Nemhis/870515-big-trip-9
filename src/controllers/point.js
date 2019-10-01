@@ -29,6 +29,10 @@ export default class PointController {
     this._eventEditor.renderDestinationList(destinations);
   }
 
+  setOptions(options) {
+    this._eventEditor.setAllOptions(options);
+  }
+
   /**
    * @private
    */
@@ -109,13 +113,13 @@ export default class PointController {
       from,
       to,
       cost: Number(formData.get(`event-price`)),
-      options: this._event.options.map((option, index) => {
+      options: this._eventEditor.getOptions().map((option, index) => {
         option.isActive = formData.get(`event-offer-${eventType}-${index}`) === `on`;
 
         return Object.assign({}, option);
       }),
-      description: getDestinationDescription(destination),
-      photos: this._event.photos,
+      description: this._eventEditor.getDescription(),
+      photos: this._eventEditor.getPhotos(),
       isFavorite: formData.get(`event-favorite`) === `on`,
     };
 
