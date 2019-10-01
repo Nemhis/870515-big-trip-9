@@ -25,6 +25,18 @@ export default class API {
     this._authorization = authorization;
   }
 
+  getDestinations() {
+    return this._load({url: `destinations`})
+      .then(parseJSON)
+      .then(EventModel.parseDestinations)
+  }
+
+  getOptions() {
+    return this._load({url: `offers`})
+      .then(parseJSON)
+      .then(EventModel.parseOptionsByType)
+  }
+
   getEvents() {
     return this._load({url: `points`})
       .then(parseJSON)

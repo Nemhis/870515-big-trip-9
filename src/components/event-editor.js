@@ -34,6 +34,8 @@ export default class EventEditor extends AbstractComponent {
     this._isFavorite = isFavorite;
 
     this._mode = mode;
+    this._allDestinations = null;
+    this._allOptions = null;
 
     this._fromFlatpickr = null;
     this._toFlatpickr = null;
@@ -109,8 +111,12 @@ export default class EventEditor extends AbstractComponent {
           }
 
           this._type = input.value;
-          this._options = getOptionsByEventType(this._type);
+          this._options = this._allOptions.get(this._type);
           label.append(this._getDestinationPrefix());
+          this
+            .getElement()
+            .querySelector(`.event__type-icon`)
+            .setAttribute(`src`, this._getTypeImgSrc(this._type));
           this._reRenderDetails();
         }
       });
@@ -119,8 +125,16 @@ export default class EventEditor extends AbstractComponent {
     // Description
     el.querySelector(`.event__input--destination`).addEventListener(`change`, (event) => {
       const input = event.target;
-      this._description = getDestinationDescription(input.value);
-      this._photos = getDestionationPhotos(input.value);
+      const destination = this._allDestinations.get(input.value);
+
+      if (destination) {
+        this._description = destination.description || ``;
+        this._photos = destination.photos || [];
+      } else {
+        this._description = ``;
+        this._photos = [];
+      }
+
       this._reRenderDetails();
     });
   }
@@ -132,15 +146,49 @@ export default class EventEditor extends AbstractComponent {
     this.getElement().insertAdjacentHTML(`beforeend`, this._getDetailsTemplate());
   }
 
+  setAllOptions(options) {
+    this._allOptions = options;
+    this.getElement().querySelector('.event__type-toggle').removeAttribute(`disabled`);
+  }
+
+  getDescription() {
+    return this._description;
+  }
+
+  getOptions() {
+    return this._options;
+  }
+
+  getPhotos() {
+    return this._photos;
+  }
+
+  renderDestinationList(destinations) {
+    this._allDestinations = destinations;
+
+    const destinationInput = this.getElement().querySelector('.event__input--destination');
+
+    destinationInput.insertAdjacentHTML(`afterend`, `
+      <datalist id="destination-list-1">
+        ${Array.from(destinations).map(([cityName]) => `<option value="${cityName}"></option>`).join(``)}
+      </datalist>`);
+
+    destinationInput.removeAttribute(`disabled`);
+  }
+
+  _getTypeImgSrc(type) {
+    return `img/icons/${type}.png`;
+  }
+
   getTemplate() {
     return `<form class="trip-events__item  event  event--edit" action="#" method="post">
             <header class="event__header">
               <div class="event__type-wrapper">
                 <label class="event__type  event__type-btn" for="event-type-toggle-1">
                   <span class="visually-hidden">Choose event type</span>
-                  <img class="event__type-icon" width="17" height="17" src="img/icons/${this._type}.png" alt="Event type icon">
+                  <img class="event__type-icon" width="17" height="17" src="${this._getTypeImgSrc(this._type)}" alt="Event type icon">
                 </label>
-                <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+                <input class="event__type-toggle visually-hidden" id="event-type-toggle-1" type="checkbox" disabled>
 
                 <div class="event__type-list">
                   ${Object.keys(eventTypes).map((eventGroupName) =>
@@ -159,10 +207,14 @@ export default class EventEditor extends AbstractComponent {
                 <label class="event__label  event__type-output" for="event-destination-1">
                   ${this._getDestinationPrefix()}
                 </label>
-                <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._destination}" list="destination-list-1">
-                <datalist id="destination-list-1">
-                  ${Array.from(allCities).map((cityName) => `<option value="${cityName}"></option>`).join(``)}
-                </datalist>
+                <input class="event__input  event__input--destination" 
+                    id="event-destination-1" 
+                    type="text" 
+                    name="event-destination" 
+                    value="${this._destination}" 
+                    list="destination-list-1"
+                    disabled
+                  >
               </div>
 
               <div class="event__field-group  event__field-group--time">

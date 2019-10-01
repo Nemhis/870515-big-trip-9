@@ -55,7 +55,7 @@ const filterController = new FilterController(document.querySelector(`.trip-cont
 });
 
 const onDataChange = (actionType, id, update) => {
-  switch(actionType) {
+  switch (actionType) {
     case EventAction.DELETE:
       api.deleteEvent({id})
         .then(() => api.getEvents())
@@ -119,6 +119,14 @@ const eventsLoaded = (events) => {
 
   tripController.show();
 };
+
+api
+  .getDestinations()
+  .then(tripController.setDestinations.bind(tripController));
+
+api
+  .getOptions()
+  .then(tripController.setOptions.bind(tripController));
 
 api
   .getEvents()

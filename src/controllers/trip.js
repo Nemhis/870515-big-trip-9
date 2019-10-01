@@ -24,7 +24,12 @@ export default class TripController {
     this._sorter = new SortController(this._container, this._events, this._onSortChanged.bind(this));
     this._dayList = new DaysList();
 
-    this._subscriptions = [];
+    this._destinations = null;
+    this._options = null;
+
+    this._changeViewSubscriptions = [];
+    this._destinationLoadedSubscripions = [];
+    this._optionsLoadedSubscripions = [];
     this._creatingEvent = null;
 
     this._init();
@@ -40,6 +45,16 @@ export default class TripController {
 
   setEvents(events) {
     this._events = events;
+  }
+
+  setOptions(options) {
+    this._options = options;
+    this._optionsLoadedSubscripions.forEach((subscriber) => subscriber(options));
+  }
+
+  setDestinations(destinations) {
+    this._destinations = destinations;
+    this._destinationLoadedSubscripions.forEach((subscriber) => subscriber(destinations));
   }
 
   render() {
@@ -64,13 +79,29 @@ export default class TripController {
         render(this._dayList.getElement(), dayEl, Position.BEFOREEND);
         day.getEvents().forEach((event) => {
           const pointController = new PointController(eventList, event, Mode.EDIT, this._onDataChange.bind(this), this._onViewChange.bind(this));
-          this._subscriptions.push(pointController.setDefaultView.bind(pointController));
+          this._resolveAsyncEvents(pointController);
         });
       });
     } else {
       const pointController = new PointController(this._container, null, Mode.CREATING, this._onDataChange.bind(this), this._onViewChange.bind(this));
-      this._subscriptions.push(pointController.setDefaultView.bind(pointController));
+      this._resolveAsyncEvents(pointController);
     }
+  }
+
+  _resolveAsyncEvents(pointController) {
+    if (this._destinations !== null) {
+      pointController.setDestinations(this._destinations);
+    } else {
+      this._destinationLoadedSubscripions.push(pointController.setDestinations.bind(pointController));
+    }
+
+    if (this._options !== null) {
+      pointController.setOptions(this._options);
+    } else {
+      this._optionsLoadedSubscripions.push(pointController.setOptions.bind(pointController));
+    }
+
+    this._changeViewSubscriptions.push(pointController.setDefaultView.bind(pointController));
   }
 
   _onDataChange(newData, id) {
@@ -98,7 +129,7 @@ export default class TripController {
   }
 
   _onViewChange() {
-    this._subscriptions.forEach((subscription) => subscription());
+    this._changeViewSubscriptions.forEach((subscription) => subscription());
   }
 
   _onSortChanged(sortedEvents) {
@@ -125,12 +156,14 @@ export default class TripController {
     };
 
     this._creatingEvent = new PointController(
-        this._dayList.getElement(),
-        defaultEvent,
-        Mode.CREATING,
-        this._onDataChange.bind(this),
-        this._onViewChange.bind(this)
+      this._dayList.getElement(),
+      defaultEvent,
+      Mode.CREATING,
+      this._onDataChange.bind(this),
+      this._onViewChange.bind(this)
     );
+
+    this._resolveAsyncEvents(this._creatingEvent);
   }
 
   show() {
