@@ -1,18 +1,20 @@
-import TripController from "./controllers/trip";
+import TripController, {EventAction} from "./controllers/trip";
 import StatisticController from "./controllers/statistic";
 
 import Menu from './components/menu';
 import TripInfo from './components/trip-info';
+import API from "./api";
 
-import {createEvent, MENU_ITEMS, calculateEventCost} from './data';
-import {render, Position} from "./utils";
+import {MENU_ITEMS, calculateEventCost} from './data';
+import {render, Position, unrender} from "./utils";
 import FilterController from "./controllers/filter";
+import EventModel from "./event-model";
 
-const EVENTS_LIST_LENGTH = 28;
+const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
+const END_POINT = `https://htmlacademy-es-9.appspot.com/big-trip/`;
+const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 
-let eventsData = new Array(EVENTS_LIST_LENGTH)
-  .fill(``)
-  .map(createEvent);
+let eventsData = [];
 
 // MENU
 const menuChangeSubscribers = [];
@@ -23,10 +25,18 @@ const menu = new Menu(new Set(Object.values(MENU_ITEMS)), MENU_ITEMS.TABLE, (men
 render(document.querySelector(`.trip-controls h2:first-child`), menu.getElement(), Position.AFTER);
 
 // TRIP INFO
-if (eventsData.length) {
-  const tripInfo = new TripInfo(eventsData);
-  render(document.querySelector(`.trip-info`), tripInfo.getElement(), Position.AFTERBEGIN);
-}
+const tripInfoContainer = document.querySelector(`.trip-info`);
+let tripInfo = null;
+
+const updateTripInfo = (events) => {
+  if (tripInfo !== null) {
+    unrender(tripInfo.getElement());
+    tripInfo.removeElement();
+  }
+
+  tripInfo = new TripInfo(events);
+  render(tripInfoContainer, tripInfo.getElement(), Position.AFTERBEGIN);
+};
 
 const costContainer = document.querySelector('.trip-info__cost-value');
 
@@ -44,11 +54,31 @@ const filterController = new FilterController(document.querySelector(`.trip-cont
   filterChangeSubscribers.forEach((subscriber) => subscriber(events));
 });
 
+const onDataChange = (actionType, id, update) => {
+  switch(actionType) {
+    case EventAction.DELETE:
+      api.deleteEvent({id})
+        .then(() => api.getEvents())
+        .then(eventsLoaded);
+      break;
+    case EventAction.UPDATE:
+      api.updateEvent({
+        id,
+        data: EventModel.toRaw(update)
+      })
+        .then(() => api.getEvents())
+        .then(eventsLoaded);
+      break;
+    case EventAction.CREATE:
+      api.createEvent({data: EventModel.toRaw(update)})
+        .then(() => api.getEvents())
+        .then(eventsLoaded);
+      break;
+  }
+};
+
 const tripEventsEl = document.querySelector(`.trip-events`);
-const dataChangeSubscribers = [];
-const tripController = new TripController(tripEventsEl, eventsData, (events) => {
-  dataChangeSubscribers.forEach((subscriber) => subscriber(events));
-});
+const tripController = new TripController(tripEventsEl, eventsData, onDataChange);
 
 const statisticController = new StatisticController(tripEventsEl, eventsData);
 
@@ -71,17 +101,25 @@ filterChangeSubscribers.push((events) => {
   tripController.show();
 });
 
-dataChangeSubscribers.push((events) => {
-  eventsData = events;
-  statisticController.setEvents(eventsData);
-  filterController.setEvents(eventsData);
-  updateTotalCost(eventsData);
-});
-
 document
   .querySelector(`.trip-main__event-add-btn`)
   .addEventListener(`click`, () => {
     statisticController.hide();
     tripController.show();
     tripController.createEvent();
-});
+  });
+
+const eventsLoaded = (events) => {
+  tripController.setEvents(events);
+  statisticController.setEvents(events);
+  filterController.setEvents(events);
+
+  updateTripInfo(events);
+  updateTotalCost(events);
+
+  tripController.show();
+};
+
+api
+  .getEvents()
+  .then(eventsLoaded);

@@ -1,7 +1,7 @@
 import EventEditor, {Mode} from "../components/event-editor";
 import Event from "../components/event";
 import {isEscBtn, Position, render, unrender} from "../utils";
-import {getDestinationDescription, getDestionationPhotos, getOptionsByEventType} from "../data";
+import {getDestinationDescription} from "../data";
 
 export default class PointController {
   /**
@@ -97,7 +97,6 @@ export default class PointController {
     const from = new Date(formData.get(`event-start-time`));
     const to = new Date(formData.get(`event-end-time`));
     const eventType = formData.get(`event-type`);
-    const allOptions = getOptionsByEventType(eventType);
     const destination = formData.get(`event-destination`);
 
     const newData = {
@@ -106,13 +105,14 @@ export default class PointController {
       from,
       to,
       cost: Number(formData.get(`event-price`)),
-      options: allOptions.map((option) => {
-        option.isActive = !!formData.get(`event-offer-${option.type}`);
+      options: this._event.options.map((option, index) => {
+        option.isActive = formData.get(`event-offer-${eventType}-${index}`) === `on`;
 
         return Object.assign({}, option);
       }),
       description: getDestinationDescription(destination),
-      photos: getDestionationPhotos(destination),
+      photos: this._event.photos,
+      isFavorite: formData.get(`event-favorite`) === `on`,
     };
 
     return Object.assign(this._event, newData);

@@ -3,7 +3,7 @@ import AbstractComponent from "./abstract-component";
 import {SHORT_MONTHS} from '../utils';
 
 export default class TripInfo extends AbstractComponent {
-  constructor(events) {
+  constructor(events = []) {
     super();
     this._events = events;
   }
@@ -22,17 +22,21 @@ export default class TripInfo extends AbstractComponent {
   }
 
   _getDateInfo(events) {
-    const from = new Date(events[0].from);
-    let to = new Date(events[events.length - 1].to);
+    let format = ``;
 
-    if (from.getTime() === to.getTime()) {
-      to = null;
-    }
+    if (events.length) {
+      const from = new Date(events[0].from);
+      let to = new Date(events[events.length - 1].to);
 
-    let format = `${SHORT_MONTHS[from.getMonth()]} ${from.getDate()}`;
+      if (from.getTime() === to.getTime()) {
+        to = null;
+      }
 
-    if (to) {
-      format += ` &mdash; ${SHORT_MONTHS[to.getMonth()]} ${to.getDate()}`;
+      format = `${SHORT_MONTHS[from.getMonth()]} ${from.getDate()}`;
+
+      if (to) {
+        format += ` &mdash; ${SHORT_MONTHS[to.getMonth()]} ${to.getDate()}`;
+      }
     }
 
     return format;

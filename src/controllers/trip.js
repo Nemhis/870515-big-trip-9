@@ -10,6 +10,11 @@ import {Mode} from "../components/event-editor";
 import {hideVisually, showVisually, Position, render} from '../utils';
 import {eventTypes, EventCategories, getOptionsByEventType} from "../data";
 
+export const EventAction = {
+  DELETE: `delete`,
+  CREATE: `create`,
+  UPDATE: `update`,
+};
 
 export default class TripController {
   constructor(container, events, _onMainDataChange) {
@@ -26,20 +31,20 @@ export default class TripController {
   }
 
   _init() {
-    if (this._events.length) {
-      // Sorter
-      this._sorter.renderSort();
+    // Sorter
+    this._sorter.renderSort();
 
-      // Day list
-      render(this._container, this._dayList.getElement(), Position.BEFOREEND);
-    }
-
-    const sortedEvents = this._sorter.sort(this._events);
-    this._renderEvents(sortedEvents);
+    // Day list
+    render(this._container, this._dayList.getElement(), Position.BEFOREEND);
   }
 
   setEvents(events) {
     this._events = events;
+  }
+
+  render() {
+    const sortedEvents = this._sorter.sort(this._events);
+    this._renderEvents(sortedEvents);
   }
 
   /**
@@ -70,25 +75,26 @@ export default class TripController {
 
   _onDataChange(newData, id) {
     const index = this._events.findIndex((it) => it.id === id);
+    let actionType = ``;
 
     if (newData === null && id === null) { // выход из режима создания
       this._creatingEvent = null;
     } else if (newData !== null && id === null) { // создание
-      // TODO: пока нет сохранения на сервер, надо сделать фейковый id
-      newData.id = Date.now();
-
       this._events = [newData, ...this._events];
       this._creatingEvent.unrender();
       this._creatingEvent = null;
+      actionType = EventAction.CREATE;
     } else if (newData === null) { // удаление
       this._events = [...this._events.slice(0, index), ...this._events.slice(index + 1)];
+      actionType = EventAction.DELETE;
     } else { // обновление
       this._events[index] = newData;
+      actionType = EventAction.UPDATE;
     }
 
-    this._onMainDataChange(this._events);
-    const sortedEvents = this._sorter.sort(this._events);
-    this._renderEvents(sortedEvents);
+    if (actionType) {
+      this._onMainDataChange(actionType, id, newData);
+    }
   }
 
   _onViewChange() {
@@ -129,9 +135,7 @@ export default class TripController {
 
   show() {
     showVisually(this._container);
-
-    const sortedEvents = this._sorter.sort(this._events);
-    this._renderEvents(sortedEvents);
+    this.render();
   }
 
   hide() {

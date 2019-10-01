@@ -68,7 +68,6 @@ export default class EventEditor extends AbstractComponent {
         this.getElement().querySelector(`#event-start-time-1`),
         Object.assign({}, defaultOptions, {
           defaultDate: this._from,
-          minDate: new Date(),
           maxDate: this._to,
         }));
 
@@ -210,10 +209,10 @@ export default class EventEditor extends AbstractComponent {
       ${this._options.length ? `<section class="event__section  event__section--offers">
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
             <div class="event__available-offers">
-              ${this._options.map((option) => `<div class="event__offer-selector">
-                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${option.type}-1" type="checkbox" 
-                    name="event-offer-${option.type}" ${option.isActive ? `checked` : ``}>
-                    <label class="event__offer-label" for="event-offer-${option.type}-1">
+              ${this._options.map((option, index) => `<div class="event__offer-selector">
+                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${option.type}-${index}" type="checkbox" 
+                    name="event-offer-${option.type}-${index}" ${option.isActive ? `checked` : ``}>
+                    <label class="event__offer-label" for="event-offer-${option.type}-${index}">
                       <span class="event__offer-title">${option.title}</span>
                         &plus;
                         &euro;&nbsp;<span class="event__offer-price">${option.cost}
