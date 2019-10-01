@@ -132,6 +132,17 @@ export default class EventEditor extends AbstractComponent {
     this.getElement().insertAdjacentHTML(`beforeend`, this._getDetailsTemplate());
   }
 
+  renderDestinationList(destinations) {
+    const destinationInput = this.getElement().querySelector('.event__input--destination');
+
+    destinationInput.insertAdjacentHTML(`afterend`, `
+      <datalist id="destination-list-1">
+        ${Array.from(destinations).map(([cityName]) => `<option value="${cityName}"></option>`).join(``)}
+      </datalist>`);
+
+    destinationInput.removeAttribute(`disabled`);
+  }
+
   getTemplate() {
     return `<form class="trip-events__item  event  event--edit" action="#" method="post">
             <header class="event__header">
@@ -159,10 +170,14 @@ export default class EventEditor extends AbstractComponent {
                 <label class="event__label  event__type-output" for="event-destination-1">
                   ${this._getDestinationPrefix()}
                 </label>
-                <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._destination}" list="destination-list-1">
-                <datalist id="destination-list-1">
-                  ${Array.from(allCities).map((cityName) => `<option value="${cityName}"></option>`).join(``)}
-                </datalist>
+                <input class="event__input  event__input--destination" 
+                    id="event-destination-1" 
+                    type="text" 
+                    name="event-destination" 
+                    value="${this._destination}" 
+                    list="destination-list-1"
+                    disabled
+                  >
               </div>
 
               <div class="event__field-group  event__field-group--time">

@@ -25,6 +25,10 @@ export default class PointController {
     this._init();
   }
 
+  setDestinations(destinations) {
+    this._eventEditor.renderDestinationList(destinations);
+  }
+
   /**
    * @private
    */
