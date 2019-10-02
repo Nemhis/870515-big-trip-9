@@ -4,7 +4,7 @@ import moment from "moment";
 
 import AbstractComponent from "./abstract-component";
 
-import {SHORT_ISO_FORMAT, unrender} from '../utils';
+import {renderString, SHORT_ISO_FORMAT, StringPosition, unrender} from '../utils';
 import {eventTypes, getEventPreposition} from "../data";
 
 export const Mode = {
@@ -135,7 +135,7 @@ export default class EventEditor extends AbstractComponent {
     const detailsEl = this.getElement().querySelector(`.event__details`);
     unrender(detailsEl);
 
-    this.getElement().insertAdjacentHTML(`beforeend`, this._getDetailsTemplate());
+    renderString(this.getElement(), this._getDetailsTemplate(), StringPosition.BEFOREEND);
   }
 
   setAllOptions(options) {
@@ -159,12 +159,11 @@ export default class EventEditor extends AbstractComponent {
     this._allDestinations = destinations;
 
     const destinationInput = this.getElement().querySelector(`.event__input--destination`);
-
-    destinationInput.insertAdjacentHTML(`afterend`, `
-      <datalist id="destination-list-1">
+    const template = `<datalist id="destination-list-1">
         ${Array.from(destinations).map(([cityName]) => `<option value="${cityName}"></option>`).join(``)}
-      </datalist>`);
+      </datalist>`;
 
+    renderString(destinationInput, template, StringPosition.AFTER);
     destinationInput.removeAttribute(`disabled`);
   }
 

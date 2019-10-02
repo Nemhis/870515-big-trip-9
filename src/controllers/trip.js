@@ -163,6 +163,10 @@ export default class TripController {
   }
 
   _onViewChange() {
+    if (this._creatingEvent !== null) {
+      this._creatingEvent.unrender();
+    }
+
     this._changeViewSubscriptions.forEach((subscription) => subscription());
   }
 
@@ -178,6 +182,8 @@ export default class TripController {
     if (this._creatingEvent !== null) {
       return;
     }
+
+    this._onViewChange();
 
     const [firstType] = eventTypes[EventCategories.TRANSFER];
     const defaultEvent = new EventModel({});
