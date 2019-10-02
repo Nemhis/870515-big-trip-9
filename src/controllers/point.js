@@ -53,6 +53,7 @@ export default class PointController {
 
     const saveFormHandler = (event) => {
       event.preventDefault();
+      this.removeInvalidState();
       this._onDataChange(this._collectFormData(), this._event.id, this);
     };
 
@@ -122,13 +123,78 @@ export default class PointController {
   }
 
   block() {
-    // TODO: Реализовать блок
-    console.log(`block`)
+    this
+      ._collectControls()
+      .forEach((control) => {
+        control.disabled = true;
+    })
   }
 
   unblock() {
-    // TODO: Реализовать разблок
-    console.log(`unblock`)
+    this
+      ._collectControls()
+      .forEach((control) => {
+        control.disabled = false;
+      })
+  }
+
+  toLoadState() {
+    this._eventEditor.getElement().querySelector(`.event__save-btn`).innerText = `Saving...`;
+  }
+
+  toDeleteState() {
+    this._eventEditor.getElement().querySelector(`.event__reset-btn`).innerText = `Deleting...`
+  }
+
+  resetBtns() {
+    this._eventEditor.getElement().querySelector(`.event__reset-btn`).innerText = `Delete`;
+    this._eventEditor.getElement().querySelector(`.event__save-btn`).innerText = `Save`;
+  }
+
+  setInvalidState() {
+    const eventEditorEl = this._eventEditor.getElement();
+    eventEditorEl.classList.remove(`shake`);
+    void eventEditorEl.offsetWidth;
+    eventEditorEl.classList.add(`shake`);
+    eventEditorEl.style.border = `2px solid #e53e3e`;
+  }
+
+  removeInvalidState() {
+    const eventEditorEl = this._eventEditor.getElement();
+    eventEditorEl.classList.remove(`shake`);
+    void eventEditorEl.offsetWidth;
+    eventEditorEl.style.border = ``;
+  }
+
+  _collectControls() {
+    const eventEditorEl = this._eventEditor.getElement();
+    let controls = [
+      eventEditorEl.querySelector(`.event__input--price`),
+      eventEditorEl.querySelector(`.event__input--destination`),
+      eventEditorEl.querySelector(`.event__type-toggle`),
+      eventEditorEl.querySelector(`.event__save-btn`),
+      eventEditorEl.querySelector(`.event__reset-btn`),
+    ];
+
+    const rollupBtn = eventEditorEl.querySelector(`.event__rollup-btn`);
+
+    if (rollupBtn) {
+      controls.push(rollupBtn);
+    }
+
+    const favoriteCheckbox = eventEditorEl.querySelector(`.event__favorite-checkbox`);
+
+    if (favoriteCheckbox) {
+      controls.push(favoriteCheckbox);
+    }
+
+    const optionsCheckboxes = eventEditorEl.querySelectorAll(`.event__offer-checkbox`);
+
+    if (optionsCheckboxes) {
+      controls = [...controls, ...Array.from(optionsCheckboxes)];
+    }
+
+    return controls;
   }
 
   setDefaultView() {

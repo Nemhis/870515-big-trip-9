@@ -75,8 +75,16 @@ const onDataChange = (actionType, id, update) => {
   return promise;
 };
 
+const onChangeEvents = (events) => {
+  statisticController.setEvents(events);
+  filterController.setEvents(events);
+
+  updateTripInfo(events);
+  updateTotalCost(events);
+};
+
 const tripEventsEl = document.querySelector(`.trip-events`);
-const tripController = new TripController(tripEventsEl, eventsData, onDataChange);
+const tripController = new TripController(tripEventsEl, eventsData, onDataChange, onChangeEvents);
 
 const statisticController = new StatisticController(tripEventsEl, eventsData);
 

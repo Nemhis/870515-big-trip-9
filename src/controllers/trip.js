@@ -18,10 +18,11 @@ export const EventAction = {
 };
 
 export default class TripController {
-  constructor(container, events, _onMainDataChange) {
+  constructor(container, events, _onRequestAction, _onDataChange) {
     this._container = container;
     this._events = events;
-    this._onMainDataChange = _onMainDataChange;
+    this._onRequestAction = _onRequestAction;
+    this._onMainDataChange = _onDataChange;
     this._sorter = new SortController(this._container, this._events, this._onSortChanged.bind(this));
     this._dayList = new DaysList();
 
@@ -106,26 +107,27 @@ export default class TripController {
   }
 
   _onDataChange(newData, id, pointController) {
-    let action;
-
     if (newData === null && id === null) { // выход из режима создания
       this._creatingEvent = null;
       // TODO: убрать форму
-    } else if (newData !== null && id === null) {
-      action = EventAction.CREATE;
-    } else if (newData === null) {
-      action = EventAction.DELETE;
-    } else {
-      action = EventAction.UPDATE;
-    }
-
-    if (!action) {
       return;
     }
 
-    const actionPromise = this._onMainDataChange(action, id, newData);
-
     pointController.block();
+    let action;
+
+    if (newData !== null && id === null) {
+      action = EventAction.CREATE;
+      pointController.toLoadState();
+    } else if (newData === null) {
+      action = EventAction.DELETE;
+      pointController.toDeleteState();
+    } else {
+      action = EventAction.UPDATE;
+      pointController.toLoadState();
+    }
+
+    const actionPromise = this._onRequestAction(action, id, newData);
 
     actionPromise
       .then((event) => {
@@ -134,7 +136,8 @@ export default class TripController {
         this.render();
       })
       .catch(() => {
-      // pointController.shake();
+        pointController.setInvalidState();
+        pointController.resetBtns();
         pointController.unblock();
     });
   }
@@ -155,6 +158,8 @@ export default class TripController {
     } else if (action === EventAction.UPDATE && index !== null) {
       this._events[index] = event;
     }
+
+    this._onMainDataChange(this._events);
   }
 
   _onViewChange() {
