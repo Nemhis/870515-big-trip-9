@@ -55,26 +55,24 @@ const filterController = new FilterController(document.querySelector(`.trip-cont
 });
 
 const onDataChange = (actionType, id, update) => {
+  let promise;
+
   switch (actionType) {
     case EventAction.DELETE:
-      api.deleteEvent({id})
-        .then(() => api.getEvents())
-        .then(eventsLoaded);
+      promise = api.deleteEvent({id});
       break;
     case EventAction.UPDATE:
-      api.updateEvent({
+      promise = api.updateEvent({
         id,
         data: EventModel.toRaw(update)
-      })
-        .then(() => api.getEvents())
-        .then(eventsLoaded);
+      });
       break;
     case EventAction.CREATE:
-      api.createEvent({data: EventModel.toRaw(update)})
-        .then(() => api.getEvents())
-        .then(eventsLoaded);
+      promise = api.createEvent({data: EventModel.toRaw(update)});
       break;
   }
+
+  return promise;
 };
 
 const tripEventsEl = document.querySelector(`.trip-events`);

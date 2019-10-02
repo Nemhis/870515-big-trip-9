@@ -53,11 +53,7 @@ export default class PointController {
 
     const saveFormHandler = (event) => {
       event.preventDefault();
-      this._onDataChange(this._collectFormData(), this._event.id);
-
-      if (this._mode === Mode.EDIT) {
-        cancel();
-      }
+      this._onDataChange(this._collectFormData(), this._event.id, this);
     };
 
     eventViewEl
@@ -75,7 +71,7 @@ export default class PointController {
     eventEditEl
       .querySelector(`.event__reset-btn`)
       .addEventListener(`click`, () => {
-        this._onDataChange(null, this._event.id);
+        this._onDataChange(null, this._event.id, this);
       });
 
     let objToRender;
@@ -123,6 +119,16 @@ export default class PointController {
     };
 
     return Object.assign(this._event, newData);
+  }
+
+  block() {
+    // TODO: Реализовать блок
+    console.log(`block`)
+  }
+
+  unblock() {
+    // TODO: Реализовать разблок
+    console.log(`unblock`)
   }
 
   setDefaultView() {

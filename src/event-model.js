@@ -4,7 +4,9 @@ const DATE_FORMAT = `YYYY-MM-DDTHH:mm:ss.SSSZ`;
 
 export default class EventModel {
   constructor(data) {
-    this.id = parseInt(data[`id`], 10);
+    const id = parseInt(data[`id`], 10);
+
+    this.id = Number.isInteger(id) ? id : null;
     this.type = data[`type`] || ``;
     this.from = EventModel._parseTime(data[`date_from`]);
     this.to = EventModel._parseTime(data[`date_to`]);

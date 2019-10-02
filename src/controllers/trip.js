@@ -9,6 +9,7 @@ import Day from '../components/day';
 import {Mode} from "../components/event-editor";
 import {hideVisually, showVisually, Position, render} from '../utils';
 import {eventTypes, EventCategories} from "../data";
+import EventModel from "../event-model";
 
 export const EventAction = {
   DELETE: `delete`,
@@ -104,27 +105,55 @@ export default class TripController {
     this._changeViewSubscriptions.push(pointController.setDefaultView.bind(pointController));
   }
 
-  _onDataChange(newData, id) {
-    const index = this._events.findIndex((it) => it.id === id);
-    let actionType = ``;
+  _onDataChange(newData, id, pointController) {
+    let action;
 
     if (newData === null && id === null) { // выход из режима создания
       this._creatingEvent = null;
-    } else if (newData !== null && id === null) { // создание
-      this._events = [newData, ...this._events];
-      this._creatingEvent.unrender();
-      this._creatingEvent = null;
-      actionType = EventAction.CREATE;
-    } else if (newData === null) { // удаление
-      this._events = [...this._events.slice(0, index), ...this._events.slice(index + 1)];
-      actionType = EventAction.DELETE;
-    } else { // обновление
-      this._events[index] = newData;
-      actionType = EventAction.UPDATE;
+      // TODO: убрать форму
+    } else if (newData !== null && id === null) {
+      action = EventAction.CREATE;
+    } else if (newData === null) {
+      action = EventAction.DELETE;
+    } else {
+      action = EventAction.UPDATE;
     }
 
-    if (actionType) {
-      this._onMainDataChange(actionType, id, newData);
+    if (!action) {
+      return;
+    }
+
+    const actionPromise = this._onMainDataChange(action, id, newData);
+
+    pointController.block();
+
+    actionPromise
+      .then((event) => {
+        this.resolveEventAction(action, event, id);
+        pointController.unblock();
+        this.render();
+      })
+      .catch(() => {
+      // pointController.shake();
+        pointController.unblock();
+    });
+  }
+
+  resolveEventAction(action, event = null, id = null) {
+    let index = null;
+
+    if (id !== null) {
+      index = this._events.findIndex((it) => it.id === id);
+    }
+
+    if (action === EventAction.CREATE) {
+      this._events = [event, ...this._events];
+      this._creatingEvent.unrender();
+      this._creatingEvent = null;
+    } else if (action === EventAction.DELETE && index !== null) {
+      this._events = [...this._events.slice(0, index), ...this._events.slice(index + 1)];
+    } else if (action === EventAction.UPDATE && index !== null) {
+      this._events[index] = event;
     }
   }
 
@@ -142,18 +171,12 @@ export default class TripController {
     }
 
     const [firstType] = eventTypes[EventCategories.TRANSFER];
+    const defaultEvent = new EventModel({});
 
-    const defaultEvent = {
-      id: null,
-      type: firstType,
-      destination: ``,
-      photos: [],
-      description: ``,
-      from: moment().add(1, `days`).toDate(),
-      to: moment().add(2, `days`).toDate(),
-      cost: 0,
-      options: this._options.get(firstType),
-    };
+    defaultEvent.type = firstType;
+    defaultEvent.from = moment().add(1, `days`).toDate();
+    defaultEvent.to = moment().add(2, `days`).toDate();
+    defaultEvent.options = this._options.get(firstType);
 
     this._creatingEvent = new PointController(
         this._dayList.getElement(),
