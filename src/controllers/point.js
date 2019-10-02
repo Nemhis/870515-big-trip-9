@@ -136,7 +136,7 @@ export default class PointController {
       ._collectControls()
       .forEach((control) => {
         control.disabled = true;
-    })
+      });
   }
 
   unblock() {
@@ -144,7 +144,7 @@ export default class PointController {
       ._collectControls()
       .forEach((control) => {
         control.disabled = false;
-      })
+      });
   }
 
   toLoadState() {
@@ -152,7 +152,7 @@ export default class PointController {
   }
 
   toDeleteState() {
-    this._eventEditor.getElement().querySelector(`.event__reset-btn`).innerText = `Deleting...`
+    this._eventEditor.getElement().querySelector(`.event__reset-btn`).innerText = `Deleting...`;
   }
 
   resetBtns() {
@@ -219,7 +219,7 @@ export default class PointController {
     this._eventEditor.removeElement();
     this._eventView.removeElement();
 
-    if (typeof this._onDestroy === 'function') {
+    if (typeof this._onDestroy === `function`) {
       this._onDestroy();
     }
   }

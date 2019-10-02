@@ -140,7 +140,7 @@ export default class TripController {
         pointController.setInvalidState();
         pointController.resetBtns();
         pointController.unblock();
-    });
+      });
   }
 
   resolveEventAction(action, event = null, id = null) {
@@ -175,7 +175,11 @@ export default class TripController {
   }
 
   toggleCreateEvent() {
-    this._creatingEvent === null ? this._createEvent() : this._creatingEvent.unrender();
+    if (this._creatingEvent === null) {
+      this._createEvent();
+    } else {
+      this._creatingEvent.unrender();
+    }
   }
 
   _createEvent() {
@@ -192,6 +196,9 @@ export default class TripController {
     defaultEvent.from = moment().add(1, `days`).toDate();
     defaultEvent.to = moment().add(2, `days`).toDate();
     defaultEvent.options = this._options.get(firstType);
+    const onDestroy = () => {
+      this._creatingEvent = null;
+    };
 
     this._creatingEvent = new PointController(
         this._dayList.getElement(),
@@ -199,7 +206,7 @@ export default class TripController {
         Mode.CREATING,
         this._onDataChange.bind(this),
         this._onViewChange.bind(this),
-        () => this._creatingEvent = null,
+        onDestroy
     );
 
     this._resolveAsyncEvents(this._creatingEvent);
