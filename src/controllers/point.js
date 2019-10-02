@@ -1,7 +1,6 @@
 import EventEditor, {Mode} from "../components/event-editor";
 import Event from "../components/event";
 import {isEscBtn, Position, render, unrender} from "../utils";
-import {getDestinationDescription} from "../data";
 
 export default class PointController {
   /**
@@ -10,8 +9,9 @@ export default class PointController {
    * @param {int} mode
    * @param {function} onDataChange
    * @param {function} onViewChange
+   * @param {function} [onDestroy]
    */
-  constructor(container, event, mode, onDataChange, onViewChange) {
+  constructor(container, event, mode, onDataChange, onViewChange, onDestroy) {
     this._container = container;
     this._event = event;
 
@@ -21,8 +21,35 @@ export default class PointController {
 
     this._onDataChange = onDataChange;
     this._onViewChange = onViewChange;
+    this._onDestroy = onDestroy;
+    this._bindedOnEscKeyDown = this._onEscKeyDown.bind(this);
 
     this._init();
+  }
+
+  setDestinations(destinations) {
+    this._eventEditor.renderDestinationList(destinations);
+  }
+
+  setOptions(options) {
+    this._eventEditor.setAllOptions(options);
+  }
+
+  _onEscKeyDown(evt) {
+    if (isEscBtn(evt.key)) {
+      if (this._mode === Mode.CREATING) {
+        this.unrender();
+        document.removeEventListener(`keydown`, this._bindedOnEscKeyDown);
+      } else {
+        this.closeEdit();
+      }
+    }
+  }
+
+  closeEdit() {
+    this._eventEditor.destroyDatePicker();
+    this._container.replaceChild(this._eventView.getElement(), this._eventEditor.getElement());
+    document.removeEventListener(`keydown`, this._bindedOnEscKeyDown);
   }
 
   /**
@@ -32,25 +59,10 @@ export default class PointController {
     const eventEditEl = this._eventEditor.getElement();
     const eventViewEl = this._eventView.getElement();
 
-    const cancel = () => {
-      this._eventEditor.destroyDatePicker();
-      this._container.replaceChild(eventViewEl, eventEditEl);
-      document.removeEventListener(`keydown`, onEscKeyDown);
-    };
-
-    const onEscKeyDown = (evt) => {
-      if (isEscBtn(evt.key)) {
-        cancel();
-      }
-    };
-
     const saveFormHandler = (event) => {
       event.preventDefault();
-      this._onDataChange(this._collectFormData(), this._event.id);
-
-      if (this._mode === Mode.EDIT) {
-        cancel();
-      }
+      this.removeInvalidState();
+      this._onDataChange(this._collectFormData(), this._event.id, this);
     };
 
     eventViewEl
@@ -59,7 +71,7 @@ export default class PointController {
         this._onViewChange();
         this._container.replaceChild(eventEditEl, eventViewEl);
         this._eventEditor.initDatePicker();
-        document.addEventListener(`keydown`, onEscKeyDown);
+        document.addEventListener(`keydown`, this._bindedOnEscKeyDown);
       });
 
     eventEditEl
@@ -68,7 +80,7 @@ export default class PointController {
     eventEditEl
       .querySelector(`.event__reset-btn`)
       .addEventListener(`click`, () => {
-        this._onDataChange(null, this._event.id);
+        this._onDataChange(null, this._event.id, this);
       });
 
     let objToRender;
@@ -78,7 +90,7 @@ export default class PointController {
       eventEditEl
         .querySelector(`.event__rollup-btn`)
         .addEventListener(`click`, () => {
-          cancel();
+          this.closeEdit();
         });
 
       objToRender = eventViewEl;
@@ -87,6 +99,7 @@ export default class PointController {
       this._eventEditor.initDatePicker();
       objToRender = eventEditEl;
       position = Position.BEFORE;
+      document.addEventListener(`keydown`, this._bindedOnEscKeyDown);
     }
 
     render(this._container, objToRender, position);
@@ -105,17 +118,92 @@ export default class PointController {
       from,
       to,
       cost: Number(formData.get(`event-price`)),
-      options: this._event.options.map((option, index) => {
+      options: this._eventEditor.getOptions().map((option, index) => {
         option.isActive = formData.get(`event-offer-${eventType}-${index}`) === `on`;
 
         return Object.assign({}, option);
       }),
-      description: getDestinationDescription(destination),
-      photos: this._event.photos,
+      description: this._eventEditor.getDescription(),
+      photos: this._eventEditor.getPhotos(),
       isFavorite: formData.get(`event-favorite`) === `on`,
     };
 
     return Object.assign(this._event, newData);
+  }
+
+  block() {
+    this
+      ._collectControls()
+      .forEach((control) => {
+        control.disabled = true;
+      });
+  }
+
+  unblock() {
+    this
+      ._collectControls()
+      .forEach((control) => {
+        control.disabled = false;
+      });
+  }
+
+  toLoadState() {
+    this._eventEditor.getElement().querySelector(`.event__save-btn`).innerText = `Saving...`;
+  }
+
+  toDeleteState() {
+    this._eventEditor.getElement().querySelector(`.event__reset-btn`).innerText = `Deleting...`;
+  }
+
+  resetBtns() {
+    this._eventEditor.getElement().querySelector(`.event__reset-btn`).innerText = `Delete`;
+    this._eventEditor.getElement().querySelector(`.event__save-btn`).innerText = `Save`;
+  }
+
+  setInvalidState() {
+    const eventEditorEl = this._eventEditor.getElement();
+    eventEditorEl.classList.remove(`shake`);
+    void eventEditorEl.offsetWidth;
+    eventEditorEl.classList.add(`shake`);
+    eventEditorEl.style.border = `2px solid #e53e3e`;
+  }
+
+  removeInvalidState() {
+    const eventEditorEl = this._eventEditor.getElement();
+    eventEditorEl.classList.remove(`shake`);
+    void eventEditorEl.offsetWidth;
+    eventEditorEl.style.border = ``;
+  }
+
+  _collectControls() {
+    const eventEditorEl = this._eventEditor.getElement();
+    let controls = [
+      eventEditorEl.querySelector(`.event__input--price`),
+      eventEditorEl.querySelector(`.event__input--destination`),
+      eventEditorEl.querySelector(`.event__type-toggle`),
+      eventEditorEl.querySelector(`.event__save-btn`),
+      eventEditorEl.querySelector(`.event__reset-btn`),
+    ];
+
+    const rollupBtn = eventEditorEl.querySelector(`.event__rollup-btn`);
+
+    if (rollupBtn) {
+      controls.push(rollupBtn);
+    }
+
+    const favoriteCheckbox = eventEditorEl.querySelector(`.event__favorite-checkbox`);
+
+    if (favoriteCheckbox) {
+      controls.push(favoriteCheckbox);
+    }
+
+    const optionsCheckboxes = eventEditorEl.querySelectorAll(`.event__offer-checkbox`);
+
+    if (optionsCheckboxes) {
+      controls = [...controls, ...Array.from(optionsCheckboxes)];
+    }
+
+    return controls;
   }
 
   setDefaultView() {
@@ -130,5 +218,9 @@ export default class PointController {
 
     this._eventEditor.removeElement();
     this._eventView.removeElement();
+
+    if (typeof this._onDestroy === `function`) {
+      this._onDestroy();
+    }
   }
 }

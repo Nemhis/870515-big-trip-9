@@ -77,23 +77,6 @@ export function getEventCategory(eventType) {
   }
 }
 
-/**
- * Пока заглушка, получаем описание для типа события
- *
- * @param {string} destination
- */
-export const getDestinationDescription = (destination) => {
-  console.log(`try get description for ${destination}`);
-
-  return getRandomDescription()
-};
-
-export const getDestionationPhotos = (destination) => {
-  console.log(`try get description for ${destination}`);
-
-  return getRandomPhotos()
-};
-
 const getRandomPhotos = () => {
   return new Array(getRandomMinMax(5, 10))
     .fill(``)
@@ -129,12 +112,6 @@ export const allCities = new Set([
   `Chamonix`,
   `Saint Petersburg`,
 ]);
-
-export const getOptionsByEventType = (eventType) => {
-  console.log(`try get options for ${eventType}`);
-
-  return options;
-};
 
 const getRandomOptions = () => {
   const activeOptions = new Array(getRandomMinMax(0, 2)).fill(``).map(() => options[getRandomMinMax(0, (options.length - 1))]);

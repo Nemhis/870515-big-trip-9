@@ -1,6 +1,6 @@
 import Sorter from "../components/sorter";
 
-import {Position, render} from "../utils";
+import {Position, render, unrender} from "../utils";
 import {calculateEventCost} from "../data";
 
 export default class SortController {
@@ -21,7 +21,11 @@ export default class SortController {
   }
 
   renderSort() {
-    render(this._container, this._sorter.getElement(), Position.BEFOREEND);
+    render(this._container, this._sorter.getElement(), Position.AFTERBEGIN);
+  }
+
+  unrenderSort() {
+    unrender(this._sorter.getElement());
   }
 
   /**

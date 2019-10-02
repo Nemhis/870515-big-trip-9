@@ -8,7 +8,8 @@ import Day from '../components/day';
 
 import {Mode} from "../components/event-editor";
 import {hideVisually, showVisually, Position, render} from '../utils';
-import {eventTypes, EventCategories, getOptionsByEventType} from "../data";
+import {eventTypes, EventCategories} from "../data";
+import EventModel from "../event-model";
 
 export const EventAction = {
   DELETE: `delete`,
@@ -17,14 +18,20 @@ export const EventAction = {
 };
 
 export default class TripController {
-  constructor(container, events, _onMainDataChange) {
+  constructor(container, events, _onRequestAction, _onDataChange) {
     this._container = container;
     this._events = events;
-    this._onMainDataChange = _onMainDataChange;
+    this._onRequestAction = _onRequestAction;
+    this._onMainDataChange = _onDataChange;
     this._sorter = new SortController(this._container, this._events, this._onSortChanged.bind(this));
     this._dayList = new DaysList();
 
-    this._subscriptions = [];
+    this._destinations = null;
+    this._options = null;
+
+    this._changeViewSubscriptions = [];
+    this._destinationLoadedSubscripions = [];
+    this._optionsLoadedSubscripions = [];
     this._creatingEvent = null;
 
     this._init();
@@ -32,7 +39,9 @@ export default class TripController {
 
   _init() {
     // Sorter
-    this._sorter.renderSort();
+    if (this._events.length !== 0) {
+      this._sorter.renderSort();
+    }
 
     // Day list
     render(this._container, this._dayList.getElement(), Position.BEFOREEND);
@@ -42,9 +51,24 @@ export default class TripController {
     this._events = events;
   }
 
+  setOptions(options) {
+    this._options = options;
+    this._optionsLoadedSubscripions.forEach((subscriber) => subscriber(options));
+  }
+
+  setDestinations(destinations) {
+    this._destinations = destinations;
+    this._destinationLoadedSubscripions.forEach((subscriber) => subscriber(destinations));
+  }
+
   render() {
     const sortedEvents = this._sorter.sort(this._events);
     this._renderEvents(sortedEvents);
+    this._sorter.unrenderSort();
+
+    if (this._events.length !== 0) {
+      this._sorter.renderSort();
+    }
   }
 
   /**
@@ -56,72 +80,124 @@ export default class TripController {
     this._dayList.getElement().innerHTML = ``;
     const allDays = groupedDays.map(({date, events}, index) => new Day({day: date, number: (index + 1), events}));
 
-    if (allDays.length) {
-      allDays.forEach((day) => {
-        const dayEl = day.getElement();
-        const eventList = dayEl.querySelector(`.trip-events__list`);
+    allDays.forEach((day) => {
+      const dayEl = day.getElement();
+      const eventList = dayEl.querySelector(`.trip-events__list`);
 
-        render(this._dayList.getElement(), dayEl, Position.BEFOREEND);
-        day.getEvents().forEach((event) => {
-          const pointController = new PointController(eventList, event, Mode.EDIT, this._onDataChange.bind(this), this._onViewChange.bind(this));
-          this._subscriptions.push(pointController.setDefaultView.bind(pointController));
-        });
+      render(this._dayList.getElement(), dayEl, Position.BEFOREEND);
+      day.getEvents().forEach((event) => {
+        const pointController = new PointController(eventList, event, Mode.EDIT, this._onDataChange.bind(this), this._onViewChange.bind(this));
+        this._resolveAsyncEvents(pointController);
       });
-    } else {
-      const pointController = new PointController(this._container, null, Mode.CREATING, this._onDataChange.bind(this), this._onViewChange.bind(this));
-      this._subscriptions.push(pointController.setDefaultView.bind(pointController));
-    }
+    });
   }
 
-  _onDataChange(newData, id) {
-    const index = this._events.findIndex((it) => it.id === id);
-    let actionType = ``;
+  _resolveAsyncEvents(pointController) {
+    if (this._destinations !== null) {
+      pointController.setDestinations(this._destinations);
+    } else {
+      this._destinationLoadedSubscripions.push(pointController.setDestinations.bind(pointController));
+    }
 
+    if (this._options !== null) {
+      pointController.setOptions(this._options);
+    } else {
+      this._optionsLoadedSubscripions.push(pointController.setOptions.bind(pointController));
+    }
+
+    this._changeViewSubscriptions.push(pointController.setDefaultView.bind(pointController));
+  }
+
+  _onDataChange(newData, id, pointController) {
     if (newData === null && id === null) { // выход из режима создания
-      this._creatingEvent = null;
-    } else if (newData !== null && id === null) { // создание
-      this._events = [newData, ...this._events];
-      this._creatingEvent.unrender();
-      this._creatingEvent = null;
-      actionType = EventAction.CREATE;
-    } else if (newData === null) { // удаление
-      this._events = [...this._events.slice(0, index), ...this._events.slice(index + 1)];
-      actionType = EventAction.DELETE;
-    } else { // обновление
-      this._events[index] = newData;
-      actionType = EventAction.UPDATE;
+      pointController.unrender();
+      return;
     }
 
-    if (actionType) {
-      this._onMainDataChange(actionType, id, newData);
+    pointController.block();
+    let action;
+
+    if (newData !== null && id === null) {
+      action = EventAction.CREATE;
+      pointController.toLoadState();
+    } else if (newData === null) {
+      action = EventAction.DELETE;
+      pointController.toDeleteState();
+    } else {
+      action = EventAction.UPDATE;
+      pointController.toLoadState();
     }
+
+    const actionPromise = this._onRequestAction(action, id, newData);
+
+    actionPromise
+      .then((event) => {
+        this.resolveEventAction(action, event, id);
+        pointController.unblock();
+        this.render();
+      })
+      .catch(() => {
+        pointController.setInvalidState();
+        pointController.resetBtns();
+        pointController.unblock();
+      });
+  }
+
+  resolveEventAction(action, event = null, id = null) {
+    let index = null;
+
+    if (id !== null) {
+      index = this._events.findIndex((it) => it.id === id);
+    }
+
+    if (action === EventAction.CREATE) {
+      this._events = [event, ...this._events];
+      this._creatingEvent.unrender();
+    } else if (action === EventAction.DELETE && index !== null) {
+      this._events = [...this._events.slice(0, index), ...this._events.slice(index + 1)];
+    } else if (action === EventAction.UPDATE && index !== null) {
+      this._events[index] = event;
+    }
+
+    this._onMainDataChange(this._events);
   }
 
   _onViewChange() {
-    this._subscriptions.forEach((subscription) => subscription());
+    if (this._creatingEvent !== null) {
+      this._creatingEvent.unrender();
+    }
+
+    this._changeViewSubscriptions.forEach((subscription) => subscription());
   }
 
   _onSortChanged(sortedEvents) {
     this._renderEvents(sortedEvents);
   }
 
-  createEvent() {
+  toggleCreateEvent() {
+    if (this._creatingEvent === null) {
+      this._createEvent();
+    } else {
+      this._creatingEvent.unrender();
+    }
+  }
+
+  _createEvent() {
     if (this._creatingEvent !== null) {
       return;
     }
 
-    const [firstType] = eventTypes[EventCategories.TRANSFER];
+    this._onViewChange();
 
-    const defaultEvent = {
-      id: null,
-      type: firstType,
-      destination: ``,
-      photos: [],
-      description: ``,
-      from: moment().add(1, `days`).toDate(),
-      to: moment().add(2, `days`).toDate(),
-      cost: 0,
-      options: getOptionsByEventType(firstType),
+    const [firstType] = eventTypes[EventCategories.TRANSFER];
+    const defaultEvent = new EventModel({});
+
+    defaultEvent.type = firstType;
+    defaultEvent.from = moment().add(1, `days`).toDate();
+    defaultEvent.to = moment().add(2, `days`).toDate();
+    defaultEvent.options = this._options.get(firstType);
+    const onDestroy = () => {
+      this._creatingEvent = null;
     };
 
     this._creatingEvent = new PointController(
@@ -129,8 +205,11 @@ export default class TripController {
         defaultEvent,
         Mode.CREATING,
         this._onDataChange.bind(this),
-        this._onViewChange.bind(this)
+        this._onViewChange.bind(this),
+        onDestroy
     );
+
+    this._resolveAsyncEvents(this._creatingEvent);
   }
 
   show() {

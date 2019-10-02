@@ -5,6 +5,13 @@ export const Position = {
   BEFOREEND: `beforeend`,
 };
 
+export const StringPosition = {
+  AFTER: `afterend`,
+  BEFORE: `beforebegin`,
+  AFTERBEGIN: `afterbegin`,
+  BEFOREEND: `beforeend`,
+};
+
 export const SHORT_ISO_FORMAT = `YYYY-MM-DDTHH:mm`;
 
 export const SHORT_DATE_FORMAT = `YYYY-MM-DD`;
@@ -13,7 +20,7 @@ export const SHORT_MONTHS = [`JAN`, `FEB`, `MAR`, `APR`, `MAY`, `JUN`, `JUL`, `A
 
 export const createElement = (template) => {
   const newElement = document.createElement(`div`);
-  newElement.insertAdjacentHTML(`afterbegin`, template);
+  renderString(newElement, template, StringPosition.AFTERBEGIN);
   return newElement.firstChild;
 };
 
@@ -33,6 +40,10 @@ export const render = (container, element, place) => {
       container.before(element);
       break;
   }
+};
+
+export const renderString = (container, string, place) => {
+  container.insertAdjacentHTML(place, string);
 };
 
 export const unrender = (element) => {

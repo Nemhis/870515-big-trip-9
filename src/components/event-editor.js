@@ -4,16 +4,8 @@ import moment from "moment";
 
 import AbstractComponent from "./abstract-component";
 
-import {SHORT_ISO_FORMAT, unrender} from '../utils';
-
-import {
-  eventTypes,
-  allCities,
-  getEventPreposition,
-  getDestinationDescription,
-  getOptionsByEventType,
-  getDestionationPhotos,
-} from "../data";
+import {renderString, SHORT_ISO_FORMAT, StringPosition, unrender} from '../utils';
+import {eventTypes, getEventPreposition} from "../data";
 
 export const Mode = {
   EDIT: 1,
@@ -34,6 +26,8 @@ export default class EventEditor extends AbstractComponent {
     this._isFavorite = isFavorite;
 
     this._mode = mode;
+    this._allDestinations = null;
+    this._allOptions = null;
 
     this._fromFlatpickr = null;
     this._toFlatpickr = null;
@@ -109,8 +103,12 @@ export default class EventEditor extends AbstractComponent {
           }
 
           this._type = input.value;
-          this._options = getOptionsByEventType(this._type);
+          this._options = this._allOptions.get(this._type);
           label.append(this._getDestinationPrefix());
+          this
+            .getElement()
+            .querySelector(`.event__type-icon`)
+            .setAttribute(`src`, this._getTypeImgSrc(this._type));
           this._reRenderDetails();
         }
       });
@@ -119,8 +117,16 @@ export default class EventEditor extends AbstractComponent {
     // Description
     el.querySelector(`.event__input--destination`).addEventListener(`change`, (event) => {
       const input = event.target;
-      this._description = getDestinationDescription(input.value);
-      this._photos = getDestionationPhotos(input.value);
+      const destination = this._allDestinations.get(input.value);
+
+      if (destination) {
+        this._description = destination.description || ``;
+        this._photos = destination.photos || [];
+      } else {
+        this._description = ``;
+        this._photos = [];
+      }
+
       this._reRenderDetails();
     });
   }
@@ -129,7 +135,72 @@ export default class EventEditor extends AbstractComponent {
     const detailsEl = this.getElement().querySelector(`.event__details`);
     unrender(detailsEl);
 
-    this.getElement().insertAdjacentHTML(`beforeend`, this._getDetailsTemplate());
+    renderString(this.getElement(), this._getDetailsTemplate(), StringPosition.BEFOREEND);
+  }
+
+  setAllOptions(options) {
+    this._allOptions = options;
+    this.getElement().querySelector(`.event__type-toggle`).removeAttribute(`disabled`);
+  }
+
+  getDescription() {
+    return this._description;
+  }
+
+  getOptions() {
+    return this._options;
+  }
+
+  getPhotos() {
+    return this._photos;
+  }
+
+  renderDestinationList(destinations) {
+    this._allDestinations = destinations;
+
+    const destinationInput = this.getElement().querySelector(`.event__input--destination`);
+    const template = `<datalist id="destination-list-1">
+        ${Array.from(destinations).map(([cityName]) => `<option value="${cityName}"></option>`).join(``)}
+      </datalist>`;
+
+    renderString(destinationInput, template, StringPosition.AFTER);
+    destinationInput.removeAttribute(`disabled`);
+  }
+
+  _getTypeImgSrc(type) {
+    return `img/icons/${type}.png`;
+  }
+
+  _getDetailsTemplate() {
+    return `<section class="event__details">
+      ${this._options.length ? `<section class="event__section  event__section--offers">
+          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+            <div class="event__available-offers">
+              ${this._options.map((option, index) => `<div class="event__offer-selector">
+                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${option.type}-${index}" type="checkbox" 
+                    name="event-offer-${option.type}-${index}" ${option.isActive ? `checked` : ``}>
+                    <label class="event__offer-label" for="event-offer-${option.type}-${index}">
+                      <span class="event__offer-title">${option.title}</span>
+                        &plus;
+                        &euro;&nbsp;<span class="event__offer-price">${option.cost}
+                      </span>
+                    </label>
+                  </div>`).join(``)}
+                </div>
+          </section>` : ``}
+                
+      ${this._description ? `<section class="event__section  event__section--destination">
+          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+          <p class="event__destination-description">${this._description}</p>
+              
+          ${this._photos.length ? `
+            <div class="event__photos-container">
+              <div class="event__photos-tape">
+                ${this._photos.map((photo) => `<img class="event__photo" src="${photo}" alt="Event photo">`).join(``)}
+              </div>
+            </div>` : ``}
+        </section>` : ``}
+      </section>`;
   }
 
   getTemplate() {
@@ -138,9 +209,9 @@ export default class EventEditor extends AbstractComponent {
               <div class="event__type-wrapper">
                 <label class="event__type  event__type-btn" for="event-type-toggle-1">
                   <span class="visually-hidden">Choose event type</span>
-                  <img class="event__type-icon" width="17" height="17" src="img/icons/${this._type}.png" alt="Event type icon">
+                  <img class="event__type-icon" width="17" height="17" src="${this._getTypeImgSrc(this._type)}" alt="Event type icon">
                 </label>
-                <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+                <input class="event__type-toggle visually-hidden" id="event-type-toggle-1" type="checkbox" disabled>
 
                 <div class="event__type-list">
                   ${Object.keys(eventTypes).map((eventGroupName) =>
@@ -159,10 +230,14 @@ export default class EventEditor extends AbstractComponent {
                 <label class="event__label  event__type-output" for="event-destination-1">
                   ${this._getDestinationPrefix()}
                 </label>
-                <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._destination}" list="destination-list-1">
-                <datalist id="destination-list-1">
-                  ${Array.from(allCities).map((cityName) => `<option value="${cityName}"></option>`).join(``)}
-                </datalist>
+                <input class="event__input  event__input--destination" 
+                    id="event-destination-1" 
+                    type="text" 
+                    name="event-destination" 
+                    value="${this._destination}" 
+                    list="destination-list-1"
+                    disabled
+                  >
               </div>
 
               <div class="event__field-group  event__field-group--time">
@@ -202,37 +277,5 @@ export default class EventEditor extends AbstractComponent {
             
             ${(this._options.length || this._description) ? this._getDetailsTemplate() : ``}
           </form>`;
-  }
-
-  _getDetailsTemplate() {
-    return `<section class="event__details">
-      ${this._options.length ? `<section class="event__section  event__section--offers">
-          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-            <div class="event__available-offers">
-              ${this._options.map((option, index) => `<div class="event__offer-selector">
-                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${option.type}-${index}" type="checkbox" 
-                    name="event-offer-${option.type}-${index}" ${option.isActive ? `checked` : ``}>
-                    <label class="event__offer-label" for="event-offer-${option.type}-${index}">
-                      <span class="event__offer-title">${option.title}</span>
-                        &plus;
-                        &euro;&nbsp;<span class="event__offer-price">${option.cost}
-                      </span>
-                    </label>
-                  </div>`).join(``)}
-                </div>
-          </section>` : ``}
-                
-      ${this._description ? `<section class="event__section  event__section--destination">
-          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">${this._description}</p>
-              
-          ${this._photos.length ? `
-            <div class="event__photos-container">
-              <div class="event__photos-tape">
-                ${this._photos.map((photo) => `<img class="event__photo" src="${photo}" alt="Event photo">`).join(``)}
-              </div>
-            </div>` : ``}
-        </section>` : ``}
-      </section>`;
   }
 }
