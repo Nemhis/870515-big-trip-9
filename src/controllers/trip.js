@@ -8,7 +8,7 @@ import Day from '../components/day';
 
 import {Mode} from "../components/event-editor";
 import {hideVisually, showVisually, Position, render} from '../utils';
-import {eventTypes, EventCategories, getOptionsByEventType} from "../data";
+import {eventTypes, EventCategories} from "../data";
 
 export const EventAction = {
   DELETE: `delete`,
@@ -152,15 +152,15 @@ export default class TripController {
       from: moment().add(1, `days`).toDate(),
       to: moment().add(2, `days`).toDate(),
       cost: 0,
-      options: getOptionsByEventType(firstType),
+      options: this._options.get(firstType),
     };
 
     this._creatingEvent = new PointController(
-      this._dayList.getElement(),
-      defaultEvent,
-      Mode.CREATING,
-      this._onDataChange.bind(this),
-      this._onViewChange.bind(this)
+        this._dayList.getElement(),
+        defaultEvent,
+        Mode.CREATING,
+        this._onDataChange.bind(this),
+        this._onViewChange.bind(this)
     );
 
     this._resolveAsyncEvents(this._creatingEvent);

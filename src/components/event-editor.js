@@ -5,15 +5,7 @@ import moment from "moment";
 import AbstractComponent from "./abstract-component";
 
 import {SHORT_ISO_FORMAT, unrender} from '../utils';
-
-import {
-  eventTypes,
-  allCities,
-  getEventPreposition,
-  getDestinationDescription,
-  getOptionsByEventType,
-  getDestionationPhotos,
-} from "../data";
+import {eventTypes, getEventPreposition} from "../data";
 
 export const Mode = {
   EDIT: 1,
@@ -148,7 +140,7 @@ export default class EventEditor extends AbstractComponent {
 
   setAllOptions(options) {
     this._allOptions = options;
-    this.getElement().querySelector('.event__type-toggle').removeAttribute(`disabled`);
+    this.getElement().querySelector(`.event__type-toggle`).removeAttribute(`disabled`);
   }
 
   getDescription() {
@@ -166,7 +158,7 @@ export default class EventEditor extends AbstractComponent {
   renderDestinationList(destinations) {
     this._allDestinations = destinations;
 
-    const destinationInput = this.getElement().querySelector('.event__input--destination');
+    const destinationInput = this.getElement().querySelector(`.event__input--destination`);
 
     destinationInput.insertAdjacentHTML(`afterend`, `
       <datalist id="destination-list-1">
@@ -178,6 +170,38 @@ export default class EventEditor extends AbstractComponent {
 
   _getTypeImgSrc(type) {
     return `img/icons/${type}.png`;
+  }
+
+  _getDetailsTemplate() {
+    return `<section class="event__details">
+      ${this._options.length ? `<section class="event__section  event__section--offers">
+          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+            <div class="event__available-offers">
+              ${this._options.map((option, index) => `<div class="event__offer-selector">
+                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${option.type}-${index}" type="checkbox" 
+                    name="event-offer-${option.type}-${index}" ${option.isActive ? `checked` : ``}>
+                    <label class="event__offer-label" for="event-offer-${option.type}-${index}">
+                      <span class="event__offer-title">${option.title}</span>
+                        &plus;
+                        &euro;&nbsp;<span class="event__offer-price">${option.cost}
+                      </span>
+                    </label>
+                  </div>`).join(``)}
+                </div>
+          </section>` : ``}
+                
+      ${this._description ? `<section class="event__section  event__section--destination">
+          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+          <p class="event__destination-description">${this._description}</p>
+              
+          ${this._photos.length ? `
+            <div class="event__photos-container">
+              <div class="event__photos-tape">
+                ${this._photos.map((photo) => `<img class="event__photo" src="${photo}" alt="Event photo">`).join(``)}
+              </div>
+            </div>` : ``}
+        </section>` : ``}
+      </section>`;
   }
 
   getTemplate() {
@@ -254,37 +278,5 @@ export default class EventEditor extends AbstractComponent {
             
             ${(this._options.length || this._description) ? this._getDetailsTemplate() : ``}
           </form>`;
-  }
-
-  _getDetailsTemplate() {
-    return `<section class="event__details">
-      ${this._options.length ? `<section class="event__section  event__section--offers">
-          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-            <div class="event__available-offers">
-              ${this._options.map((option, index) => `<div class="event__offer-selector">
-                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${option.type}-${index}" type="checkbox" 
-                    name="event-offer-${option.type}-${index}" ${option.isActive ? `checked` : ``}>
-                    <label class="event__offer-label" for="event-offer-${option.type}-${index}">
-                      <span class="event__offer-title">${option.title}</span>
-                        &plus;
-                        &euro;&nbsp;<span class="event__offer-price">${option.cost}
-                      </span>
-                    </label>
-                  </div>`).join(``)}
-                </div>
-          </section>` : ``}
-                
-      ${this._description ? `<section class="event__section  event__section--destination">
-          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">${this._description}</p>
-              
-          ${this._photos.length ? `
-            <div class="event__photos-container">
-              <div class="event__photos-tape">
-                ${this._photos.map((photo) => `<img class="event__photo" src="${photo}" alt="Event photo">`).join(``)}
-              </div>
-            </div>` : ``}
-        </section>` : ``}
-      </section>`;
   }
 }
