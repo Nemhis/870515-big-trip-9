@@ -9,8 +9,9 @@ export default class PointController {
    * @param {int} mode
    * @param {function} onDataChange
    * @param {function} onViewChange
+   * @param {function} [onDestroy]
    */
-  constructor(container, event, mode, onDataChange, onViewChange) {
+  constructor(container, event, mode, onDataChange, onViewChange, onDestroy) {
     this._container = container;
     this._event = event;
 
@@ -20,6 +21,8 @@ export default class PointController {
 
     this._onDataChange = onDataChange;
     this._onViewChange = onViewChange;
+    this._onDestroy = onDestroy;
+    this._onEscKeyDown = this._onEscKeyDown.bind(this);
 
     this._init();
   }
@@ -32,24 +35,28 @@ export default class PointController {
     this._eventEditor.setAllOptions(options);
   }
 
+  _onEscKeyDown(evt) {
+    if (isEscBtn(evt.key)) {
+      if (this._mode === Mode.CREATING) {
+        this.unrender();
+      } else {
+        this.closeEdit();
+      }
+    }
+  }
+
+  closeEdit() {
+    this._eventEditor.destroyDatePicker();
+    this._container.replaceChild(this._eventView.getElement(), this._eventEditor.getElement());
+    document.removeEventListener(`keydown`, this._onEscKeyDown);
+  }
+
   /**
    * @private
    */
   _init() {
     const eventEditEl = this._eventEditor.getElement();
     const eventViewEl = this._eventView.getElement();
-
-    const cancel = () => {
-      this._eventEditor.destroyDatePicker();
-      this._container.replaceChild(eventViewEl, eventEditEl);
-      document.removeEventListener(`keydown`, onEscKeyDown);
-    };
-
-    const onEscKeyDown = (evt) => {
-      if (isEscBtn(evt.key)) {
-        cancel();
-      }
-    };
 
     const saveFormHandler = (event) => {
       event.preventDefault();
@@ -63,7 +70,7 @@ export default class PointController {
         this._onViewChange();
         this._container.replaceChild(eventEditEl, eventViewEl);
         this._eventEditor.initDatePicker();
-        document.addEventListener(`keydown`, onEscKeyDown);
+        document.addEventListener(`keydown`, this._onEscKeyDown);
       });
 
     eventEditEl
@@ -82,7 +89,7 @@ export default class PointController {
       eventEditEl
         .querySelector(`.event__rollup-btn`)
         .addEventListener(`click`, () => {
-          cancel();
+          this.closeEdit();
         });
 
       objToRender = eventViewEl;
@@ -91,6 +98,7 @@ export default class PointController {
       this._eventEditor.initDatePicker();
       objToRender = eventEditEl;
       position = Position.BEFORE;
+      document.addEventListener(`keydown`, this._onEscKeyDown);
     }
 
     render(this._container, objToRender, position);
@@ -209,5 +217,9 @@ export default class PointController {
 
     this._eventEditor.removeElement();
     this._eventView.removeElement();
+
+    if (typeof this._onDestroy === 'function') {
+      this._onDestroy();
+    }
   }
 }

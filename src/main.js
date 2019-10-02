@@ -112,7 +112,7 @@ document
   .addEventListener(`click`, () => {
     statisticController.hide();
     tripController.show();
-    tripController.createEvent();
+    tripController.toggleCreateEvent();
   });
 
 const eventsLoaded = (events) => {

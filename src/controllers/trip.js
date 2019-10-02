@@ -108,8 +108,7 @@ export default class TripController {
 
   _onDataChange(newData, id, pointController) {
     if (newData === null && id === null) { // выход из режима создания
-      this._creatingEvent = null;
-      // TODO: убрать форму
+      pointController.unrender();
       return;
     }
 
@@ -152,7 +151,6 @@ export default class TripController {
     if (action === EventAction.CREATE) {
       this._events = [event, ...this._events];
       this._creatingEvent.unrender();
-      this._creatingEvent = null;
     } else if (action === EventAction.DELETE && index !== null) {
       this._events = [...this._events.slice(0, index), ...this._events.slice(index + 1)];
     } else if (action === EventAction.UPDATE && index !== null) {
@@ -170,7 +168,11 @@ export default class TripController {
     this._renderEvents(sortedEvents);
   }
 
-  createEvent() {
+  toggleCreateEvent() {
+    this._creatingEvent === null ? this._createEvent() : this._creatingEvent.unrender();
+  }
+
+  _createEvent() {
     if (this._creatingEvent !== null) {
       return;
     }
@@ -188,7 +190,8 @@ export default class TripController {
         defaultEvent,
         Mode.CREATING,
         this._onDataChange.bind(this),
-        this._onViewChange.bind(this)
+        this._onViewChange.bind(this),
+        () => this._creatingEvent = null,
     );
 
     this._resolveAsyncEvents(this._creatingEvent);
