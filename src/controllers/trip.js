@@ -39,7 +39,9 @@ export default class TripController {
 
   _init() {
     // Sorter
-    this._sorter.renderSort();
+    if (this._events.length !== 0) {
+      this._sorter.renderSort();
+    }
 
     // Day list
     render(this._container, this._dayList.getElement(), Position.BEFOREEND);
@@ -62,6 +64,11 @@ export default class TripController {
   render() {
     const sortedEvents = this._sorter.sort(this._events);
     this._renderEvents(sortedEvents);
+    this._sorter.unrenderSort();
+
+    if (this._events.length !== 0) {
+      this._sorter.renderSort();
+    }
   }
 
   /**
@@ -73,21 +80,16 @@ export default class TripController {
     this._dayList.getElement().innerHTML = ``;
     const allDays = groupedDays.map(({date, events}, index) => new Day({day: date, number: (index + 1), events}));
 
-    if (allDays.length) {
-      allDays.forEach((day) => {
-        const dayEl = day.getElement();
-        const eventList = dayEl.querySelector(`.trip-events__list`);
+    allDays.forEach((day) => {
+      const dayEl = day.getElement();
+      const eventList = dayEl.querySelector(`.trip-events__list`);
 
-        render(this._dayList.getElement(), dayEl, Position.BEFOREEND);
-        day.getEvents().forEach((event) => {
-          const pointController = new PointController(eventList, event, Mode.EDIT, this._onDataChange.bind(this), this._onViewChange.bind(this));
-          this._resolveAsyncEvents(pointController);
-        });
+      render(this._dayList.getElement(), dayEl, Position.BEFOREEND);
+      day.getEvents().forEach((event) => {
+        const pointController = new PointController(eventList, event, Mode.EDIT, this._onDataChange.bind(this), this._onViewChange.bind(this));
+        this._resolveAsyncEvents(pointController);
       });
-    } else {
-      const pointController = new PointController(this._container, null, Mode.CREATING, this._onDataChange.bind(this), this._onViewChange.bind(this));
-      this._resolveAsyncEvents(pointController);
-    }
+    });
   }
 
   _resolveAsyncEvents(pointController) {

@@ -9,12 +9,21 @@ import {MENU_ITEMS, calculateEventCost} from './data';
 import {render, Position, unrender} from "./utils";
 import FilterController from "./controllers/filter";
 import EventModel from "./event-model";
+import Message from "./components/message";
 
 const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
 const END_POINT = `https://htmlacademy-es-9.appspot.com/big-trip/`;
 const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 
 let eventsData = [];
+const innerContainer = document.querySelector(`.page-main .page-body__container`);
+let pageMessage = new Message(`Loading...`);
+render(innerContainer, pageMessage.getElement(), Position.AFTERBEGIN);
+
+const unrenderMessage = (messageComponent) => {
+  unrender(pageMessage.getElement());
+  pageMessage.removeElement();
+};
 
 // MENU
 const menuChangeSubscribers = [];
@@ -110,12 +119,25 @@ filterChangeSubscribers.push((events) => {
 document
   .querySelector(`.trip-main__event-add-btn`)
   .addEventListener(`click`, () => {
+    if (pageMessage !== null) {
+      unrenderMessage(pageMessage);
+    }
+
     statisticController.hide();
     tripController.show();
     tripController.toggleCreateEvent();
   });
 
 const eventsLoaded = (events) => {
+  unrenderMessage(pageMessage);
+
+  if (events.length === 0) {
+    pageMessage = new Message(`Click New Event to create your first point`);
+    render(innerContainer, pageMessage.getElement(), Position.AFTERBEGIN);
+  } else {
+    pageMessage = null;
+  }
+
   tripController.setEvents(events);
   statisticController.setEvents(events);
   filterController.setEvents(events);
