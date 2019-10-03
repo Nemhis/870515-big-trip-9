@@ -50,12 +50,11 @@ export default class EventEditor extends AbstractComponent {
 
   initDatePicker() {
     const defaultOptions = {
-      altInput: true,
-      enableTime: true,
-      altFormat: `d.m.Y H:i`,
-      dateFormat: `Y-m-dTH:i`,
-      // eslint ругается - is not in camel case =)
-      time_24hr: true, // eslint-disable-line camelcase
+      'altInput': true,
+      'enableTime': true,
+      'altFormat': `d.m.Y H:i`,
+      'dateFormat': `Y-m-dTH:i`,
+      'time_24hr': true,
     };
 
     this._fromFlatpickr = flatpickr(
