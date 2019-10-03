@@ -1,9 +1,8 @@
 /**
  * Подсчёт полной стоимости события
- * TODO: этой функции тут не место, но куда её деть пока не знаю
  *
- * @param event
- * @returns {*}
+ * @param {Object} event
+ * @return {*}
  */
 export function calculateEventCost(event) {
   return event.options.reduce((accumulator, option) => {
@@ -39,8 +38,9 @@ export const eventTypes = {
 /**
  * Получение предлого подходящего под действие
  *
- * @param eventType
- * @returns {string}
+ * @param {String} eventType
+ *
+ * @return {string}
  */
 export function getEventPreposition(eventType) {
   let preposition = ``;
@@ -60,9 +60,9 @@ export function getEventPreposition(eventType) {
 /**
  * Получение типа события
  *
- * @param eventType
+ * @param {String} eventType
  *
- * @returns {string}
+ * @return {string}
  */
 export function getEventCategory(eventType) {
   const categories = Object.keys(eventTypes);
@@ -75,12 +75,14 @@ export function getEventCategory(eventType) {
       return category;
     }
   }
+
+  return ``;
 }
 
 const getRandomPhotos = () => {
   return new Array(getRandomMinMax(5, 10))
     .fill(``)
-    .map(() => `http://picsum.photos/300/150?r=${Math.random()}`)
+    .map(() => `http://picsum.photos/300/150?r=${Math.random()}`);
 };
 
 const descriptions = [
@@ -168,7 +170,7 @@ export const createEvent = (value, index) => {
     photos: getRandomPhotos(),
     description: getRandomDescription(),
     destination: getRandomArrayValue(Array.from(allCities)),
-  }
+  };
 };
 
 export const MENU_ITEMS = {
