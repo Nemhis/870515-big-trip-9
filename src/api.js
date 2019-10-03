@@ -28,13 +28,13 @@ export default class API {
   getDestinations() {
     return this._load({url: `destinations`})
       .then(parseJSON)
-      .then(EventModel.parseDestinations)
+      .then(EventModel.parseDestinations);
   }
 
   getOptions() {
     return this._load({url: `offers`})
       .then(parseJSON)
-      .then(EventModel.parseOptionsByType)
+      .then(EventModel.parseOptionsByType);
   }
 
   getEvents() {
@@ -75,8 +75,7 @@ export default class API {
     return fetch(`${this._endPoint}/${url}`, {method, body, headers})
       .then(checkStatus)
       .catch((err) => {
-        console.error(`fetch error: ${err}`);
         throw err;
       });
   }
-};
+}

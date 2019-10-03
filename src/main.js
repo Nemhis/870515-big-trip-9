@@ -20,7 +20,7 @@ const innerContainer = document.querySelector(`.page-main .page-body__container`
 let pageMessage = new Message(`Loading...`);
 render(innerContainer, pageMessage.getElement(), Position.AFTERBEGIN);
 
-const unrenderMessage = (messageComponent) => {
+const unrenderMessage = () => {
   unrender(pageMessage.getElement());
   pageMessage.removeElement();
 };
@@ -47,7 +47,7 @@ const updateTripInfo = (events) => {
   render(tripInfoContainer, tripInfo.getElement(), Position.AFTERBEGIN);
 };
 
-const costContainer = document.querySelector('.trip-info__cost-value');
+const costContainer = document.querySelector(`.trip-info__cost-value`);
 
 const updateTotalCost = (events) => {
   const totalCost = Math.round(events.reduce((acc, event) => acc + calculateEventCost(event), 0));
@@ -120,7 +120,7 @@ document
   .querySelector(`.trip-main__event-add-btn`)
   .addEventListener(`click`, () => {
     if (pageMessage !== null) {
-      unrenderMessage(pageMessage);
+      unrenderMessage();
     }
 
     statisticController.hide();
@@ -129,7 +129,7 @@ document
   });
 
 const eventsLoaded = (events) => {
-  unrenderMessage(pageMessage);
+  unrenderMessage();
 
   if (events.length === 0) {
     pageMessage = new Message(`Click New Event to create your first point`);

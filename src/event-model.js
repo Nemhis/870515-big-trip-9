@@ -51,7 +51,7 @@ export default class EventModel {
 
 
     destinations.forEach((destination) => {
-      destinationByName.set(destination.name, EventModel.parseDestination(destination))
+      destinationByName.set(destination.name, EventModel.parseDestination(destination));
     });
 
     return destinationByName;
@@ -61,7 +61,7 @@ export default class EventModel {
     const optionsByType = new Map();
 
     options.forEach((option) => {
-      optionsByType.set(option.type, EventModel.parseOptions(option))
+      optionsByType.set(option.type, EventModel.parseOptions(option));
     });
 
     return optionsByType;
@@ -109,7 +109,7 @@ export default class EventModel {
     };
 
     if (String(event.id)) {
-      eventToSave['id'] = String(event.id);
+      eventToSave[`id`] = String(event.id);
     }
 
     return eventToSave;
@@ -118,6 +118,6 @@ export default class EventModel {
   static _parseTime(date) {
     const dateTime = moment(date, [`x`, DATE_FORMAT]);
 
-    return dateTime.isValid() ? dateTime.toDate() : new Date;
+    return dateTime.isValid() ? dateTime.toDate() : new Date();
   }
 }
