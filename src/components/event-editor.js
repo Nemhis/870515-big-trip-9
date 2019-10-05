@@ -179,18 +179,18 @@ export default class EventEditor extends AbstractComponent {
     };
 
     this._fromFlatpickr = flatpickr(
-      this.getElement().querySelector(`#event-start-time-1`),
-      Object.assign({}, defaultOptions, {
-        defaultDate: this._from,
-        maxDate: this._to,
-      }));
+        this.getElement().querySelector(`#event-start-time-1`),
+        Object.assign({}, defaultOptions, {
+          defaultDate: this._from,
+          maxDate: this._to,
+        }));
 
     this._toFlatpickr = flatpickr(
-      this.getElement().querySelector(`#event-end-time-1`),
-      Object.assign({}, defaultOptions, {
-        defaultDate: this._to,
-        minDate: this._from,
-      }));
+        this.getElement().querySelector(`#event-end-time-1`),
+        Object.assign({}, defaultOptions, {
+          defaultDate: this._to,
+          minDate: this._from,
+        }));
 
     this._fromFlatpickr.set(`onChange`, (selectedDates) => {
       [this._from] = selectedDates;
