@@ -172,7 +172,7 @@ export const createEvent = (value, index) => {
     to: new Date(to),
     cost: Math.round(Math.random() * getRandomMinMax(1000, 5000)) / 100,
     options: getRandomOptions(),
-    photos: getRandomPhotos(eventTypes),
+    photos: getRandomPhotos(),
     description: getRandomDescription(),
     destination: getRandomArrayValue(Array.from(City)),
   };
