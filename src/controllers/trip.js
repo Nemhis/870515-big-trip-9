@@ -37,16 +37,6 @@ export default class TripController {
     this._init();
   }
 
-  _init() {
-    // Sorter
-    if (this._events.length !== 0) {
-      this._sorter.renderSort();
-    }
-
-    // Day list
-    render(this._container, this._dayList.getElement(), Position.BEFOREEND);
-  }
-
   setEvents(events) {
     this._events = events;
   }
@@ -61,14 +51,14 @@ export default class TripController {
     this._destinationLoadedSubscripions.forEach((subscriber) => subscriber(destinations));
   }
 
-  render() {
-    const sortedEvents = this._sorter.sort(this._events);
-    this._renderEvents(sortedEvents);
-    this._sorter.unrenderSort();
-
+  _init() {
+    // Sorter
     if (this._events.length !== 0) {
       this._sorter.renderSort();
     }
+
+    // Day list
+    render(this._container, this._dayList.getElement(), Position.BEFOREEND);
   }
 
   /**
@@ -143,25 +133,6 @@ export default class TripController {
       });
   }
 
-  resolveEventAction(action, event = null, id = null) {
-    let index = null;
-
-    if (id !== null) {
-      index = this._events.findIndex((it) => it.id === id);
-    }
-
-    if (action === EventAction.CREATE) {
-      this._events = [event, ...this._events];
-      this._creatingEvent.unrender();
-    } else if (action === EventAction.DELETE && index !== null) {
-      this._events = [...this._events.slice(0, index), ...this._events.slice(index + 1)];
-    } else if (action === EventAction.UPDATE && index !== null) {
-      this._events[index] = event;
-    }
-
-    this._onMainDataChange(this._events);
-  }
-
   _onViewChange() {
     if (this._creatingEvent !== null) {
       this._creatingEvent.unrender();
@@ -172,14 +143,6 @@ export default class TripController {
 
   _onSortChanged(sortedEvents) {
     this._renderEvents(sortedEvents);
-  }
-
-  toggleCreateEvent() {
-    if (this._creatingEvent === null) {
-      this._createEvent();
-    } else {
-      this._creatingEvent.unrender();
-    }
   }
 
   _createEvent() {
@@ -210,6 +173,43 @@ export default class TripController {
     );
 
     this._resolveAsyncEvents(this._creatingEvent);
+  }
+
+  resolveEventAction(action, event = null, id = null) {
+    let index = null;
+
+    if (id !== null) {
+      index = this._events.findIndex((it) => it.id === id);
+    }
+
+    if (action === EventAction.CREATE) {
+      this._events = [event, ...this._events];
+      this._creatingEvent.unrender();
+    } else if (action === EventAction.DELETE && index !== null) {
+      this._events = [...this._events.slice(0, index), ...this._events.slice(index + 1)];
+    } else if (action === EventAction.UPDATE && index !== null) {
+      this._events[index] = event;
+    }
+
+    this._onMainDataChange(this._events);
+  }
+
+  toggleCreateEvent() {
+    if (this._creatingEvent === null) {
+      this._createEvent();
+    } else {
+      this._creatingEvent.unrender();
+    }
+  }
+
+  render() {
+    const sortedEvents = this._sorter.sort(this._events);
+    this._renderEvents(sortedEvents);
+    this._sorter.unrenderSort();
+
+    if (this._events.length !== 0) {
+      this._sorter.renderSort();
+    }
   }
 
   show() {

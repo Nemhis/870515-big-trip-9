@@ -20,14 +20,6 @@ export default class SortController {
       .addEventListener(`click`, (evt) => this._onSortLinkClick(evt));
   }
 
-  renderSort() {
-    render(this._container, this._sorter.getElement(), Position.AFTERBEGIN);
-  }
-
-  unrenderSort() {
-    unrender(this._sorter.getElement());
-  }
-
   /**
    * @param {Event} evt
    *
@@ -39,53 +31,6 @@ export default class SortController {
     }
 
     this._onSortChanged(this.sort(this._events, evt.target.dataset.sort));
-  }
-
-  /**
-   * Сортировка точек в соответствии с типом сортировки
-   *
-   * @param {array} events
-   * @param {string} sortType
-   *
-   * @return {array}
-   *
-   * @private
-   */
-  sort(events, sortType) {
-    if (sortType) {
-      this._currentSort = sortType;
-    }
-
-    this._events = events;
-    const dayColumns = this._sorter.getElement().querySelector(`.trip-sort__item--day`);
-
-    let showDaysColumn;
-    let days = [];
-
-    switch (this._currentSort) {
-      case `sort-price`:
-        days = this._sortByPrice(events);
-        showDaysColumn = false;
-        break;
-      case `sort-time`:
-        days = this._sortByTime(events);
-        showDaysColumn = false;
-        break;
-      case `sort-default`:
-        days = this._defaultSort(events);
-        showDaysColumn = true;
-        break;
-    }
-
-    if (dayColumns.firstChild) {
-      dayColumns.firstChild.remove();
-    }
-
-    if (showDaysColumn) {
-      dayColumns.append(`DAY`);
-    }
-
-    return days;
   }
 
   /**
@@ -158,5 +103,60 @@ export default class SortController {
       date: null,
       events
     }];
+  }
+
+  /**
+   * Сортировка точек в соответствии с типом сортировки
+   *
+   * @param {array} events
+   * @param {string} sortType
+   *
+   * @return {array}
+   *
+   * @private
+   */
+  sort(events, sortType) {
+    if (sortType) {
+      this._currentSort = sortType;
+    }
+
+    this._events = events;
+    const dayColumns = this._sorter.getElement().querySelector(`.trip-sort__item--day`);
+
+    let showDaysColumn;
+    let days = [];
+
+    switch (this._currentSort) {
+      case `sort-price`:
+        days = this._sortByPrice(events);
+        showDaysColumn = false;
+        break;
+      case `sort-time`:
+        days = this._sortByTime(events);
+        showDaysColumn = false;
+        break;
+      case `sort-default`:
+        days = this._defaultSort(events);
+        showDaysColumn = true;
+        break;
+    }
+
+    if (dayColumns.firstChild) {
+      dayColumns.firstChild.remove();
+    }
+
+    if (showDaysColumn) {
+      dayColumns.append(`DAY`);
+    }
+
+    return days;
+  }
+
+  renderSort() {
+    render(this._container, this._sorter.getElement(), Position.AFTERBEGIN);
+  }
+
+  unrenderSort() {
+    unrender(this._sorter.getElement());
   }
 }

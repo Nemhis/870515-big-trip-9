@@ -13,6 +13,10 @@ export default class FilterController {
     this._init();
   }
 
+  setEvents(events) {
+    this._events = events;
+  }
+
   _init() {
     render(this._container, this._filter.getElement(), Position.BEFOREEND);
 
@@ -24,10 +28,6 @@ export default class FilterController {
         this._onFilterChange(filteredEvents);
       });
     });
-  }
-
-  setEvents(events) {
-    this._events = events;
   }
 
   _filterEvents(filterType, events) {

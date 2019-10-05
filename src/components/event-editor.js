@@ -35,51 +35,21 @@ export default class EventEditor extends AbstractComponent {
     this._addEventListeners();
   }
 
-  destroyDatePicker() {
-    this._fromFlatpickr.destroy();
-    this._toFlatpickr.destroy();
-
-    // Flatpickr затирает value, поэтому обновляем его в ручную
-    // @see https://github.com/flatpickr/flatpickr/issues/1641
-    const fromEl = this.getElement().querySelector(`#event-start-time-1`);
-    const toEl = this.getElement().querySelector(`#event-end-time-1`);
-
-    fromEl.value = moment(this._from).format(SHORT_ISO_FORMAT);
-    toEl.value = moment(this._to).format(SHORT_ISO_FORMAT);
+  setAllOptions(options) {
+    this._allOptions = options;
+    this.getElement().querySelector(`.event__type-toggle`).removeAttribute(`disabled`);
   }
 
-  initDatePicker() {
-    const defaultOptions = {
-      'altInput': true,
-      'enableTime': true,
-      'altFormat': `d.m.Y H:i`,
-      'dateFormat': `Y-m-dTH:i`,
-      'time_24hr': true,
-    };
+  getDescription() {
+    return this._description;
+  }
 
-    this._fromFlatpickr = flatpickr(
-        this.getElement().querySelector(`#event-start-time-1`),
-        Object.assign({}, defaultOptions, {
-          defaultDate: this._from,
-          maxDate: this._to,
-        }));
+  getOptions() {
+    return this._options;
+  }
 
-    this._toFlatpickr = flatpickr(
-        this.getElement().querySelector(`#event-end-time-1`),
-        Object.assign({}, defaultOptions, {
-          defaultDate: this._to,
-          minDate: this._from,
-        }));
-
-    this._fromFlatpickr.set(`onChange`, (selectedDates) => {
-      [this._from] = selectedDates;
-      this._toFlatpickr.set(`minDate`, this._from);
-    });
-
-    this._toFlatpickr.set(`onChange`, (selectedDates) => {
-      [this._to] = selectedDates;
-      this._fromFlatpickr.set(`maxDate`, this._to);
-    });
+  getPhotos() {
+    return this._photos;
   }
 
   _getDestinationPrefix() {
@@ -138,35 +108,6 @@ export default class EventEditor extends AbstractComponent {
     renderString(this.getElement(), this._getDetailsTemplate(), StringPosition.BEFOREEND);
   }
 
-  setAllOptions(options) {
-    this._allOptions = options;
-    this.getElement().querySelector(`.event__type-toggle`).removeAttribute(`disabled`);
-  }
-
-  getDescription() {
-    return this._description;
-  }
-
-  getOptions() {
-    return this._options;
-  }
-
-  getPhotos() {
-    return this._photos;
-  }
-
-  renderDestinationList(destinations) {
-    this._allDestinations = destinations;
-
-    const destinationInput = this.getElement().querySelector(`.event__input--destination`);
-    const template = `<datalist id="destination-list-1">
-        ${Array.from(destinations).map(([cityName]) => `<option value="${cityName}"></option>`).join(``)}
-      </datalist>`;
-
-    renderString(destinationInput, template, StringPosition.AFTER);
-    destinationInput.removeAttribute(`disabled`);
-  }
-
   _getTypeImgSrc(type) {
     return `img/icons/${type}.png`;
   }
@@ -201,6 +142,65 @@ export default class EventEditor extends AbstractComponent {
             </div>` : ``}
         </section>` : ``}
       </section>`;
+  }
+
+  renderDestinationList(destinations) {
+    this._allDestinations = destinations;
+
+    const destinationInput = this.getElement().querySelector(`.event__input--destination`);
+    const template = `<datalist id="destination-list-1">
+        ${Array.from(destinations).map(([cityName]) => `<option value="${cityName}"></option>`).join(``)}
+      </datalist>`;
+
+    renderString(destinationInput, template, StringPosition.AFTER);
+    destinationInput.removeAttribute(`disabled`);
+  }
+
+  destroyDatePicker() {
+    this._fromFlatpickr.destroy();
+    this._toFlatpickr.destroy();
+
+    // Flatpickr затирает value, поэтому обновляем его в ручную
+    // @see https://github.com/flatpickr/flatpickr/issues/1641
+    const fromEl = this.getElement().querySelector(`#event-start-time-1`);
+    const toEl = this.getElement().querySelector(`#event-end-time-1`);
+
+    fromEl.value = moment(this._from).format(SHORT_ISO_FORMAT);
+    toEl.value = moment(this._to).format(SHORT_ISO_FORMAT);
+  }
+
+  initDatePicker() {
+    const defaultOptions = {
+      'altInput': true,
+      'enableTime': true,
+      'altFormat': `d.m.Y H:i`,
+      'dateFormat': `Y-m-dTH:i`,
+      'time_24hr': true,
+    };
+
+    this._fromFlatpickr = flatpickr(
+      this.getElement().querySelector(`#event-start-time-1`),
+      Object.assign({}, defaultOptions, {
+        defaultDate: this._from,
+        maxDate: this._to,
+      }));
+
+    this._toFlatpickr = flatpickr(
+      this.getElement().querySelector(`#event-end-time-1`),
+      Object.assign({}, defaultOptions, {
+        defaultDate: this._to,
+        minDate: this._from,
+      }));
+
+    this._fromFlatpickr.set(`onChange`, (selectedDates) => {
+      [this._from] = selectedDates;
+      this._toFlatpickr.set(`minDate`, this._from);
+    });
+
+    this._toFlatpickr.set(`onChange`, (selectedDates) => {
+      [this._to] = selectedDates;
+      this._fromFlatpickr.set(`maxDate`, this._to);
+    });
   }
 
   getTemplate() {
