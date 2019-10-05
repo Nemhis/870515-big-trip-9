@@ -1,11 +1,14 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/themes/material_blue.css';
 import moment from "moment";
+import {debounce} from 'lodash';
 
 import AbstractComponent from "./abstract-component";
 
 import {renderString, SHORT_ISO_FORMAT, StringPosition, unrender} from '../utils';
 import {EventType, getEventPreposition} from "../data";
+
+const CHECKED_VALUE = `on`;
 
 export const Mode = {
   EDIT: 1,
@@ -99,6 +102,20 @@ export default class EventEditor extends AbstractComponent {
 
       this._reRenderDetails();
     });
+
+    const favoriteCheckbox = el.querySelector(`.event__favorite-checkbox`);
+
+    if (favoriteCheckbox) {
+      const debounced = debounce((checkbox) => {
+        checkbox.checked = !checkbox.checked;
+        checkbox.value = checkbox.checked ? CHECKED_VALUE : null;
+      }, 250);
+
+      favoriteCheckbox.addEventListener(`click`, (event) => {
+        event.preventDefault();
+        debounced(event.target);
+      });
+    }
   }
 
   _reRenderDetails() {
