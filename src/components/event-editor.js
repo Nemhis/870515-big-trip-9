@@ -1,11 +1,14 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/themes/material_blue.css';
 import moment from "moment";
+import {debounce} from 'lodash';
 
 import AbstractComponent from "./abstract-component";
 
 import {renderString, SHORT_ISO_FORMAT, StringPosition, unrender} from '../utils';
-import {eventTypes, getEventPreposition} from "../data";
+import {EventType, getEventPreposition} from "../data";
+
+const CHECKED_VALUE = `on`;
 
 export const Mode = {
   EDIT: 1,
@@ -33,6 +36,141 @@ export default class EventEditor extends AbstractComponent {
     this._toFlatpickr = null;
 
     this._addEventListeners();
+  }
+
+  setAllOptions(options) {
+    this._allOptions = options;
+    this.getElement().querySelector(`.event__type-toggle`).removeAttribute(`disabled`);
+  }
+
+  getDescription() {
+    return this._description;
+  }
+
+  getOptions() {
+    return this._options;
+  }
+
+  getPhotos() {
+    return this._photos;
+  }
+
+  _getDestinationPrefix() {
+    return `${this._type} ${getEventPreposition(this._type)}`;
+  }
+
+  _addEventListeners() {
+    const el = this.getElement();
+
+    // Options
+    Array.from(el.querySelectorAll(`.event__type-input`)).forEach((typeInput) => {
+      typeInput.addEventListener(`change`, (event) => {
+        const input = event.target;
+
+        if (input.checked) {
+          const label = document.querySelector(`.event__type-output`);
+
+          if (label.firstChild) {
+            label.firstChild.remove();
+          }
+
+          this._type = input.value;
+          const optionsByType = this._allOptions.get(this._type);
+          this._options = optionsByType.map((option) => Object.assign({}, option));
+          label.append(this._getDestinationPrefix());
+          this
+            .getElement()
+            .querySelector(`.event__type-icon`)
+            .setAttribute(`src`, this._getTypeImgSrc(this._type));
+          this._reRenderDetails();
+        }
+      });
+    });
+
+    // Description
+    el.querySelector(`.event__input--destination`).addEventListener(`change`, (event) => {
+      const input = event.target;
+      const destination = this._allDestinations.get(input.value);
+
+      if (destination) {
+        this._description = destination.description || ``;
+        this._photos = destination.photos || [];
+      } else {
+        this._description = ``;
+        this._photos = [];
+      }
+
+      this._reRenderDetails();
+    });
+
+    const favoriteCheckbox = el.querySelector(`.event__favorite-checkbox`);
+
+    if (favoriteCheckbox) {
+      const debounced = debounce((checkbox) => {
+        checkbox.checked = !checkbox.checked;
+        checkbox.value = checkbox.checked ? CHECKED_VALUE : null;
+      }, 250);
+
+      favoriteCheckbox.addEventListener(`click`, (event) => {
+        event.preventDefault();
+        debounced(event.target);
+      });
+    }
+  }
+
+  _reRenderDetails() {
+    const detailsEl = this.getElement().querySelector(`.event__details`);
+    unrender(detailsEl);
+
+    renderString(this.getElement(), this._getDetailsTemplate(), StringPosition.BEFOREEND);
+  }
+
+  _getTypeImgSrc(type) {
+    return `img/icons/${type}.png`;
+  }
+
+  _getDetailsTemplate() {
+    return `<section class="event__details">
+      ${this._options.length ? `<section class="event__section  event__section--offers">
+          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+            <div class="event__available-offers">
+              ${this._options.map((option, index) => `<div class="event__offer-selector">
+                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${option.type}-${index}" type="checkbox" 
+                    name="event-offer-${option.type}-${index}" ${option.isActive ? `checked` : ``}>
+                    <label class="event__offer-label" for="event-offer-${option.type}-${index}">
+                      <span class="event__offer-title">${option.title}</span>
+                        &plus;
+                        &euro;&nbsp;<span class="event__offer-price">${option.cost}
+                      </span>
+                    </label>
+                  </div>`).join(``)}
+                </div>
+          </section>` : ``}
+                
+      ${this._description ? `<section class="event__section  event__section--destination">
+          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+          <p class="event__destination-description">${this._description}</p>
+              
+          ${this._photos.length ? `
+            <div class="event__photos-container">
+              <div class="event__photos-tape">
+                ${this._photos.map((photo) => `<img class="event__photo" src="${photo}" alt="Event photo">`).join(``)}
+              </div>
+            </div>` : ``}
+        </section>` : ``}
+      </section>`;
+  }
+
+  renderDestinationList(destinations) {
+    this._allDestinations = destinations;
+
+    const destinationInput = this.getElement().querySelector(`.event__input--destination`);
+    const template = `<datalist id="destination-list-1">
+        ${Array.from(destinations).map(([cityName]) => `<option value="${cityName}"></option>`).join(``)}
+      </datalist>`;
+
+    renderString(destinationInput, template, StringPosition.AFTER);
+    destinationInput.removeAttribute(`disabled`);
   }
 
   destroyDatePicker() {
@@ -82,126 +220,6 @@ export default class EventEditor extends AbstractComponent {
     });
   }
 
-  _getDestinationPrefix() {
-    return `${this._type} ${getEventPreposition(this._type)}`;
-  }
-
-  _addEventListeners() {
-    const el = this.getElement();
-
-    // Options
-    Array.from(el.querySelectorAll(`.event__type-input`)).forEach((typeInput) => {
-      typeInput.addEventListener(`change`, (event) => {
-        const input = event.target;
-
-        if (input.checked) {
-          const label = document.querySelector(`.event__type-output`);
-
-          if (label.firstChild) {
-            label.firstChild.remove();
-          }
-
-          this._type = input.value;
-          this._options = this._allOptions.get(this._type);
-          label.append(this._getDestinationPrefix());
-          this
-            .getElement()
-            .querySelector(`.event__type-icon`)
-            .setAttribute(`src`, this._getTypeImgSrc(this._type));
-          this._reRenderDetails();
-        }
-      });
-    });
-
-    // Description
-    el.querySelector(`.event__input--destination`).addEventListener(`change`, (event) => {
-      const input = event.target;
-      const destination = this._allDestinations.get(input.value);
-
-      if (destination) {
-        this._description = destination.description || ``;
-        this._photos = destination.photos || [];
-      } else {
-        this._description = ``;
-        this._photos = [];
-      }
-
-      this._reRenderDetails();
-    });
-  }
-
-  _reRenderDetails() {
-    const detailsEl = this.getElement().querySelector(`.event__details`);
-    unrender(detailsEl);
-
-    renderString(this.getElement(), this._getDetailsTemplate(), StringPosition.BEFOREEND);
-  }
-
-  setAllOptions(options) {
-    this._allOptions = options;
-    this.getElement().querySelector(`.event__type-toggle`).removeAttribute(`disabled`);
-  }
-
-  getDescription() {
-    return this._description;
-  }
-
-  getOptions() {
-    return this._options;
-  }
-
-  getPhotos() {
-    return this._photos;
-  }
-
-  renderDestinationList(destinations) {
-    this._allDestinations = destinations;
-
-    const destinationInput = this.getElement().querySelector(`.event__input--destination`);
-    const template = `<datalist id="destination-list-1">
-        ${Array.from(destinations).map(([cityName]) => `<option value="${cityName}"></option>`).join(``)}
-      </datalist>`;
-
-    renderString(destinationInput, template, StringPosition.AFTER);
-    destinationInput.removeAttribute(`disabled`);
-  }
-
-  _getTypeImgSrc(type) {
-    return `img/icons/${type}.png`;
-  }
-
-  _getDetailsTemplate() {
-    return `<section class="event__details">
-      ${this._options.length ? `<section class="event__section  event__section--offers">
-          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-            <div class="event__available-offers">
-              ${this._options.map((option, index) => `<div class="event__offer-selector">
-                  <input class="event__offer-checkbox  visually-hidden" id="event-offer-${option.type}-${index}" type="checkbox" 
-                    name="event-offer-${option.type}-${index}" ${option.isActive ? `checked` : ``}>
-                    <label class="event__offer-label" for="event-offer-${option.type}-${index}">
-                      <span class="event__offer-title">${option.title}</span>
-                        &plus;
-                        &euro;&nbsp;<span class="event__offer-price">${option.cost}
-                      </span>
-                    </label>
-                  </div>`).join(``)}
-                </div>
-          </section>` : ``}
-                
-      ${this._description ? `<section class="event__section  event__section--destination">
-          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">${this._description}</p>
-              
-          ${this._photos.length ? `
-            <div class="event__photos-container">
-              <div class="event__photos-tape">
-                ${this._photos.map((photo) => `<img class="event__photo" src="${photo}" alt="Event photo">`).join(``)}
-              </div>
-            </div>` : ``}
-        </section>` : ``}
-      </section>`;
-  }
-
   getTemplate() {
     return `<form class="trip-events__item  event  event--edit" action="#" method="post">
             <header class="event__header">
@@ -213,10 +231,10 @@ export default class EventEditor extends AbstractComponent {
                 <input class="event__type-toggle visually-hidden" id="event-type-toggle-1" type="checkbox" disabled>
 
                 <div class="event__type-list">
-                  ${Object.keys(eventTypes).map((eventGroupName) =>
+                  ${Object.keys(EventType).map((eventGroupName) =>
     `<fieldset class="event__type-group">
                     <legend class="visually-hidden">${eventGroupName}</legend>
-                    ${eventTypes[eventGroupName].map((eventName) =>
+                    ${EventType[eventGroupName].map((eventName) =>
     `<div class="event__type-item">
                       <input id="event-type-${eventName}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventName}" ${this._type === eventName ? `checked` : ``}>
                       <label class="event__type-label  event__type-label--${eventName}" for="event-type-${eventName}-1">${eventName}</label>

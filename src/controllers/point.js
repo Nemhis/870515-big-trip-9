@@ -46,12 +46,6 @@ export default class PointController {
     }
   }
 
-  closeEdit() {
-    this._eventEditor.destroyDatePicker();
-    this._container.replaceChild(this._eventView.getElement(), this._eventEditor.getElement());
-    document.removeEventListener(`keydown`, this._bindedOnEscKeyDown);
-  }
-
   /**
    * @private
    */
@@ -131,6 +125,37 @@ export default class PointController {
     return Object.assign(this._event, newData);
   }
 
+  _collectControls() {
+    const eventEditorEl = this._eventEditor.getElement();
+    let controls = [
+      eventEditorEl.querySelector(`.event__input--price`),
+      eventEditorEl.querySelector(`.event__input--destination`),
+      eventEditorEl.querySelector(`.event__type-toggle`),
+      eventEditorEl.querySelector(`.event__save-btn`),
+      eventEditorEl.querySelector(`.event__reset-btn`),
+    ];
+
+    const rollupBtn = eventEditorEl.querySelector(`.event__rollup-btn`);
+
+    if (rollupBtn) {
+      controls.push(rollupBtn);
+    }
+
+    const favoriteCheckbox = eventEditorEl.querySelector(`.event__favorite-checkbox`);
+
+    if (favoriteCheckbox) {
+      controls.push(favoriteCheckbox);
+    }
+
+    const optionsCheckboxes = eventEditorEl.querySelectorAll(`.event__offer-checkbox`);
+
+    if (optionsCheckboxes) {
+      controls = [...controls, ...Array.from(optionsCheckboxes)];
+    }
+
+    return controls;
+  }
+
   block() {
     this
       ._collectControls()
@@ -175,37 +200,6 @@ export default class PointController {
     eventEditorEl.style.border = ``;
   }
 
-  _collectControls() {
-    const eventEditorEl = this._eventEditor.getElement();
-    let controls = [
-      eventEditorEl.querySelector(`.event__input--price`),
-      eventEditorEl.querySelector(`.event__input--destination`),
-      eventEditorEl.querySelector(`.event__type-toggle`),
-      eventEditorEl.querySelector(`.event__save-btn`),
-      eventEditorEl.querySelector(`.event__reset-btn`),
-    ];
-
-    const rollupBtn = eventEditorEl.querySelector(`.event__rollup-btn`);
-
-    if (rollupBtn) {
-      controls.push(rollupBtn);
-    }
-
-    const favoriteCheckbox = eventEditorEl.querySelector(`.event__favorite-checkbox`);
-
-    if (favoriteCheckbox) {
-      controls.push(favoriteCheckbox);
-    }
-
-    const optionsCheckboxes = eventEditorEl.querySelectorAll(`.event__offer-checkbox`);
-
-    if (optionsCheckboxes) {
-      controls = [...controls, ...Array.from(optionsCheckboxes)];
-    }
-
-    return controls;
-  }
-
   setDefaultView() {
     if (this._container.contains(this._eventEditor.getElement())) {
       this._container.replaceChild(this._eventView.getElement(), this._eventEditor.getElement());
@@ -222,5 +216,11 @@ export default class PointController {
     if (typeof this._onDestroy === `function`) {
       this._onDestroy();
     }
+  }
+
+  closeEdit() {
+    this._eventEditor.destroyDatePicker();
+    this._container.replaceChild(this._eventView.getElement(), this._eventEditor.getElement());
+    document.removeEventListener(`keydown`, this._bindedOnEscKeyDown);
   }
 }

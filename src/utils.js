@@ -1,3 +1,9 @@
+export const SHORT_ISO_FORMAT = `YYYY-MM-DDTHH:mm`;
+
+export const SHORT_DATE_FORMAT = `YYYY-MM-DD`;
+
+export const SHORT_MONTHS = [`JAN`, `FEB`, `MAR`, `APR`, `MAY`, `JUN`, `JUL`, `AUG`, `SEPT`, `ACT`, `NOV`, `DEC`];
+
 export const Position = {
   AFTER: `after`,
   BEFORE: `before`,
@@ -12,19 +18,12 @@ export const StringPosition = {
   BEFOREEND: `beforeend`,
 };
 
-export const SHORT_ISO_FORMAT = `YYYY-MM-DDTHH:mm`;
-
-export const SHORT_DATE_FORMAT = `YYYY-MM-DD`;
-
-export const SHORT_MONTHS = [`JAN`, `FEB`, `MAR`, `APR`, `MAY`, `JUN`, `JUL`, `AUG`, `SEPT`, `ACT`, `NOV`, `DEC`];
-
 export const createElement = (template) => {
   const newElement = document.createElement(`div`);
   renderString(newElement, template, StringPosition.AFTERBEGIN);
   return newElement.firstChild;
 };
 
-// Рендер и анрендер для компонент
 export const render = (container, element, place) => {
   switch (place) {
     case Position.AFTERBEGIN:

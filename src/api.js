@@ -25,6 +25,16 @@ export default class API {
     this._authorization = authorization;
   }
 
+  _load({url, method = Method.GET, body = null, headers = new Headers()}) {
+    headers.append(`Authorization`, this._authorization);
+
+    return fetch(`${this._endPoint}/${url}`, {method, body, headers})
+      .then(checkStatus)
+      .catch((err) => {
+        throw err;
+      });
+  }
+
   getDestinations() {
     return this._load({url: `destinations`})
       .then(parseJSON)
@@ -67,15 +77,5 @@ export default class API {
 
   deleteEvent({id}) {
     return this._load({url: `points/${id}`, method: Method.DELETE});
-  }
-
-  _load({url, method = Method.GET, body = null, headers = new Headers()}) {
-    headers.append(`Authorization`, this._authorization);
-
-    return fetch(`${this._endPoint}/${url}`, {method, body, headers})
-      .then(checkStatus)
-      .catch((err) => {
-        throw err;
-      });
   }
 }
