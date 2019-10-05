@@ -21,6 +21,7 @@ const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 const innerContainer = document.querySelector(`.page-main .page-body__container`);
 
 let eventsData = [];
+let loadedEvents = [];
 let pageMessage = new Message(`Loading...`);
 
 /** FUNCTIONS **/
@@ -70,6 +71,7 @@ const onChangeEvents = (events) => {
 
 const eventsLoaded = (events) => {
   unrenderMessage();
+  loadedEvents = events || [];
 
   if (events.length === 0) {
     pageMessage = new Message(`Click New Event to create your first point`);
@@ -78,6 +80,7 @@ const eventsLoaded = (events) => {
     pageMessage = null;
   }
 
+  tripController.setAllEvents(loadedEvents);
   tripController.setEvents(events);
   statisticController.setEvents(events);
   filterController.setEvents(events);

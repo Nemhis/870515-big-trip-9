@@ -21,6 +21,7 @@ export default class TripController {
   constructor(container, events, _onRequestAction, _onDataChange) {
     this._container = container;
     this._events = events;
+    this._allEvents = [];
     this._onRequestAction = _onRequestAction;
     this._onMainDataChange = _onDataChange;
     this._sorter = new SortController(this._container, this._events, this._onSortChanged.bind(this));
@@ -39,6 +40,10 @@ export default class TripController {
 
   setEvents(events) {
     this._events = events;
+  }
+
+  setAllEvents(events) {
+    this._allEvents = events;
   }
 
   setOptions(options) {
@@ -177,21 +182,26 @@ export default class TripController {
 
   resolveEventAction(action, event = null, id = null) {
     let index = null;
+    let indexInAll = null;
 
     if (id !== null) {
       index = this._events.findIndex((it) => it.id === id);
+      indexInAll = this._allEvents.findIndex((it) => it.id === id);
     }
 
     if (action === EventAction.CREATE) {
       this._events = [event, ...this._events];
+      this._allEvents = [event, ...this._allEvents];
       this._creatingEvent.unrender();
-    } else if (action === EventAction.DELETE && index !== null) {
+    } else if (action === EventAction.DELETE && index !== null && indexInAll !== null) {
       this._events = [...this._events.slice(0, index), ...this._events.slice(index + 1)];
-    } else if (action === EventAction.UPDATE && index !== null) {
+      this._allEvents = [...this._allEvents.slice(0, indexInAll), ...this._allEvents.slice(indexInAll + 1)];
+    } else if (action === EventAction.UPDATE && index !== null && indexInAll !== null) {
       this._events[index] = event;
+      this._allEvents[indexInAll] = event;
     }
 
-    this._onMainDataChange(this._events);
+    this._onMainDataChange(this._allEvents);
   }
 
   toggleCreateEvent() {

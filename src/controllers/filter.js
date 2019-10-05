@@ -1,5 +1,5 @@
 import Filter from "../components/filter";
-import {Position, render} from "../utils";
+import {hideVisually, Position, render, showVisually} from "../utils";
 import {FilterItem} from "../data";
 
 export default class FilterController {
@@ -15,6 +15,20 @@ export default class FilterController {
 
   setEvents(events) {
     this._events = events;
+    const futureEl = this._filter.getElement().querySelector(`.wrapper-future`);
+    const pastEl = this._filter.getElement().querySelector(`.wrapper-past`);
+
+    if (this._events.some(FilterController._eventInFuture)) {
+      showVisually(futureEl);
+    } else {
+      hideVisually(futureEl);
+    }
+
+    if (this._events.some(FilterController._eventInPast)) {
+      showVisually(pastEl);
+    } else {
+      hideVisually(pastEl);
+    }
   }
 
   _init() {
@@ -50,18 +64,18 @@ export default class FilterController {
 
 
   _filterByFuture(events) {
-    const nowTimeStamp = Date.now();
-
-    return events.filter((event) => {
-      return event.from.getTime() > nowTimeStamp;
-    });
+    return events.filter(FilterController._eventInFuture);
   }
 
   _filterByPast(events) {
-    const nowTimeStamp = Date.now();
+    return events.filter(FilterController._eventInPast);
+  }
 
-    return events.filter((event) => {
-      return event.to.getTime() < nowTimeStamp;
-    });
+  static _eventInFuture(event) {
+    return event.from.getTime() > Date.now();
+  }
+
+  static _eventInPast(event) {
+    return event.to.getTime() < Date.now();
   }
 }
