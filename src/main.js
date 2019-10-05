@@ -5,7 +5,7 @@ import Menu from './components/menu';
 import TripInfo from './components/trip-info';
 import API from "./api";
 
-import {MENU_ITEMS, calculateEventCost} from './data';
+import {MenuItem, calculateEventCost} from './data';
 import {render, Position, unrender} from "./utils";
 import FilterController from "./controllers/filter";
 import EventModel from "./event-model";
@@ -27,7 +27,7 @@ const unrenderMessage = () => {
 
 // MENU
 const menuChangeSubscribers = [];
-const menu = new Menu(new Set(Object.values(MENU_ITEMS)), MENU_ITEMS.TABLE, (menuItem) => {
+const menu = new Menu(new Set(Object.values(MenuItem)), MenuItem.TABLE, (menuItem) => {
   menuChangeSubscribers.forEach((subscriber) => subscriber(menuItem));
 });
 
@@ -99,11 +99,11 @@ const statisticController = new StatisticController(tripEventsEl, eventsData);
 
 menuChangeSubscribers.push((menuItem) => {
   switch (menuItem) {
-    case MENU_ITEMS.TABLE:
+    case MenuItem.TABLE:
       statisticController.hide();
       tripController.show();
       break;
-    case MENU_ITEMS.STATS:
+    case MenuItem.STATS:
       statisticController.show();
       tripController.hide();
       break;

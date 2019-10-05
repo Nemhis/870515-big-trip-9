@@ -5,7 +5,7 @@ import moment from "moment";
 import Statistic from "../components/statistic";
 
 import {hideVisually, Position, render, showVisually} from "../utils";
-import {EventCategories, eventTypes, getEventCategory, getEventPreposition} from "../data";
+import {EventCategory, EventType, getEventCategory, getEventPreposition} from "../data";
 
 
 export default class StatisticController {
@@ -63,8 +63,8 @@ export default class StatisticController {
   }
 
   _initMoneyDiagram() {
-    const transferTypes = eventTypes[EventCategories.TRANSFER];
-    const activityTypes = eventTypes[EventCategories.ACTIVITY];
+    const transferTypes = EventType[EventCategory.TRANSFER];
+    const activityTypes = EventType[EventCategory.ACTIVITY];
     const eventsByType = this._groupEventsByTypes([...transferTypes, ...activityTypes]);
 
     const groupedData = [];
@@ -111,7 +111,7 @@ export default class StatisticController {
   }
 
   _initTransportDiagram() {
-    const eventsByType = this._groupEventsByTypes(eventTypes[EventCategories.TRANSFER]);
+    const eventsByType = this._groupEventsByTypes(EventType[EventCategory.TRANSFER]);
     const groupedData = [];
 
     eventsByType.forEach((typeEvents, type) => {
@@ -170,7 +170,7 @@ export default class StatisticController {
       const [firstEvent] = events;
       let label = destination;
 
-      if (getEventCategory(firstEvent.type) === EventCategories.TRANSFER) {
+      if (getEventCategory(firstEvent.type) === EventCategory.TRANSFER) {
         label = `${getEventPreposition(firstEvent.type)} ${label}`;
       }
 

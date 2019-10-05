@@ -1,14 +1,14 @@
 import Filter from "../components/filter";
 import {Position, render} from "../utils";
-import {filterItems} from "../data";
+import {FilterItem} from "../data";
 
 export default class FilterController {
   constructor(container, events, onFilterChange) {
     this._container = container;
     this._events = events;
     this._onFilterChange = onFilterChange;
-    const [defaultFilter] = Array.from(filterItems);
-    this._filter = new Filter(filterItems, defaultFilter);
+    const [defaultFilter] = Array.from(FilterItem);
+    this._filter = new Filter(FilterItem, defaultFilter);
 
     this._init();
   }

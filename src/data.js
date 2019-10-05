@@ -12,14 +12,14 @@ export function calculateEventCost(event) {
   }, Number(event.cost));
 }
 
-export const EventCategories = {
+export const EventCategory = {
   TRANSFER: `transfer`,
   ACTIVITY: `activity`,
 };
 
 
-export const eventTypes = {
-  [EventCategories.TRANSFER]: [
+export const EventType = {
+  [EventCategory.TRANSFER]: [
     `taxi`,
     `bus`,
     `train`,
@@ -28,7 +28,7 @@ export const eventTypes = {
     `drive`,
     `flight`,
   ],
-  [EventCategories.ACTIVITY]: [
+  [EventCategory.ACTIVITY]: [
     `check-in`,
     `sightseeing`,
     `restaurant`,
@@ -46,10 +46,10 @@ export function getEventPreposition(eventType) {
   let preposition = ``;
 
   switch (getEventCategory(eventType)) {
-    case EventCategories.TRANSFER:
+    case EventCategory.TRANSFER:
       preposition = `to`;
       break;
-    case EventCategories.ACTIVITY:
+    case EventCategory.ACTIVITY:
       preposition = `in`;
       break;
   }
@@ -65,11 +65,11 @@ export function getEventPreposition(eventType) {
  * @return {string}
  */
 export function getEventCategory(eventType) {
-  const categories = Object.keys(eventTypes);
+  const categories = Object.keys(EventType);
 
   for (let i = 0; i < categories.length; i++) {
     const category = categories[i];
-    const typesByCategory = Array.isArray(eventTypes[category]) ? eventTypes[category] : [];
+    const typesByCategory = Array.isArray(EventType[category]) ? EventType[category] : [];
 
     if (typesByCategory.indexOf(eventType) !== -1) {
       return category;
@@ -108,7 +108,7 @@ const getRandomMinMax = (min, max) => Math.round(Math.random() * (max - min) + m
 const shuffleArray = (array) => array.sort(() => Math.random() - 0.5);
 
 
-export const allCities = new Set([
+export const City = new Set([
   `Amsterdam`,
   `Geneva`,
   `Chamonix`,
@@ -156,26 +156,26 @@ export const options = [
 const getRandomDescription = () => shuffleArray(descriptions).slice(-1 * getRandomMinMax(1, 3)).join(` `);
 
 export const createEvent = (value, index) => {
-  const groupName = getRandomArrayValue(Object.keys(eventTypes));
+  const groupName = getRandomArrayValue(Object.keys(EventType));
   const from = Date.now() + getTimestamp(getRandomMinMax(1, 72), getRandomMinMax(10, 60));
   const to = from + getTimestamp(getRandomMinMax(1, 124), getRandomMinMax(10, 60));
 
   return {
     id: (index + 1),
-    type: getRandomArrayValue(eventTypes[groupName]),
+    type: getRandomArrayValue(EventType[groupName]),
     from: new Date(from),
     to: new Date(to),
     cost: Math.round(Math.random() * getRandomMinMax(1000, 5000)) / 100,
     options: getRandomOptions(),
-    photos: getRandomPhotos(),
+    photos: getRandomPhotos(eventTypes),
     description: getRandomDescription(),
-    destination: getRandomArrayValue(Array.from(allCities)),
+    destination: getRandomArrayValue(Array.from(City)),
   };
 };
 
-export const MENU_ITEMS = {
+export const MenuItem = {
   TABLE: `Table`,
   STATS: `Stats`,
 };
 
-export const filterItems = new Set([`everything`, `future`, `past`]);
+export const FilterItem = new Set([`everything`, `future`, `past`]);

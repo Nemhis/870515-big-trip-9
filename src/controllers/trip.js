@@ -8,7 +8,7 @@ import Day from '../components/day';
 
 import {Mode} from "../components/event-editor";
 import {hideVisually, showVisually, Position, render} from '../utils';
-import {eventTypes, EventCategories} from "../data";
+import {EventType, EventCategory} from "../data";
 import EventModel from "../event-model";
 
 export const EventAction = {
@@ -189,7 +189,7 @@ export default class TripController {
 
     this._onViewChange();
 
-    const [firstType] = eventTypes[EventCategories.TRANSFER];
+    const [firstType] = EventType[EventCategory.TRANSFER];
     const defaultEvent = new EventModel({});
 
     defaultEvent.type = firstType;

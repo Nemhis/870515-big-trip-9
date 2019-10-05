@@ -5,7 +5,7 @@ import moment from "moment";
 import AbstractComponent from "./abstract-component";
 
 import {renderString, SHORT_ISO_FORMAT, StringPosition, unrender} from '../utils';
-import {eventTypes, getEventPreposition} from "../data";
+import {EventType, getEventPreposition} from "../data";
 
 export const Mode = {
   EDIT: 1,
@@ -102,7 +102,8 @@ export default class EventEditor extends AbstractComponent {
           }
 
           this._type = input.value;
-          this._options = this._allOptions.get(this._type);
+          const optionsByType = this._allOptions.get(this._type);
+          this._options = optionsByType.map((option) => Object.assign({}, option));
           label.append(this._getDestinationPrefix());
           this
             .getElement()
@@ -213,10 +214,10 @@ export default class EventEditor extends AbstractComponent {
                 <input class="event__type-toggle visually-hidden" id="event-type-toggle-1" type="checkbox" disabled>
 
                 <div class="event__type-list">
-                  ${Object.keys(eventTypes).map((eventGroupName) =>
+                  ${Object.keys(EventType).map((eventGroupName) =>
     `<fieldset class="event__type-group">
                     <legend class="visually-hidden">${eventGroupName}</legend>
-                    ${eventTypes[eventGroupName].map((eventName) =>
+                    ${EventType[eventGroupName].map((eventName) =>
     `<div class="event__type-item">
                       <input id="event-type-${eventName}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventName}" ${this._type === eventName ? `checked` : ``}>
                       <label class="event__type-label  event__type-label--${eventName}" for="event-type-${eventName}-1">${eventName}</label>
