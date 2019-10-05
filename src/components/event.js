@@ -5,6 +5,8 @@ import AbstractComponent from "./abstract-component";
 import {SHORT_ISO_FORMAT, pad} from '../utils';
 import {getEventPreposition} from "../data";
 
+const OPTIONS_TO_SHOW_LENGTH = 3;
+
 export default class Event extends AbstractComponent {
   constructor({type = `sightseeing`, destination = ``, from = new Date(), to = new Date(), cost = 0, options = []}) {
     super();
@@ -96,7 +98,7 @@ export default class Event extends AbstractComponent {
                     <h4 class="visually-hidden">Offers:</h4>
                     
                     ${this._options.length ? `<ul class="event__selected-offers">
-                      ${this._options.map((option) => `${option.isActive ?
+                      ${this._options.slice(0, OPTIONS_TO_SHOW_LENGTH).map((option) => `${option.isActive ?
     `<li class="event__offer">
                             <span class="event__offer-title">${option.title}</span>
                             &plus;
