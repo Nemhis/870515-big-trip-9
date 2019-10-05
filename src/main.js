@@ -1,3 +1,4 @@
+/** IMPORTS **/
 import TripController, {EventAction} from "./controllers/trip";
 import StatisticController from "./controllers/statistic";
 
@@ -11,31 +12,22 @@ import FilterController from "./controllers/filter";
 import EventModel from "./event-model";
 import Message from "./components/message";
 
+/** CONSTANTS **/
 const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
 const END_POINT = `https://htmlacademy-es-9.appspot.com/big-trip/`;
+
+/** VARIABLES **/
 const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
+const innerContainer = document.querySelector(`.page-main .page-body__container`);
 
 let eventsData = [];
-const innerContainer = document.querySelector(`.page-main .page-body__container`);
 let pageMessage = new Message(`Loading...`);
-render(innerContainer, pageMessage.getElement(), Position.AFTERBEGIN);
 
+/** FUNCTIONS **/
 const unrenderMessage = () => {
   unrender(pageMessage.getElement());
   pageMessage.removeElement();
 };
-
-// MENU
-const menuChangeSubscribers = [];
-const menu = new Menu(new Set(Object.values(MenuItem)), MenuItem.TABLE, (menuItem) => {
-  menuChangeSubscribers.forEach((subscriber) => subscriber(menuItem));
-});
-
-render(document.querySelector(`.trip-controls h2:first-child`), menu.getElement(), Position.AFTER);
-
-// TRIP INFO
-const tripInfoContainer = document.querySelector(`.trip-info`);
-let tripInfo = null;
 
 const updateTripInfo = (events) => {
   if (tripInfo !== null) {
@@ -46,22 +38,6 @@ const updateTripInfo = (events) => {
   tripInfo = new TripInfo(events);
   render(tripInfoContainer, tripInfo.getElement(), Position.AFTERBEGIN);
 };
-
-const costContainer = document.querySelector(`.trip-info__cost-value`);
-
-const updateTotalCost = (events) => {
-  const totalCost = Math.round(events.reduce((acc, event) => acc + calculateEventCost(event), 0));
-
-  costContainer.firstChild.remove();
-  costContainer.append(String(totalCost));
-};
-
-updateTotalCost(eventsData);
-
-const filterChangeSubscribers = [];
-const filterController = new FilterController(document.querySelector(`.trip-controls`), eventsData, (events) => {
-  filterChangeSubscribers.forEach((subscriber) => subscriber(events));
-});
 
 const onDataChange = (actionType, id, update) => {
   let promise;
@@ -91,6 +67,58 @@ const onChangeEvents = (events) => {
   updateTripInfo(events);
   updateTotalCost(events);
 };
+
+const eventsLoaded = (events) => {
+  unrenderMessage();
+
+  if (events.length === 0) {
+    pageMessage = new Message(`Click New Event to create your first point`);
+    render(innerContainer, pageMessage.getElement(), Position.AFTERBEGIN);
+  } else {
+    pageMessage = null;
+  }
+
+  tripController.setEvents(events);
+  statisticController.setEvents(events);
+  filterController.setEvents(events);
+
+  updateTripInfo(events);
+  updateTotalCost(events);
+
+  tripController.show();
+};
+
+const updateTotalCost = (events) => {
+  const totalCost = Math.round(events.reduce((acc, event) => acc + calculateEventCost(event), 0));
+
+  costContainer.firstChild.remove();
+  costContainer.append(String(totalCost));
+};
+
+/** ACTION **/
+
+render(innerContainer, pageMessage.getElement(), Position.AFTERBEGIN);
+
+// MENU
+const menuChangeSubscribers = [];
+const menu = new Menu(new Set(Object.values(MenuItem)), MenuItem.TABLE, (menuItem) => {
+  menuChangeSubscribers.forEach((subscriber) => subscriber(menuItem));
+});
+
+render(document.querySelector(`.trip-controls h2:first-child`), menu.getElement(), Position.AFTER);
+
+// TRIP INFO
+const tripInfoContainer = document.querySelector(`.trip-info`);
+let tripInfo = null;
+
+const costContainer = document.querySelector(`.trip-info__cost-value`);
+
+updateTotalCost(eventsData);
+
+const filterChangeSubscribers = [];
+const filterController = new FilterController(document.querySelector(`.trip-controls`), eventsData, (events) => {
+  filterChangeSubscribers.forEach((subscriber) => subscriber(events));
+});
 
 const tripEventsEl = document.querySelector(`.trip-events`);
 const tripController = new TripController(tripEventsEl, eventsData, onDataChange, onChangeEvents);
@@ -127,26 +155,6 @@ document
     tripController.show();
     tripController.toggleCreateEvent();
   });
-
-const eventsLoaded = (events) => {
-  unrenderMessage();
-
-  if (events.length === 0) {
-    pageMessage = new Message(`Click New Event to create your first point`);
-    render(innerContainer, pageMessage.getElement(), Position.AFTERBEGIN);
-  } else {
-    pageMessage = null;
-  }
-
-  tripController.setEvents(events);
-  statisticController.setEvents(events);
-  filterController.setEvents(events);
-
-  updateTripInfo(events);
-  updateTotalCost(events);
-
-  tripController.show();
-};
 
 api
   .getDestinations()
