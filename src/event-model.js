@@ -25,61 +25,18 @@ export default class EventModel {
     this.photos = destination.photos || [];
   }
 
+  static _parseTime(date) {
+    const dateTime = moment(date, [`x`, DATE_FORMAT]);
+
+    return dateTime.isValid() ? dateTime.toDate() : new Date();
+  }
+
   static parseEvent(data) {
     return new EventModel(data);
   }
 
   static parseEvents(data) {
     return data.map(EventModel.parseEvent);
-  }
-
-  static parseDestination(serverDestination) {
-    const destination = {};
-
-    destination.destination = serverDestination.name || ``;
-    destination.description = serverDestination.description || ``;
-
-    if (Array.isArray(serverDestination.pictures)) {
-      destination.photos = serverDestination.pictures.map(({src}) => src);
-    }
-
-    return destination;
-  }
-
-  static parseDestinations(destinations) {
-    const destinationByName = new Map();
-
-
-    destinations.forEach((destination) => {
-      destinationByName.set(destination.name, EventModel.parseDestination(destination));
-    });
-
-    return destinationByName;
-  }
-
-  static parseOptionsByType(options) {
-    const optionsByType = new Map();
-
-    options.forEach((option) => {
-      optionsByType.set(option.type, EventModel.parseOptions(option));
-    });
-
-    return optionsByType;
-  }
-
-  static parseOptions({type, offers}) {
-    let options = [];
-
-    offers.forEach(({title, price, accepted = false}) => {
-      options.push({
-        title,
-        type,
-        cost: price,
-        isActive: !!accepted,
-      });
-    });
-
-    return options;
   }
 
   static toRaw(event) {
@@ -115,9 +72,68 @@ export default class EventModel {
     return eventToSave;
   }
 
-  static _parseTime(date) {
-    const dateTime = moment(date, [`x`, DATE_FORMAT]);
+  static parseDestination(serverDestination) {
+    const destination = {};
 
-    return dateTime.isValid() ? dateTime.toDate() : new Date();
+    destination.destination = serverDestination.name || ``;
+    destination.description = serverDestination.description || ``;
+
+    if (Array.isArray(serverDestination.pictures)) {
+      destination.photos = serverDestination.pictures.map(({src}) => src);
+    }
+
+    return destination;
+  }
+
+  static parseDestinations(destinations) {
+    const destinationByName = new Map();
+
+
+    destinations.forEach((destination) => {
+      destinationByName.set(destination.name, EventModel.parseDestination(destination));
+    });
+
+    return destinationByName;
+  }
+
+  static toRawDestination({destination, description, photos}) {
+    return {
+      name: destination,
+      description,
+      pictures: photos.map((src) => ({src})),
+    };
+  }
+
+  static parseOptionsByType(options) {
+    const optionsByType = new Map();
+
+    options.forEach((option) => {
+      optionsByType.set(option.type, EventModel.parseOptions(option));
+    });
+
+    return optionsByType;
+  }
+
+  static parseOptions({type, offers}) {
+    let options = [];
+
+    offers.forEach(({title, price, accepted = false}) => {
+      options.push({
+        title,
+        type,
+        cost: price,
+        isActive: !!accepted,
+      });
+    });
+
+    return options;
+  }
+
+  static toRawOption(type, {title, cost}) {
+    return {
+      type,
+      title,
+      price: cost,
+    };
   }
 }

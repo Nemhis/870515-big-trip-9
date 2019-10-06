@@ -1,23 +1,43 @@
 /** IMPORTS **/
-import TripController, {EventAction} from "./controllers/trip";
-import StatisticController from "./controllers/statistic";
+import API from './api';
+import Storage from './storage';
+
+import EventProvider from './providers/event-provider';
+import OptionProvider from './providers/option-provider';
+import DestinationProvider from './providers/destination-provider';
+
+import TripController, {EventAction} from './controllers/trip';
+import StatisticController from './controllers/statistic';
+import FilterController from './controllers/filter';
+import EventModel from './event-model';
 
 import Menu from './components/menu';
 import TripInfo from './components/trip-info';
-import API from "./api";
+import Message from './components/message';
 
 import {MenuItem, calculateEventCost} from './data';
-import {render, Position, unrender} from "./utils";
-import FilterController from "./controllers/filter";
-import EventModel from "./event-model";
-import Message from "./components/message";
+import {render, Position, unrender} from './utils';
 
 /** CONSTANTS **/
 const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
 const END_POINT = `https://htmlacademy-es-9.appspot.com/big-trip/`;
+const EVENTS_STORE_KEY = `events-store-key`;
+const DESTINATIONS_STORE_KEY = `destinations-store-key`;
+const OPTIONS_STORE_KEY = `options-store-key`;
 
 /** VARIABLES **/
+
+const isOnline = () => window.navigator.onLine;
 const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
+const eventStorage = new Storage({key: EVENTS_STORE_KEY, storage: localStorage});
+const eventProvider = new EventProvider({api, storage: eventStorage, isOnline});
+
+const destinationsStorage = new Storage({key: DESTINATIONS_STORE_KEY, storage: localStorage});
+const destinationProvider = new DestinationProvider({api, storage: destinationsStorage, isOnline});
+
+const optionsStorage = new Storage({key: OPTIONS_STORE_KEY, storage: localStorage});
+const optionProvider = new OptionProvider({api, storage: optionsStorage, isOnline});
+
 const innerContainer = document.querySelector(`.page-main .page-body__container`);
 
 let eventsData = [];
@@ -45,16 +65,16 @@ const onDataChange = (actionType, id, update) => {
 
   switch (actionType) {
     case EventAction.DELETE:
-      promise = api.deleteEvent({id});
+      promise = eventProvider.deleteEvent({id});
       break;
     case EventAction.UPDATE:
-      promise = api.updateEvent({
+      promise = eventProvider.updateEvent({
         id,
         data: EventModel.toRaw(update)
       });
       break;
     case EventAction.CREATE:
-      promise = api.createEvent({data: EventModel.toRaw(update)});
+      promise = eventProvider.createEvent({data: EventModel.toRaw(update)});
       break;
   }
 
@@ -159,14 +179,23 @@ document
     tripController.toggleCreateEvent();
   });
 
-api
+window.addEventListener(`offline`, () => {
+  document.title = `${document.title}[OFFLINE]`;
+});
+
+window.addEventListener(`online`, () => {
+  document.title = document.title.split(`[OFFLINE]`)[0];
+  eventProvider.syncEvents();
+});
+
+destinationProvider
   .getDestinations()
   .then(tripController.setDestinations.bind(tripController));
 
-api
+optionProvider
   .getOptions()
   .then(tripController.setOptions.bind(tripController));
 
-api
+eventProvider
   .getEvents()
   .then(eventsLoaded);
