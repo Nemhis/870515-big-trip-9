@@ -35,8 +35,12 @@ self.addEventListener('fetch', (evt) => {
   evt.respondWith(
     fetch(evt.request)
       .then(function(response) {
-        caches.open(CACHE_NAME)
-          .then((cache) => cache.put(evt.request, response.clone()));
+        if (evt.request.method === 'GET') {
+          caches.open(CACHE_NAME)
+            .then((cache) => {
+              cache.put(evt.request, response.clone())
+            });
+        }
 
         return response.clone();
       })
