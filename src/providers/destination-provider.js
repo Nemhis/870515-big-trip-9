@@ -26,4 +26,4 @@ export default class DestinationProvider {
       return Promise.resolve(destinations);
     }
   }
-};
+}

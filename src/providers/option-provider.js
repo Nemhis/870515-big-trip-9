@@ -12,9 +12,9 @@ export default class OptionProvider {
       return this._api.getOptions()
         .then((optionsByType) => {
           optionsByType.forEach((options, type) => this._storage.setItem({
-              key: type,
-              item: options.map((option) => EventModel.toRawOption(type, option)),
-            }));
+            key: type,
+            item: options.map((option) => EventModel.toRawOption(type, option)),
+          }));
 
           return optionsByType;
         });
@@ -24,4 +24,4 @@ export default class OptionProvider {
       return Promise.resolve(options);
     }
   }
-};
+}

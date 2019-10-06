@@ -134,6 +134,6 @@ export default class EventModel {
       type,
       title,
       price: cost,
-    }
+    };
   }
 }

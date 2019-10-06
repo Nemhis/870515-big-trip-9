@@ -83,10 +83,10 @@ export default class API {
     const rawEvents = events.map((event) => EventModel.toRaw(event));
 
     return this._load({
-        url: `points/sync`,
-        method: Method.POST,
-        body: JSON.stringify(rawEvents),
-        headers: new Headers({'Content-Type': `application/json`})
-      });
+      url: `points/sync`,
+      method: Method.POST,
+      body: JSON.stringify(rawEvents),
+      headers: new Headers({'Content-Type': `application/json`})
+    });
   }
 }

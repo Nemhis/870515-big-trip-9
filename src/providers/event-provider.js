@@ -79,4 +79,4 @@ export default class EventProvider {
   static _generateId() {
     return Date.now() + Math.random();
   }
-};
+}

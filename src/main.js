@@ -26,6 +26,7 @@ const DESTINATIONS_STORE_KEY = `destinations-store-key`;
 const OPTIONS_STORE_KEY = `options-store-key`;
 
 /** VARIABLES **/
+
 const isOnline = () => window.navigator.onLine;
 const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 const eventStorage = new Storage({key: EVENTS_STORE_KEY, storage: localStorage});
@@ -179,7 +180,7 @@ document
   });
 
 window.addEventListener(`offline`, () => {
-  document.title = `${document.title}[OFFLINE]`
+  document.title = `${document.title}[OFFLINE]`;
 });
 
 window.addEventListener(`online`, () => {
