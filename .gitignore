@@ -15,5 +15,5 @@ node_modules/
 build/
 
 # Js сборка
-public/*.js
-public/*.js.map
+public/bundle.js
+public/bundle.js.map
