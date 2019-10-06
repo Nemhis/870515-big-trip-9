@@ -71,7 +71,9 @@ export default class EventProvider {
   }
 
   syncEvents() {
-    // return this._api.syncTasks({tasks: objectToArray(this._storage.getAll())});
+    const rawEvents = objectToArray(this._storage.getAll());
+
+    return this._api.syncEvents({events: EventModel.parseEvents(rawEvents)});
   }
 
   static _generateId() {

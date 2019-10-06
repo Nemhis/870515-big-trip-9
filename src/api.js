@@ -78,4 +78,15 @@ export default class API {
   deleteEvent({id}) {
     return this._load({url: `points/${id}`, method: Method.DELETE});
   }
+
+  syncEvents({events}) {
+    const rawEvents = events.map((event) => EventModel.toRaw(event));
+
+    return this._load({
+        url: `points/sync`,
+        method: Method.POST,
+        body: JSON.stringify(rawEvents),
+        headers: new Headers({'Content-Type': `application/json`})
+      });
+  }
 }
